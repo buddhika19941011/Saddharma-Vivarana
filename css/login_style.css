@@ -1,0 +1,984 @@
+/* ============================================================
+   සද්ධර්ම විවරණ – LOGIN.HTML පමණක් සඳහා වන ශෛලීන්
+   ගොනුව: css/login_style.css
+   ============================================================ */
+
+/* ----- 1. RESET & BASE ----- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 20px;
+    scroll-behavior: smooth;
+}
+
+html.dark {
+    color-scheme: dark;
+}
+
+body {
+    font-family: 'Noto Sans Sinhala', 'Abhaya Libre', serif;
+    background: #fbf7f0;
+    color: #1e1a17;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.3s ease, color 0.3s ease;
+    line-height: 1.6;
+}
+
+html.dark body {
+    background: #130607;
+    color: #f0e6d8;
+}
+
+/* Lotus background pattern (subtle) */
+.lotus-bg {
+    background-image: radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.04) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.04) 0%, transparent 50%);
+}
+
+html.dark .lotus-bg {
+    background-image: radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.06) 0%, transparent 50%);
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+/* ----- 2. COLOR VARIABLES (light) ----- */
+:root {
+    --saffron-600: #d97706;
+    --saffron-500: #f59e0b;
+    --saffron-400: #fbbf24;
+
+    --card-bg: #ffffff;
+    --card-border: rgba(245, 158, 11, 0.12);
+    --input-bg: rgba(245, 158, 11, 0.04);
+    --input-border: rgba(245, 158, 11, 0.25);
+    --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.08);
+    --text-primary: #1e1a17;
+    --text-secondary: #4a3f38;
+    --text-muted: #7a6e64;
+    --tab-inactive: #64748b;
+    --footer-bg: rgba(255, 255, 255, 0.85);
+    --header-bg: rgba(255, 255, 255, 0.92);
+}
+
+/* ----- 3. DARK THEME OVERRIDES ----- */
+html.dark {
+    --card-bg: #1a0a0c;
+    --card-border: rgba(245, 158, 11, 0.10);
+    --input-bg: rgba(120, 60, 40, 0.25);
+    --input-border: rgba(245, 158, 11, 0.25);
+    --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+    --text-primary: #f0e6d8;
+    --text-secondary: #d4c8b8;
+    --text-muted: #a89888;
+    --tab-inactive: rgba(245, 158, 11, 0.5);
+    --footer-bg: rgba(19, 6, 7, 0.92);
+    --header-bg: rgba(19, 6, 7, 0.95);
+}
+
+/* ----- 4. HEADER ----- */
+.admin-header {
+    background: var(--header-bg);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 0.75rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    transition: background 0.3s, border-color 0.3s;
+}
+
+.header-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.header-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+}
+
+/* Brand */
+.brand-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1 1 auto;
+    min-width: 200px;
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.logo-wrapper {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    border: 2px solid rgba(245, 158, 11, 0.30);
+    overflow: hidden;
+    background: rgba(245, 158, 11, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.brand-text {
+    line-height: 1.2;
+}
+
+.brand-title {
+    font-family: 'Abhaya Libre', serif;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+    transition: color 0.3s;
+}
+
+html.dark .brand-title {
+    color: #fbbf24;
+}
+
+.brand-sub {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-top: 0.1rem;
+    letter-spacing: 0.3px;
+}
+
+/* Header Controls */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Login Navigation */
+.login-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+    padding: 0.2rem 0.3rem;
+}
+
+.nav-link:hover {
+    color: #d97706;
+}
+
+html.dark .nav-link:hover {
+    color: #fbbf24;
+}
+
+/* Action Buttons (Theme Toggle) */
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 9999px;
+    border: 1px solid rgba(245, 158, 11, 0.15);
+    background: rgba(245, 158, 11, 0.06);
+    color: #b45309;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+    font-size: 0.85rem;
+}
+
+html.dark .icon-btn {
+    background: rgba(120, 60, 40, 0.20);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.15);
+}
+
+.icon-btn:hover {
+    background: rgba(245, 158, 11, 0.18);
+    transform: scale(1.04);
+}
+
+html.dark .icon-btn:hover {
+    background: rgba(245, 158, 11, 0.20);
+}
+
+/* ----- 5. MAIN LAYOUT (login specific) ----- */
+.login-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    min-height: 60vh;
+}
+
+/* ----- 6. TAB NAVIGATION ----- */
+.tab-nav {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1.5rem;
+    padding: 0.5rem;
+    box-shadow: var(--shadow);
+    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.tab-nav-inner {
+    display: flex;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 1rem;
+    padding: 0.25rem;
+    gap: 0.25rem;
+}
+
+html.dark .tab-nav-inner {
+    background: rgba(120, 60, 40, 0.15);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.6rem 0.8rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.25s ease;
+    background: transparent;
+    color: var(--tab-inactive);
+}
+
+.tab-btn i {
+    font-size: 0.8rem;
+}
+
+.tab-btn.active {
+    background: #d97706;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.30);
+}
+
+html.dark .tab-btn.active {
+    background: #d97706;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+}
+
+.tab-btn:not(.active):hover {
+    color: #d97706;
+    background: rgba(245, 158, 11, 0.06);
+}
+
+html.dark .tab-btn:not(.active):hover {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.08);
+}
+
+/* Login Tabs (specific) */
+.login-tabs {
+    margin-bottom: 1.25rem;
+    padding: 0.25rem;
+}
+
+.login-tabs .tab-btn {
+    font-size: 0.65rem;
+    padding: 0.4rem 0.6rem;
+}
+
+.login-tabs .tab-btn i {
+    font-size: 0.7rem;
+}
+
+/* ----- 7. CARDS (Login Card) ----- */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1.5rem;
+    padding: 1.5rem 1.5rem 1.8rem;
+    box-shadow: var(--shadow);
+    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 28rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow-lg);
+    padding: 1.5rem 1.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.login-card-decor {
+    position: absolute;
+    right: -1.5rem;
+    bottom: -1.5rem;
+    opacity: 0.05;
+    color: #d97706;
+    pointer-events: none;
+    font-size: 8rem;
+}
+
+html.dark .login-card-decor {
+    opacity: 0.03;
+    color: #fbbf24;
+}
+
+/* ----- 8. FORM ELEMENTS (common) ----- */
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.field label {
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    transition: color 0.3s;
+}
+
+html.dark .field label {
+    color: #fbbf24;
+}
+
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    padding: 0.5rem 0.8rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    font-family: inherit;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.3s, color 0.3s;
+    outline: none;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+    border-color: #d97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+}
+
+html.dark .field input:focus,
+html.dark .field select:focus,
+html.dark .field textarea:focus {
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.12);
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+/* Input with icon */
+.input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon-wrapper .input-icon {
+    position: absolute;
+    left: 0.7rem;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.input-icon-wrapper input {
+    width: 100%;
+    padding: 0.45rem 0.8rem 0.45rem 2.2rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    font-family: inherit;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.3s, color 0.3s;
+    outline: none;
+}
+
+.input-icon-wrapper input:focus {
+    border-color: #d97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.12);
+}
+
+html.dark .input-icon-wrapper input:focus {
+    border-color: #fbbf24;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.10);
+}
+
+.input-icon-wrapper input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.5;
+    font-size: 0.7rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.6rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 0.2rem;
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
+    color: #d97706;
+}
+
+html.dark .password-toggle:hover {
+    color: #fbbf24;
+}
+
+/* ----- 9. BUTTONS ----- */
+.btn-primary {
+    padding: 0.5rem 1.4rem;
+    border-radius: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+    background: #d97706;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+}
+
+.btn-primary:hover {
+    background: #b45309;
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(217, 119, 6, 0.30);
+}
+
+.login-submit {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    background: #d97706;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+    margin-top: 0.25rem;
+}
+
+.login-submit:hover {
+    background: #b45309;
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(217, 119, 6, 0.30);
+}
+
+/* ----- 10. LOGIN SPECIFIC STYLES ----- */
+
+/* Login Header */
+.login-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.login-title {
+    font-family: 'Abhaya Libre', serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    transition: color 0.3s;
+}
+
+html.dark .login-title {
+    color: #fbbf24;
+}
+
+.login-subtitle {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Alert Box */
+.alert-box {
+    padding: 0.6rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+    margin-bottom: 1rem;
+    transition: all 0.3s;
+}
+
+.alert-box.hidden {
+    display: none !important;
+}
+
+.alert-error {
+    background: rgba(220, 38, 38, 0.08);
+    color: #dc2626;
+    border-color: rgba(220, 38, 38, 0.20);
+}
+
+.alert-success {
+    background: rgba(5, 150, 105, 0.08);
+    color: #059669;
+    border-color: rgba(5, 150, 105, 0.20);
+}
+
+.alert-info {
+    background: rgba(59, 130, 246, 0.08);
+    color: #2563eb;
+    border-color: rgba(59, 130, 246, 0.20);
+}
+
+.alert-warning {
+    background: rgba(217, 119, 6, 0.08);
+    color: #d97706;
+    border-color: rgba(217, 119, 6, 0.20);
+}
+
+/* Social Login */
+.social-login {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.social-btn {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--card-border);
+    background: rgba(245, 158, 11, 0.04);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: inherit;
+}
+
+.social-btn:hover {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.25);
+}
+
+html.dark .social-btn {
+    background: rgba(120, 60, 40, 0.15);
+    color: #d4c8b8;
+}
+
+html.dark .social-btn:hover {
+    background: rgba(245, 158, 11, 0.10);
+}
+
+.social-btn .social-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+    flex-shrink: 0;
+}
+
+.social-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.social-btn.small {
+    font-size: 0.6rem;
+    padding: 0.35rem 0.6rem;
+}
+
+.social-btn.small i {
+    font-size: 0.7rem;
+}
+
+/* Divider */
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--card-border);
+}
+
+.divider-text {
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+/* Login Forms */
+.login-form-container {
+    display: block;
+}
+
+.login-form-container.hidden {
+    display: none !important;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.login-form .field {
+    gap: 0.2rem;
+}
+
+.login-form .field label {
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--text-secondary);
+}
+
+html.dark .login-form .field label {
+    color: #fbbf24;
+}
+
+/* Login Options */
+.login-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+html.dark .checkbox-label {
+    color: #d4c8b8;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 0.9rem;
+    height: 0.9rem;
+    accent-color: #d97706;
+    border-radius: 0.2rem;
+    cursor: pointer;
+}
+
+.forgot-link {
+    color: #d97706;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+html.dark .forgot-link {
+    color: #fbbf24;
+}
+
+/* Terms Box */
+.terms-box {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    background: rgba(245, 158, 11, 0.04);
+    border: 1px solid rgba(245, 158, 11, 0.10);
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+html.dark .terms-box {
+    color: #d4c8b8;
+    background: rgba(120, 60, 40, 0.10);
+}
+
+.terms-link {
+    color: #d97706;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+html.dark .terms-link {
+    color: #fbbf24;
+}
+
+/* Hidden utility */
+.hidden {
+    display: none !important;
+}
+
+/* ----- 11. FOOTER ----- */
+.admin-footer {
+    border-top: 1px solid var(--card-border);
+    background: var(--footer-bg);
+    backdrop-filter: blur(4px);
+    padding: 1.5rem 1.5rem 1rem;
+    margin-top: 2rem;
+    text-align: center;
+    transition: background 0.3s, border-color 0.3s;
+}
+
+.footer-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.footer-logo {
+    display: flex;
+    justify-content: center;
+}
+
+.footer-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    opacity: 0.5;
+    border-radius: 9999px;
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3rem 0.6rem;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.footer-links a {
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: #d97706;
+}
+
+html.dark .footer-links a:hover {
+    color: #fbbf24;
+}
+
+.footer-copy {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.footer-copy:first-of-type {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+html.dark .footer-copy:first-of-type {
+    color: rgba(251, 191, 36, 0.60);
+}
+
+/* ----- 12. RESPONSIVE ----- */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .brand-group {
+        justify-content: center;
+    }
+
+    .header-controls {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .login-nav {
+        display: none;
+    }
+
+    .login-card {
+        padding: 1.25rem;
+    }
+
+    .social-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .login-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-header {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .brand-title {
+        font-size: 0.85rem;
+    }
+
+    .brand-sub {
+        font-size: 0.5rem;
+    }
+
+    .logo-wrapper {
+        width: 36px;
+        height: 36px;
+    }
+
+    .login-main {
+        padding: 0.75rem;
+    }
+
+    .login-card {
+        padding: 1rem;
+        border-radius: 1rem;
+    }
+
+    .login-title {
+        font-size: 1.1rem;
+    }
+
+    .login-tabs .tab-btn {
+        font-size: 0.55rem;
+        padding: 0.3rem 0.4rem;
+    }
+
+    .login-tabs .tab-btn i {
+        font-size: 0.6rem;
+    }
+
+    .social-btn {
+        font-size: 0.6rem;
+        padding: 0.4rem 0.7rem;
+    }
+
+    .tab-btn {
+        font-size: 0.55rem;
+        padding: 0.3rem 0.4rem;
+        gap: 0.25rem;
+    }
+
+    .tab-btn i {
+        font-size: 0.6rem;
+    }
+
+    .card {
+        padding: 0.75rem;
+        border-radius: 1rem;
+    }
+}
+
+/* ----- 13. PRINT STYLES ----- */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+    }
+
+    .admin-footer {
+        border-top: 1px solid #ccc !important;
+    }
+}

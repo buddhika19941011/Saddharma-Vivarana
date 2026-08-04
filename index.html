@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="si">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ත්‍රිපිටක සූත්‍ර නාමාවලිය – ප්‍රධාන පිටුව</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/index_style.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@500;700;800&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body class="lotus-bg">
+
+    <!-- ===== HEADER ===== -->
+    <header class="admin-header no-print">
+        <div class="header-inner">
+            <div class="header-container">
+                <!-- Brand -->
+                <div class="brand-group">
+                    <div class="logo-wrapper">
+                        <img src="images/sv_logo.png" alt="Dharmachakra Logo" class="logo-img"
+                            onerror="this.onerror=null; this.src='https://placehold.co/100x100/f59e0b/ffffff?text=☸️'" />
+                    </div>
+                    <div class="brand-text">
+                        <h1 class="brand-title">සද්ධර්ම විවරණ</h1>
+                        <p class="brand-sub">පිටක, නිකාය සහ වග්ගයන්ට අනුව සූත්‍ර දේශනා නාමාවලිය</p>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="searchIndex" placeholder="සූත්‍රයක්, වග්ගයක් හෝ නිකායක් සොයන්න..."
+                            onkeyup="filterIndex()" />
+                    </div>
+                </div>
+                <!-- Auth & Theme -->
+                <div class="header-controls">
+                    <div id="authContainer" class="auth-wrapper">
+                        <button onclick="loginWithGoogle()" class="btn-google">
+                            <i class="fa-brands fa-google"></i>
+                            <span class="btn-label">Google මඟින් ලොග් වන්න</span>
+                        </button>
+                        <a href="login.html" class="btn-login">
+                            <i class="fa-solid fa-user"></i>
+                            <span>පිවිසුම</span>
+                        </a>
+                    </div>
+
+
+                    <div class="action-buttons">
+                        <button onclick="toggleTheme()" class="icon-btn theme-toggle" title="තේමාව මාරු කරන්න">
+                            <i id="themeIcon" class="fa-solid fa-sun"></i>
+                        </button>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+
+        <!-- Intro Banner -->
+        <section class="card banner-card">
+            <div class="banner-content">
+                <h2 class="banner-title">ධර්ම සංගායනා ව්‍යුහය</h2>
+                <p class="banner-sub">පහත දැක්වෙන පිටක වර්ගීකරණයෙන් අදාළ නිකාය සහ වග්ගය තෝරා ඔබට අවශ්‍ය සූත්‍ර දේශනාව
+                    කියවීම සඳහා ප්‍රවේශ විය හැක.</p>
+            </div>
+        </section>
+
+        <!-- Sutta Accordion -->
+        <div id="pitakaAccordion" class="accordion-wrapper">
+            <div class="loading-state">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <p>ත්‍රිපිටක දත්ත සමුදායෙන් සූත්‍ර පූරණය වෙමින් පවතී…</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="admin-footer">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <img src="images/sv_logo.png" alt="Dharmachakra" class="footer-icon"
+                    onerror="this.onerror=null; this.src='https://placehold.co/50x50/f59e0b/ffffff?text=☸️'" />
+            </div>
+            <div class="footer-links">
+                <a href="admin.html">පරිපාලනය</a>
+                <span>•</span>
+                <a href="about.html">අප ගැන</a>
+                <span>•</span>
+                <a href="suththra.html">සූත්‍ර කියවන්න</a>
+                <span>•</span>
+                <a href="terms.html">භාවිත නියමයන්</a>
+                <span>•</span>
+                <a href="privacy.html">රහස්‍යතා ප්‍රකාශනය</a>
+            </div>
+            <p class="footer-copy">ත්‍රිපිටක පාඨ අධ්‍යයන සහ පර්යේෂණ ඒකකය</p>
+            <p class="footer-copy">© 2026 ශ්‍රී සද්ධර්ම ද්විභාෂා පීඨිකාව | උතුම් ධර්ම දානය උදෙසාම පමණි.</p>
+        </div>
+    </footer>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js" defer></script>
+
+    <script src="js/index.js" defer></script>
+
+</body>
+
+</html>

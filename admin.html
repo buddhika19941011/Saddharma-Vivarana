@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="si">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>සද්ධර්ම විවරණ – ඇඩ්මින් පුවරුව</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/admin_style.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@500;700;800&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body class="lotus-bg">
+
+    <!-- ===== HEADER ===== -->
+    <header class="admin-header no-print">
+        <div class="header-inner">
+            <div class="header-container">
+                <div class="brand-group">
+                    <div class="logo-wrapper">
+                        <img src="images/sv_logo.png" alt="Dharmachakra Logo" class="logo-img"
+                            onerror="this.onerror=null; this.src='https://placehold.co/100x100/f59e0b/ffffff?text=☸️'" />
+                    </div>
+                    <div class="brand-text">
+                        <h1 class="brand-title">සද්ධර්ම විවරණ – ඇඩ්මින් පුවරුව</h1>
+                        <p class="brand-sub">ත්‍රිපිටක සූත්‍ර දත්ත කළමනාකරණය සහ පරිශීලක නියාමනය</p>
+                    </div>
+                </div>
+                <div class="header-controls">
+                    <div id="userInfoDisplay" class="user-badge">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span id="currentAdminEmail">පූරණය වෙමින්…</span>
+                    </div>
+                    <div class="action-buttons">
+
+                        <button onclick="logoutAdmin()" class="btn-logout">
+                            <i class="fa-solid fa-right-from-bracket"></i> පිටවීම
+                        </button>
+                        <button onclick="toggleTheme()" class="icon-btn theme-toggle" title="තේමාව මාරු කරන්න">
+                            <i id="themeIcon" class="fa-solid fa-sun"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main class="main-content">
+
+        <!-- Tab Navigation -->
+        <section class="tab-nav">
+            <div class="tab-nav-inner">
+                <button onclick="switchTab('sutta_tab')" id="btnTab-sutta" class="tab-btn active">
+                    <i class="fa-solid fa-book-journal-whills"></i> සූත්‍ර ඇතුළත් කිරීම / පාලනය
+                </button>
+                <button onclick="switchTab('user_tab')" id="btnTab-user" class="tab-btn">
+                    <i class="fa-solid fa-users-gear"></i> පරිශීලක නියාමනය
+                </button>
+            </div>
+        </section>
+
+        <!-- ===== SUTTA TAB ===== -->
+        <section id="sutta_tab" class="tab-panel">
+
+            <!-- Sutta Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-pen-nib"></i>
+                        <span id="formTitleText">නව සූත්‍ර දේශනාවක් එක් කිරීම</span>
+                    </h2>
+                    <button type="button" onclick="resetSuttaForm()" class="reset-link">
+                        <i class="fa-solid fa-rotate"></i> ෆෝර්මය මුල සිට
+                    </button>
+                </div>
+
+                <form id="suttaForm" class="sutta-form">
+                    <input type="hidden" id="edit_sutta_id" value="" />
+
+                    <!-- Metadata row 1 -->
+                    <div class="form-grid-4">
+                        <div class="field">
+                            <label for="sutta_id_input">සූත්‍රයේ අද්විතීය ID (Slug)</label>
+                            <input type="text" id="sutta_id_input" placeholder="උදා: karaniya_metta" required />
+                        </div>
+                        <div class="field">
+                            <label for="title">සූත්‍රයේ නම (Title)</label>
+                            <input type="text" id="title" placeholder="උදා: කරණීයමෙත්ත සූත්‍රය" required />
+                        </div>
+                        <div class="field">
+                            <label for="subtitle">උප සිරැසිය (Subtitle)</label>
+                            <input type="text" id="subtitle" placeholder="උදා: Karaṇīyametta Sutta – Verse 1–10" />
+                        </div>
+                        <div class="field">
+                            <label for="order_no">අනුපිළිවෙල අංකය</label>
+                            <input type="number" id="order_no" value="1" required />
+                        </div>
+                    </div>
+
+                    <!-- Metadata row 2 -->
+                    <div class="form-grid-4">
+                        <div class="field">
+                            <label for="pitaka">පිටකය (Pitaka)</label>
+                            <input type="text" id="pitaka" placeholder="උදා: සූත්‍ර පිටකය" required />
+                        </div>
+                        <div class="field">
+                            <label for="nikaya">නිකාය (Nikaya)</label>
+                            <input type="text" id="nikaya" placeholder="උදා: ඛුද්දක නිකාය" required />
+                        </div>
+                        <div class="field">
+                            <label for="vagga">වග්ගය / පොත (Vagga)</label>
+                            <input type="text" id="vagga" placeholder="උදා: සූත්‍ර නිපාතය" />
+                        </div>
+                        <div class="field">
+                            <label for="speaker">දේශකයාණන් (Speaker)</label>
+                            <input type="text" id="speaker" placeholder="උදා: භාග්‍යවත් බුදුරජාණන් වහන්සේ" />
+                        </div>
+                    </div>
+
+                    <!-- Metadata row 3 -->
+                    <div class="form-grid-2">
+                        <div class="field">
+                            <label for="category">වර්ගීකරණ කාණ්ඩය (Category)</label>
+                            <input type="text" id="category" placeholder="උදා: ඛුද්දක නිකාය (Khuddaka Nikaya)" />
+                        </div>
+                        <div class="field">
+                            <label for="input_method">ඇතුළත් කිරීමේ ආකාරය</label>
+                            <select id="input_method" onchange="toggleInputMethod()">
+                                <option value="line_by_line">1. ඡේදයෙන් ඡේදය (Paragraph-by-Paragraph)</option>
+                                <option value="full_text">2. සම්පූර්ණ පෙළ (Full Text Block)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Passages -->
+                    <div class="section-divider">
+                        <h3><i class="fa-solid fa-quote-left"></i> සූත්‍ර ඡේද (Passages)</h3>
+                    </div>
+
+                    <div id="line_by_line_container" class="passage-container">
+                        <div id="passages_dynamic_rows" class="dynamic-rows"></div>
+                        <button type="button" onclick="addPassageRow()" class="add-row-btn">
+                            <i class="fa-solid fa-plus"></i> තවත් ඡේදයක් එක් කරන්න
+                        </button>
+                    </div>
+
+                    <div id="full_text_container" class="full-text-container hidden">
+                        <div class="form-grid-2">
+                            <div class="field">
+                                <label for="full_pali_text">පාලි සම්පූර්ණ පෙළ</label>
+                                <textarea id="full_pali_text" rows="8"
+                                    placeholder="සම්පූර්ණ පාලි පෙළ මෙහි ඇතුළත් කරන්න…"></textarea>
+                            </div>
+                            <div class="field">
+                                <label for="full_sinhala_text">සිංහල සම්පූර්ණ පෙළ</label>
+                                <textarea id="full_sinhala_text" rows="8"
+                                    placeholder="සම්පූර්ණ සිංහල පෙළ මෙහි ඇතුළත් කරන්න…"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Glossary -->
+                    <div class="section-divider">
+                        <h3><i class="fa-solid fa-spell-check"></i> පද නිරුක්ති සහ වචනාර්ථ විග්‍රහය (Glossary)</h3>
+                        <select id="glossary_input_method" onchange="toggleGlossaryInputMethod()"
+                            class="glossary-method-select">
+                            <option value="bulk_paste">1. එකවර Copy-Paste (Bulk)</option>
+                            <option value="line_by_line">2. තනි තනිව (Row by Row)</option>
+                        </select>
+                    </div>
+
+                    <div id="glossary_bulk_container" class="glossary-bulk">
+                        <label class="helper-label">වචනය සහ තේරුම ‘-’ හෝ ‘:’ ලකුණින් වෙන් කර පේළියෙන් පේළිය</label>
+                        <textarea id="full_glossary_text" rows="6"
+                            placeholder="අත්තා – ආත්මය&#10;අනත්තා – අනාත්මය&#10;දුක්ඛං – දුක"></textarea>
+                    </div>
+
+                    <div id="glossary_line_container" class="glossary-rows-container hidden">
+                        <div id="glossary_dynamic_rows" class="dynamic-rows"></div>
+                        <button type="button" onclick="addGlossaryRow()" class="add-row-btn">
+                            <i class="fa-solid fa-plus"></i> තවත් නිරුක්ති වදනක් එක් කරන්න
+                        </button>
+                    </div>
+
+                    <!-- Form actions -->
+                    <div class="form-actions">
+                        <button type="button" onclick="resetSuttaForm()" class="btn-secondary">
+                            <i class="fa-solid fa-xmark"></i> අවලංගු කරන්න
+                        </button>
+                        <button type="submit" id="saveSuttaBtn" class="btn-primary">
+                            <i class="fa-solid fa-floppy-disk"></i> සූත්‍රය සුරකින්න
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Sutta List -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-table-list"></i> දැනට පද්ධතියේ පවතින සූත්‍ර නාමාවලිය
+                    </h3>
+                    <button onclick="loadSuttasTable()" class="refresh-btn">
+                        <i class="fa-solid fa-rotate-right"></i> නැවත පූරණය
+                    </button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>අංකය</th>
+                                <th>ID</th>
+                                <th>සූත්‍රයේ නම</th>
+                                <th>නිකාය / පිටකය</th>
+                                <th class="text-center">ක්‍රියාකාරකම්</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suttas_table_body">
+                            <tr>
+                                <td colspan="5" class="loading-msg">දත්ත පූරණය වෙමින්…</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== USER TAB ===== -->
+        <section id="user_tab" class="tab-panel hidden">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title"><i class="fa-solid fa-users-gear"></i> පරිශීලක නියාමනය සහ බලතල</h2>
+                        <p class="card-sub">ලියාපදිංචි පරිශීලකයන්ගේ Roles (Admin, Editor, Viewer) වෙනස් කිරීම සහ Block /
+                            Unblock කිරීම.</p>
+                    </div>
+                    <button onclick="loadUsersTable()" class="refresh-btn">
+                        <i class="fa-solid fa-rotate-right"></i> යාවත්කාලීන කරන්න
+                    </button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>නම</th>
+                                <th>ඊමේල් ලිපිනය</th>
+                                <th>භූමිකාව (Role)</th>
+                                <th>තත්ත්වය (Status)</th>
+                                <th class="text-center">ක්‍රියාකාරකම්</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users_table_body">
+                            <tr>
+                                <td colspan="5" class="loading-msg">පරිශීලක දත්ත පූරණය වෙමින්…</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="admin-footer">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <img src="images/sv_logo.png" alt="Dharmachakra" class="footer-icon"
+                    onerror="this.onerror=null; this.src='https://placehold.co/50x50/f59e0b/ffffff?text=☸️'" />
+            </div>
+            <div class="footer-links">
+                <a href="index.html">මුල් පිටුව</a>
+                <span>•</span>
+                <a href="about.html">අප ගැන</a>
+                <span>•</span>
+                <a href="suththra.html">සූත්‍ර කියවන්න</a>
+                <span>•</span>
+                <a href="terms.html">භාවිත නියමයන්</a>
+                <span>•</span>
+                <a href="privacy.html">රහස්‍යතා ප්‍රකාශනය</a>
+            </div>
+            <p class="footer-copy">ත්‍රිපිටක පාඨ අධ්‍යයන සහ පර්යේෂණ ඒකකය</p>
+            <p class="footer-copy">© 2026 ශ්‍රී සද්ධර්ම ද්විභාෂා පීඨිකාව | උතුම් ධර්ම දානය උදෙසාම පමණි.</p>
+        </div>
+    </footer>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js" defer></script>
+    <script src="js/login.js" defer></script>
+    <script src="js/index.js" defer></script>
+    <script src="js/admin-panel.js" defer></script>
+
+</body>
+
+</html>

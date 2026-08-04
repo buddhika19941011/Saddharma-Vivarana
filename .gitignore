@@ -1,0 +1,94 @@
+<<<<<<< HEAD
+# ==========================================
+# සද්ධර්ම විවරණ (Saddharma Vivarana) - .gitignore
+# ==========================================
+
+# 1. Node Modules & Package Management Files (අප්ලෝඩ් නොවිය යුතු ගොනු)
+node_modules/
+package.json
+package-lock.json
+
+# 2. Tailwind Build & Source Configs
+tailwind.config
+tailwind.config.js
+input.css
+assets/css/input.css
+
+# 3. Supabase Secret Keys & Environment Data
+.env
+.env.local
+.env.*.local
+
+# 4. Logs & Notes (තාවකාලික සටහන්)
+*.log
+changes.txt
+
+# 5. OS Generated Files (මෙහෙයුම් පද්ධති තාවකාලික ගොනු)
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# 6. Code Editor Settings (VS Code)
+.vscode/*
+!.vscode/settings.json
+.idea/
+=======
+# ==========================================
+# සද්ධර්ම විවරණ (Saddharma Vivarana) - .gitignore
+# ==========================================
+
+# 1. Node Modules & Package Management Files (අප්ලෝඩ් නොවිය යුතු ගොනු)
+node_modules/
+package.json
+package-lock.json
+
+<<<<<<< HEAD
+package.json
+package-lock.json
+=======
+# 2. Tailwind Build & Source Configs
+>>>>>>> 6f7945a (Update gitignore to exclude package and input config files)
+tailwind.config
+tailwind.config.js
+input.css
+assets/css/input.css
+
+# 3. Supabase Secret Keys & Environment Data
+.env
+.env.local
+.env.*.local
+
+# 4. Logs & Notes (තාවකාලික සටහන්)
+*.log
+changes.txt
+
+# 5. OS Generated Files (මෙහෙයුම් පද්ධති තාවකාලික ගොනු)
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+<<<<<<< HEAD
+# IDE සහ Code Editor සැකසුම් (VS Code)
+.vscode/
+.idea/
+=======
+# 6. Code Editor Settings (VS Code)
+.vscode/*
+!.vscode/settings.json
+.idea/
+>>>>>>> 6f7945a (Update gitignore to exclude package and input config files)
+>>>>>>> ccf471283245aa0d5f23fbae99cd62c3409689e0

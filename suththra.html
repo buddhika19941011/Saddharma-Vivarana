@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="si">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ත්‍රිපිටක පාලි-සිංහල පරිවර්තනය</title>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- ප්‍රධාන ශෛලීන් ගොනුව (style.css) -->
+    <link rel="stylesheet" href="css/suththra_style.css" />
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@500;700;800&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body class="lotus-bg">
+
+    <!-- ============================================================
+    ශීර්ෂකය (Header)
+    ============================================================ -->
+    <header class="admin-header no-print">
+        <div class="header-inner">
+            <div class="header-container">
+
+                <!-- වෙළඳ ලාංඡනය සහ පිටු මාතෘකාව -->
+                <div class="brand-group">
+                    <div class="logo-wrapper">
+                        <img src="images/sv_logo.png" alt="Dharmachakra Logo" class="logo-img"
+                            onerror="this.onerror=null; this.src='https://placehold.co/100x100/f59e0b/ffffff?text=☸️'" />
+                    </div>
+                    <div class="brand-text">
+                        <h1 class="brand-title">ත්‍රිපිටක පාලි-සිංහල පරිවර්තනය</h1>
+                        <p class="brand-sub">සන්සන්දනාත්මක පාලි-සිංහල ශාස්ත්‍රීය අධ්‍යයන</p>
+                    </div>
+                </div>
+
+                <!-- දකුණු පස පාලක මෙවලම්: සෙවුම, අකුරු, මුද්‍රණය, තේමාව -->
+                <div class="header-controls">
+                    <!-- සෙවුම් තීරුව -->
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="searchQuery" placeholder="පාලි, සිංහල හෝ නිරුක්ති වදනක් සොයන්න..."
+                            onkeyup="searchSutta()" />
+                    </div>
+
+                    <!-- ක්‍රියාකාරී බොත්තම් -->
+                    <div class="action-buttons">
+                        <!-- අකුරු ප්‍රමාණ පාලනය -->
+                        <div class="font-controls">
+                            <button onclick="changeFontSize(-1)" class="font-btn" title="අකුරු කුඩා කරන්න">A-</button>
+                            <span id="fontSizeIndicator" class="font-indicator">100%</span>
+                            <button onclick="changeFontSize(1)" class="font-btn" title="අකුරු විශාල කරන්න">A+</button>
+                        </div>
+
+                        <!-- මුද්‍රණය කිරීම -->
+                        <button onclick="window.print()" class="icon-btn" title="මෙම පත්‍රය මුද්‍රණය කරන්න">
+                            <i class="fa-solid fa-print"></i>
+                        </button>
+
+                        <!-- තේමාව මාරු කිරීම -->
+                        <button onclick="toggleTheme()" class="icon-btn theme-toggle" title="තේමාව මාරු කරන්න">
+                            <i id="themeIcon" class="fa-solid fa-sun"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================
+    ප්‍රධාන අන්තර්ගතය (Main Content)
+    ============================================================ -->
+    <main class="main-content">
+
+        <!-- ===== පිටු ටැබ් පාලනය ===== -->
+        <section class="tab-nav">
+            <div class="tab-nav-inner">
+                <!-- සන්සන්දනාත්මක පිටුව -->
+                <button onclick="navigateToPage('comparative')" id="btnPage-comparative" class="tab-btn active">
+                    <i class="fa-solid fa-columns"></i> <span class="tab-label">පිටුව 01: සන්සන්දනය</span>
+                </button>
+                <!-- පාලි පමණක් පිටුව -->
+                <button onclick="navigateToPage('pali')" id="btnPage-pali" class="tab-btn">
+                    <i class="fa-solid fa-language"></i> <span class="tab-label">පිටුව 02: පාලි පමණි</span>
+                </button>
+                <!-- සිංහල පමණක් පිටුව -->
+                <button onclick="navigateToPage('sinhala')" id="btnPage-sinhala" class="tab-btn">
+                    <i class="fa-solid fa-feather-pointed"></i> <span class="tab-label">පිටුව 03: සිංහල පමණි</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ===== සූත්‍ර ශීර්ෂක තොරතුරු (Meta Banner) ===== -->
+        <section class="card banner-card sutta-meta-banner">
+            <div class="sutta-meta-inner">
+                <div>
+                    <!-- කාණ්ඩය / පිටකය -->
+                    <span id="metaCategory" class="meta-category-badge"></span>
+                    <!-- සූත්‍රයේ නම -->
+                    <h2 id="metaTitle" class="meta-title"></h2>
+                    <!-- උපසිරැසිය -->
+                    <p id="metaSubtitle" class="meta-subtitle"></p>
+                </div>
+                <!-- දේශකයාණන් -->
+                <div class="meta-speaker-box">
+                    <span class="meta-speaker-label">දේශකයාණන් වහන්සේ</span>
+                    <span id="metaSpeaker" class="meta-speaker-name"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== සූත්‍ර පෙළ කියවීමේ ප්‍රදේශය ===== -->
+        <section id="readerViewArea" class="card reader-card">
+
+            <!-- 1. සන්සන්දනාත්මක පිටුව -->
+            <div id="pageContainer-comparative" class="page-view">
+                <div class="page-header">
+                    <h3 class="page-title"><i class="fa-solid fa-columns"></i> සන්සන්දනාත්මක පාලි-සිංහල ඡේද ව්‍යුහය</h3>
+                    <span id="searchStatusInfo" class="search-status hidden">සෙවුම් පදය කහ පැහැයෙන් ඉස්මතු කර ඇත.</span>
+                    <span id="comparativeGeneralInfo" class="page-info">පාලි ඡේදයට සාපේක්ෂව සිංහල පරිවර්තනය ඉදිරියෙන්
+                        දිස්වේ.</span>
+                </div>
+                <div id="comparativeContentTable" class="comparative-grid"></div>
+            </div>
+
+            <!-- 2. පාලි පමණක් පිටුව -->
+            <div id="pageContainer-pali" class="page-view hidden">
+                <div class="page-header">
+                    <h3 class="page-title pali-title"><i class="fa-solid fa-language"></i> පාලි පාඨ ශෝධිත පත්‍රය</h3>
+                    <span class="page-info">පාලි පාඨය පමණක් මෙහි ඇත.</span>
+                </div>
+                <div id="paliOnlyContent" class="pali-only-grid"></div>
+            </div>
+
+            <!-- 3. සිංහල පමණක් පිටුව -->
+            <div id="pageContainer-sinhala" class="page-view hidden">
+                <div class="page-header">
+                    <h3 class="page-title sinhala-title"><i class="fa-solid fa-feather-pointed"></i> සිංහල පරිවර්තන
+                        පත්‍රය</h3>
+                    <span class="page-info">නිරවද්‍ය සිංහල පරිවර්තනය පමණි.</span>
+                </div>
+                <div id="sinhalaOnlyContent" class="sinhala-only-grid"></div>
+            </div>
+
+            <!-- 4. සම්පූර්ණ පද නිරුක්ති පිටුව -->
+            <div id="pageContainer-glossary" class="page-view hidden">
+                <div class="page-header">
+                    <h3 class="page-title"><i class="fa-solid fa-spell-check"></i> සම්පූර්ණ පද නිරුක්ති සහ වචනාර්ථ
+                        විග්‍රහය</h3>
+                    <span class="page-info">සූත්‍ර දේශනාවේ අඩංගු සියලුම පාලි වචනවල ගැඹුරු පද බෙදීම් සහ සිංහල
+                        තේරුම්.</span>
+                </div>
+                <div id="fullGlossaryContainer" class="glossary-full-grid"></div>
+            </div>
+
+        </section>
+
+        <!-- ===== පහළ පද නිරුක්ති සහායක (Glossary Helper) ===== -->
+        <section id="bottomGlossarySection" class="card bottom-glossary">
+            <h4 class="bottom-glossary-title">
+                <i class="fa-solid fa-spell-check"></i> පද නිරුක්ති සහ වචනාර්ථ විග්‍රහය (Sutta Glossary Helper)
+            </h4>
+            <p class="bottom-glossary-desc">සූත්‍රයේ අන්තර්ගත සංකීර්ණ පාලි වචනවල ගැඹුරු පද බෙදීම් සහ ඒවායේ සවිස්තරාත්මක
+                සිංහල තේරුම් පහතින් අධ්‍යයනය කළ හැක.</p>
+            <div id="glossaryContainer" class="glossary-preview-grid"></div>
+        </section>
+
+    </main>
+
+    <!-- ============================================================
+    පාදකය (Footer)
+    ============================================================ -->
+    <footer class="admin-footer">
+        <div class="footer-inner">
+            <!-- පාදක ලාංඡනය -->
+            <div class="footer-logo">
+                <img src="images/sv_logo.png" alt="Dharmachakra" class="footer-icon"
+                    onerror="this.onerror=null; this.src='https://placehold.co/50x50/f59e0b/ffffff?text=☸️'" />
+            </div>
+            <!-- පාදක සබැඳි -->
+            <div class="footer-links">
+                <a href="index.html">මුල් පිටුව</a>
+                <span>•</span>
+                <a href="about.html">අප ගැන</a>
+                <span>•</span>
+                <a href="terms.html">භාවිත නියමයන්</a>
+                <span>•</span>
+                <a href="privacy.html">රහස්‍යතා ප්‍රකාශනය</a>
+            </div>
+            <!-- ප්‍රකාශන හිමිකම් -->
+            <p class="footer-copy">ත්‍රිපිටක පාඨ අධ්‍යයන සහ පර්යේෂණ ඒකකය</p>
+            <p class="footer-copy">© 2026 ශ්‍රී සද්ධර්ම ද්විභාෂා පීඨිකාව | උතුම් ධර්ම දානය උදෙසාම පමණි.</p>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+    ජාවාස්ක්‍රිප්ට් ගොනු (Scripts)
+    ============================================================ -->
+    <!-- 1. Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js" defer></script>
+    <!-- 2. පරිශීලක සත්‍යාපන තර්කනය -->
+    <script src="js/login.js"></script>
+    <!-- 3. සූත්‍ර කියවීමේ ප්‍රධාන තර්කනය -->
+    <script src="js/suththra.js"></script>
+
+</body>
+
+</html>

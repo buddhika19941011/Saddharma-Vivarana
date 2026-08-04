@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="si">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>සද්ධර්ම විවරණ ඇතුල්වීමේ පිටුව</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/login_style.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@500;700;800&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+
+</head>
+
+<body class="lotus-bg">
+
+    <!-- ===== HEADER (similar to admin header) ===== -->
+    <header class="admin-header no-print">
+        <div class="header-inner">
+            <div class="header-container">
+
+                <!-- Brand -->
+                <div class="brand-group">
+                    <a href="index.html" class="brand-link">
+                        <div class="logo-wrapper">
+                            <img src="images/sv_logo.png" alt="Dharmachakra Logo" class="logo-img" />
+                        </div>
+                        <div class=" brand-text">
+                            <h1 class="brand-title">සද්ධර්ම විවරණ</h1>
+                            <p class="brand-sub">ධර්ම කරුණු අධ්‍යයනය සඳහා ප්‍රවේශ වන්න</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Auth Container (will be filled by JS) -->
+                <div id="authContainer" class="header-controls"></div>
+
+                <!-- Right: Navigation + Theme -->
+                <div class="header-controls">
+                    <nav class="login-nav">
+                        <a href="index.html" class="nav-link">මුල් පිටුව</a>
+                        <a href="suththra.html" class="nav-link">සූත්‍ර කියවන්න</a>
+                        <a href="about.html" class="nav-link">අප ගැන</a>
+                    </nav>
+                    <button onclick="toggleTheme()" class="icon-btn theme-toggle" title="තේමාව මාරු කරන්න">
+                        <i id="themeIcon" class="fa-solid fa-sun"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="login-main">
+
+        <div class="login-card">
+
+            <!-- Decorative Icon -->
+            <div class="login-card-decor">
+                <i class="fa-solid fa-dharmachakra"></i>
+            </div>
+
+            <!-- Header Text -->
+            <div class="login-header">
+                <h2 class="login-title">පරිශීලක ප්‍රවේශය</h2>
+                <p class="login-subtitle">ධර්ම කරුණු අධ්‍යයනය සහ සටහන් සුරැකීම සඳහා ප්‍රවේශ වන්න</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="tab-nav login-tabs">
+                <div class="tab-nav-inner">
+                    <button id="tabLogin" onclick="showLoginView()" class="tab-btn active">
+                        <i class="fa-solid fa-right-to-bracket"></i> ප්‍රවේශ වීම
+                    </button>
+                    <button id="tabRegister" onclick="showRegisterView()" class="tab-btn">
+                        <i class="fa-solid fa-user-plus"></i> ලියාපදිංචි වීම
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alert Box -->
+            <div id="authAlert" class="alert-box hidden"></div>
+
+            <!-- Social Login -->
+            <div class="social-login">
+                <button onclick="handleSocialLogin('google')" class="social-btn google-btn">
+                    <svg class="social-icon" viewBox="0 0 24 24">
+                        <path fill="#EA4335"
+                            d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.2 9 5 12 5z" />
+                        <path fill="#4285F4"
+                            d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
+                        <path fill="#FBBC05"
+                            d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z" />
+                        <path fill="#34A853"
+                            d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.2-6.4-5.2L1.9 16C3.7 19.7 7.5 22.3 12 23z" />
+                    </svg>
+                    <span>Google ගිණුමෙන් ප්‍රවේශ වන්න</span>
+                </button>
+
+                <div class="social-grid">
+                    <button onclick="handleSocialLogin('facebook')" class="social-btn small facebook-btn">
+                        <i class="fa-brands fa-facebook"></i> Facebook
+                    </button>
+                    <button onclick="handleSocialLogin('apple')" class="social-btn small apple-btn">
+                        <i class="fa-brands fa-apple"></i> Apple ID
+                    </button>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="login-divider">
+                <span class="divider-line"></span>
+                <span class="divider-text">හෝ</span>
+                <span class="divider-line"></span>
+            </div>
+
+            <!-- ===== LOGIN FORM ===== -->
+            <div id="loginForm" class="login-form-container">
+                <form onsubmit="handleLoginSubmit(event)" class="login-form">
+                    <div class="field">
+                        <label for="loginUsername">යූසර් නේම් / ඉමේල් ලිපිනය</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-user input-icon"></i>
+                            <input type="text" id="loginUsername" placeholder="username@gmail.com" />
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="loginPassword">මුරපදය (Password)</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input type="password" id="loginPassword" placeholder="••••••••" />
+                            <button type="button" class="password-toggle" id="toggleLoginPassword">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="login-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe" />
+                            <span>මා මතක තබා ගන්න</span>
+                        </label>
+                        <a href="#"
+                            onclick="showAlert('මුරපදය නැවත ලබාගැනීමේ ලිංකිය ඔබේ ඉමේල් ලිපිනයට යොමු කෙරේ.', 'info')"
+                            class="forgot-link">මුරපදය අමතක වුනිද?</a>
+                    </div>
+
+                    <button type="submit" class="btn-primary login-submit">
+                        <span>ප්‍රවේශ වන්න</span>
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- ===== REGISTER FORM ===== -->
+            <div id="registerForm" class="login-form-container hidden">
+                <form onsubmit="handleRegisterSubmit(event)" class="login-form">
+                    <div class="field">
+                        <label for="regFullName">සම්පූර්ණ නම</label>
+                        <input type="text" id="regFullName" placeholder="ඔබගේ නම ඇතුළත් කරන්න" />
+                    </div>
+
+                    <div class="field">
+                        <label for="regEmail">ඉමේල් ලිපිනය (Email)</label>
+                        <input type="email" id="regEmail" placeholder="example@gmail.com" />
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="field">
+                            <label for="registerPassword">මුරපදය</label>
+                            <div class="input-icon-wrapper">
+                                <input type="password" id="registerPassword" placeholder="••••••••" />
+                                <button type="button" class="password-toggle" id="toggleRegisterPassword">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="confirmPassword">මුරපදය තහවුරු කරන්න</label>
+                            <div class="input-icon-wrapper">
+                                <input type="password" id="confirmPassword" placeholder="••••••••" />
+                                <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="terms-box">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agreeTerms" />
+                            <span>
+                                මම සද්ධර්ම විවරණ පද්ධතියේ
+                                <a href="terms.html" class="terms-link">භාවිත නියමයන්</a>
+                                සහ
+                                <a href="privacy.html" class="terms-link">රහස්‍යතා ප්‍රකාශනයට</a>
+                                එකඟ වෙමි.
+                            </span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-primary login-submit">
+                        <span>ලියාපදිංචි වන්න</span>
+                        <i class="fa-solid fa-user-check"></i>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="admin-footer">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <img src="images/sv_logo.png" alt="Dharmachakra" class="footer-icon"
+                    onerror="this.onerror=null; this.src='https://placehold.co/50x50/f59e0b/ffffff?text=☸️'" />
+            </div>
+            <div class="footer-links">
+                <a href="index.html">මුල් පිටුව</a>
+                <span>•</span>
+                <a href="suththra.html">සූත්‍ර කියවන්න</a>
+                <span>•</span>
+                <a href="terms.html">භාවිත නියමයන්</a>
+                <span>•</span>
+                <a href="privacy.html">රහස්‍යතා ප්‍රකාශනය</a>
+            </div>
+            <p class="footer-copy">ත්‍රිපිටක පාඨ අධ්‍යයන සහ පර්යේෂණ ඒකකය</p>
+            <p class="footer-copy">© 2026 ශ්‍රී සද්ධර්ම ද්විභාෂා පීඨිකාව | උතුම් ධර්ම දානය උදෙසාම පමණි.</p>
+        </div>
+    </footer>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js" defer></script>
+    <script src="js/login.js" defer></script>
+    <script src="js/suththra.js" defer></script>
+
+</body>
+
+</html>
