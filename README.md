@@ -1,0 +1,80 @@
+# ☸️ සද්ධර්ම විවරණ - ත්‍රිපිටක පාලි-සිංහල ශාස්ත්‍රීය පීඨිකාව
+
+**සද්ධර්ම විවරණ** යනු ත්‍රිපිටක පාලි පාඨ සහ ඒවායේ නිරවද්‍ය සිංහල පරිවර්තනයන් එකිනෙක සන්සන්දනය කරමින්, ගැඹුරු පද නිරුක්ති විග්‍රහයන් සහිතව ධර්ම කරුණු අධ්‍යයනය කිරීමට සකස් කරන ලද අන්තර්ක්‍රියාකාරී (Interactive) වෙබ් අඩවියකි.
+
+---
+
+## 🌟 ප්‍රධාන විශේෂාංග (Key Features)
+
+- **ද්විභාෂා සන්සන්දනාත්මක පීඨිකාව (Comparative Reader):** 
+    පාලි ඡේදයට සාපේක්ෂව සිංහල පරිවර්තනය පේළියෙන් පේළිය සන්සන්දනය කර කියවීමේ හැකියාව.
+
+- **ත්‍රිවිධ කියවීම් මාදිලි (Multi-View Modes):**
+
+  1. සන්සන්දනාත්මක පාලි-සිංහල පීඨිකාව
+  2. පාලි පාඨ ශෝධිත පත්‍රය (Pali Only)
+  3. සිංහල පරිවර්තන පත්‍රය (Sinhala Only)
+  
+- **පද නිරුක්ති සහ වචනාර්ථ විග්‍රහය (Sutta Glossary):** 
+    සූත්‍රයේ අඩංගු සංකීර්ණ පාලි වචනවල පද බෙදීම් සහ ගැඹුරු සිංහල අර්ථයන් වෙනම අධ්‍යයනය කිරීමේ පහසුකම.
+	
+- **සජීවී සෙවුම් පද්ධතිය (Live Full-Text Search):**
+    පාලි, සිංහල හෝ නිරුක්ති වචනයක් ගැසූ සැණින් සූත්‍ර අභ්‍යන්තරයේ සෙවුම් පදය Highlight වී මතුවීම.
+	
+- **අකුරු ප්‍රමාණය පාලනය (Font Zooming):** 
+    ඕනෑම තිරයකට ගැලපෙන සේ අකුරු කුඩා/විශාල (A- / A+) කර ගැනීමේ පහසුකම.
+	
+- **අඳුරු මාදිලිය (Dark Mode & Light Mode):** 
+    රාත්‍රී කාලයේ පහසුවෙන් කියවීම සඳහා ඇසට පහසු මාරුවන තේමාව.
+	
+- **මුද්‍රණ සහෘද බව (Print Friendly):** 
+    ඕනෑම සූත්‍රයක් වෙනම අලංකාර ලෙස මුද්‍රණය කරගැනීමට හෝ PDF ලෙස Save කරගැනීමට ඇති හැකියාව.
+
+---
+
+## 🛠️ භාවිත කළ තාක්ෂණික මෙවලම් (Tech Stack)
+
+- **Frontend:**
+    HTML5, Tailwind CSS (via CDN), JavaScript (ES6+), FontAwesome Icons, Google Fonts (Noto Sans Sinhala / Abhaya Libre).
+
+- **Database / API:** 
+    Supabase (PostgreSQL, REST API, Full-Text Search).
+
+- **Hosting & Infrastructure:** 
+    Cloudflare Pages (Global Edge CDN).
+
+- **Version Control:** GitHub.
+
+---
+
+## 📂 ගොනු ව්‍යුහය (Directory Structure)
+
+```text
+
+├── about.html                            # අප ගැන පිටුව (About Us Page)
+├── admin.html                            # පරිපාලක පාලක පුවරුව (Admin Dashboard)
+├── index.html                            # ත්‍රිපිටක සූත්‍ර නාමාවලිය සහ ප්‍රධාන පිටුව
+├── list.txt                              # ගොනු නාමාවලි සටහන (Simple File List)
+├── privacy.html                          # රහස්‍යතා ප්‍රකාශන පිටුව (Privacy Policy Page)
+├── README.md                             # ව්‍යාපෘති තාක්ෂණික ලේඛනය (Project Documentation)
+├── terms.html                            # භාවිත නියමයන් සහ කොන්දේසි පිටුව (Terms of Use Page)
+│
+├── assets/                               # ස්ථිතික මාධ්‍ය සහ Styling ගොනු
+│   ├── css/                              # CSS ශෛලී පත්‍ර
+│   │   ├── input.css                     # Tailwind CSS Input Source
+│   │   └── style.css                     # අභිමත CSS රටා (Custom Styles)
+│   └── images/                           # රූපරාමු
+│       └── dharma_chakkraya.png          # ධර්ම චක්‍ර ලාංඡනය (Logo / Icon)
+│
+├── js/                                   # JavaScript තාක්ෂණික කේත
+│   ├── admin.js                          # පරිපාලක මෙහෙයුම් තාර්කික කේතය (Admin Logic)
+│   ├── app.js                            # ප්‍රධාන යෙදවුම් තාර්කික කේතය (Main Application Logic)
+│   ├── auth.js                           # පරිශීලක ප්‍රවේශ ආරක්ෂණ Script එක (Authentication)
+│   └── suththraya.js                     # සූත්‍ර දත්ත පාලනය සහ කියවීමේ Script එක (Sutta Reader Logic)
+│
+├── login/                                # ප්‍රවේශ වීමේ පිටු
+│   └── login.html                        # පරිශීලක පිවිසුම් පිටුව (User Login Page)
+│
+└── suththra/                             # සූත්‍ර HTML පිටු
+    ├── karaniyameththa_suththraya.html   # කරණීයමෙත්ත සූත්‍ර පිටුව
+    └── suththraya.html                   # සූත්‍ර කියවීමේ ප්‍රධාන සැකිල්ල (Sutta Reader Template)"# Saddharma-Vivarana" 
