@@ -1,0 +1,472 @@
+/* ============================================================
+   ගොනුව: css/profile_style.css
+   ============================================================ */
+
+/* ----- 1. RESET & BASE (index_style.css වෙතින් උරුම වේ) ----- */
+@import url("index_style.css");
+
+/* ----- 2. UNIFIED NAVIGATION ----- */
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    flex-wrap: wrap;
+}
+
+.main-nav .nav-link {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 0.3rem 0.6rem;
+    border-radius: 9999px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    text-decoration: none;
+}
+
+.main-nav .nav-link:hover {
+    background: rgba(245, 158, 11, 0.08);
+    color: #d97706;
+}
+
+.main-nav .nav-link i {
+    font-size: 0.7rem;
+}
+
+html.dark .main-nav .nav-link:hover {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.10);
+}
+
+/* User Dropdown */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(245, 158, 11, 0.06);
+    border: 1px solid var(--card-border);
+    border-radius: 9999px;
+    padding: 0.2rem 0.6rem 0.2rem 0.2rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.dropdown-toggle:hover {
+    background: rgba(245, 158, 11, 0.12);
+}
+
+.avatar-thumb {
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    object-fit: cover;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+    min-width: 180px;
+    padding: 0.5rem 0;
+    display: none;
+    z-index: 100;
+    transition: background 0.3s, border-color 0.3s;
+}
+
+.dropdown-menu.show {
+    display: block;
+    animation: fadeUp 0.15s ease;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+}
+
+.dropdown-item:hover {
+    background: rgba(245, 158, 11, 0.06);
+    color: #d97706;
+}
+
+html.dark .dropdown-item:hover {
+    color: #fbbf24;
+}
+
+.dropdown-item.active {
+    color: #d97706;
+    background: rgba(245, 158, 11, 0.06);
+}
+
+html.dark .dropdown-item.active {
+    color: #fbbf24;
+}
+
+.dropdown-item.logout-btn {
+    color: #dc2626;
+}
+
+.dropdown-item.logout-btn:hover {
+    background: rgba(220, 38, 38, 0.08);
+    color: #dc2626;
+}
+
+.dropdown-divider {
+    border: none;
+    border-top: 1px solid var(--card-border);
+    margin: 0.3rem 0.5rem;
+}
+
+/* ----- 3. PROFILE PAGE LAYOUT ----- */
+.profile-page {
+    max-width: 1024px !important;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* වම් පැතිකඩ කාඩ්පත */
+.profile-card {
+    text-align: center;
+    padding: 1.5rem 1.2rem;
+}
+
+.profile-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-avatar-big {
+    width: 120px;
+    height: 120px;
+    border-radius: 9999px;
+    object-fit: cover;
+    border: 4px solid rgba(245, 158, 11, 0.2);
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.profile-name {
+    font-family: 'Abhaya Libre', serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    margin: 0.25rem 0;
+}
+
+html.dark .profile-name {
+    color: #fbbf24;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 0.1rem 0.8rem;
+    border-radius: 9999px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.role-admin {
+    background: rgba(217, 119, 6, 0.12);
+    color: #d97706;
+    border: 1px solid rgba(217, 119, 6, 0.15);
+}
+.role-editor {
+    background: rgba(59, 130, 246, 0.10);
+    color: #2563eb;
+    border: 1px solid rgba(59, 130, 246, 0.15);
+}
+.role-viewer {
+    background: rgba(16, 185, 129, 0.10);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.1rem 0.8rem;
+    border-radius: 9999px;
+    font-size: 0.6rem;
+    font-weight: 700;
+}
+.status-active {
+    background: rgba(16, 185, 129, 0.08);
+    color: #059669;
+}
+.status-blocked {
+    background: rgba(239, 68, 68, 0.08);
+    color: #dc2626;
+}
+
+.profile-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: left;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    background: rgba(245, 158, 11, 0.04);
+    border: 1px solid var(--card-border);
+}
+
+.info-item i {
+    font-size: 1rem;
+    color: #d97706;
+    width: 1.5rem;
+    text-align: center;
+}
+
+html.dark .info-item i {
+    color: #fbbf24;
+}
+
+.info-label {
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: block;
+}
+
+.info-value {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+html.dark .info-value {
+    color: #f0e6d8;
+}
+
+/* දකුණු සැකසුම් තීරුව */
+.settings-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.settings-card {
+    padding: 1.25rem 1.5rem;
+}
+
+.settings-title {
+    font-family: 'Abhaya Libre', serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+html.dark .settings-title {
+    color: #fbbf24;
+}
+
+.settings-title i {
+    color: #d97706;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.settings-form .field {
+    gap: 0.2rem;
+}
+
+.settings-form .field label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.btn-sm {
+    padding: 0.35rem 1.2rem;
+    font-size: 0.65rem;
+    align-self: flex-start;
+    border-radius: 0.75rem;
+    border: none;
+    background: #d97706;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.btn-sm:hover {
+    background: #b45309;
+    transform: scale(1.02);
+}
+
+/* Danger Zone */
+.danger-zone {
+    border: 1px solid rgba(220, 38, 38, 0.15);
+    background: rgba(220, 38, 38, 0.02);
+}
+
+.danger-zone .settings-title {
+    color: #dc2626;
+    border-bottom-color: rgba(220, 38, 38, 0.1);
+}
+
+.danger-zone .settings-title i {
+    color: #dc2626;
+}
+
+.btn-danger {
+    padding: 0.35rem 1.2rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    background: transparent;
+    color: #dc2626;
+    font-weight: 700;
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    color: #fff;
+    border-color: #dc2626;
+}
+
+.btn-delete-account {
+    background: rgba(220, 38, 38, 0.06);
+    border-color: rgba(220, 38, 38, 0.3);
+}
+.btn-delete-account:hover {
+    background: #dc2626;
+    color: #fff;
+}
+
+.form-message {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.3rem 0.8rem;
+    border-radius: 0.5rem;
+    margin-top: 0.2rem;
+}
+.form-message.success {
+    color: #059669;
+    background: rgba(5, 150, 105, 0.06);
+}
+.form-message.error {
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.06);
+}
+.form-message.hidden {
+    display: none;
+}
+
+/* ----- 4. RESPONSIVE ----- */
+@media (max-width: 768px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header-container {
+        flex-wrap: wrap;
+    }
+
+    .main-nav {
+        order: 3;
+        flex: 1 1 100%;
+        justify-content: center;
+        border-top: 1px solid var(--card-border);
+        padding-top: 0.5rem;
+        margin-top: 0.25rem;
+    }
+
+    .header-controls {
+        flex: 1 1 auto;
+        justify-content: flex-end;
+    }
+
+    .dropdown-menu {
+        right: -1rem;
+    }
+
+    .settings-form .btn-sm {
+        align-self: stretch;
+        justify-content: center;
+    }
+
+    .profile-avatar-big {
+        width: 90px;
+        height: 90px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-nav .nav-link {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.4rem;
+    }
+    .main-nav .nav-link i {
+        display: none;
+    }
+    .dropdown-toggle span {
+        display: none;
+    }
+    .dropdown-toggle {
+        padding: 0.2rem;
+    }
+}

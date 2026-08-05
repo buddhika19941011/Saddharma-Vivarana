@@ -1,0 +1,213 @@
+<!-- ============================================================
+     ගොනුව: profile.html (නව පිටුව)
+     ============================================================ -->
+<!DOCTYPE html>
+<html lang="si">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>මගේ පැතිකඩ – සද්ධර්ම විවරණ</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@500;700;800&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <!-- ප්‍රධාන ශෛලීන් -->
+    <link rel="stylesheet" href="css/profile_style.css" />
+</head>
+
+<body class="lotus-bg">
+
+    <!-- ===== ශීර්ෂකය (Header with Unified Navigation) ===== -->
+    <header class="admin-header no-print" id="mainHeader">
+        <div class="header-inner">
+            <div class="header-container">
+
+                <!-- වෙළඳ ලාංඡනය -->
+                <div class="brand-group">
+                    <a href="index.html" class="brand-link">
+                        <div class="logo-wrapper">
+                            <img src="images/sv_logo.png" alt="Dharmachakra Logo" class="logo-img"
+                                onerror="this.onerror=null; this.src='https://placehold.co/100x100/f59e0b/ffffff?text=☸️'" />
+                        </div>
+                        <div class="brand-text">
+                            <h1 class="brand-title">සද්ධර්ම විවරණ</h1>
+                            <p class="brand-sub">පැතිකඩ කළමනාකරණය</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- සංචාලනය (Navigation) -->
+                <nav class="main-nav" aria-label="ප්‍රධාන සංචාලනය">
+                    <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> මුල් පිටුව</a>
+                    <a href="suththra.html" class="nav-link"><i class="fa-solid fa-book-open"></i> සූත්‍ර කියවන්න</a>
+                    <a href="about.html" class="nav-link"><i class="fa-solid fa-circle-info"></i> අප ගැන</a>
+                    <!-- පරිපාලකයින්ට පමණක් පෙන්වීමට JS මගින් පාලනය වේ -->
+                    <a href="admin.html" id="navAdminLink" class="nav-link admin-only" style="display:none;"><i class="fa-solid fa-user-gear"></i> පරිපාලනය</a>
+                </nav>
+
+                <!-- දකුණු පස පාලන (පරිශීලක Dropdown + තේමාව) -->
+                <div class="header-controls">
+                    <div class="user-dropdown" id="userDropdown">
+                        <button class="dropdown-toggle" onclick="toggleDropdown()" id="dropdownBtn">
+                            <img id="userAvatar" src="https://placehold.co/30x30/f59e0b/ffffff?text=U" alt="Avatar" class="avatar-thumb" />
+                            <span id="userDisplayName">පූරණය වෙමින්...</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <a href="profile.html" class="dropdown-item active"><i class="fa-solid fa-user"></i> මගේ පැතිකඩ</a>
+                            <hr class="dropdown-divider" />
+                            <button onclick="handleLogout()" class="dropdown-item logout-btn"><i class="fa-solid fa-right-from-bracket"></i> ඉවත් වන්න</button>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button onclick="toggleTheme()" class="icon-btn theme-toggle" title="තේමාව මාරු කරන්න">
+                            <i id="themeIcon" class="fa-solid fa-sun"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== ප්‍රධාන අන්තර්ගතය ===== -->
+    <main class="main-content profile-page">
+
+        <div class="profile-grid">
+
+            <!-- වම් පස: පැතිකඩ කාඩ්පත -->
+            <section class="card profile-card">
+                <div class="profile-avatar-section">
+                    <img id="profileAvatarBig" src="https://placehold.co/120x120/f59e0b/ffffff?text=U" alt="Avatar" class="profile-avatar-big" />
+                    <h2 id="profileFullName" class="profile-name">පූරණය වෙමින්...</h2>
+                    <span id="profileRoleBadge" class="role-badge role-viewer">Viewer</span>
+                    <span id="profileStatusBadge" class="status-badge status-active">Active</span>
+                </div>
+
+                <div class="profile-info-list">
+                    <div class="info-item">
+                        <i class="fa-solid fa-envelope"></i>
+                        <div>
+                            <span class="info-label">ඊමේල් ලිපිනය</span>
+                            <p id="profileEmail" class="info-value">---</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fa-solid fa-calendar-plus"></i>
+                        <div>
+                            <span class="info-label">ගිණුම ආරම්භ කළේ</span>
+                            <p id="profileJoined" class="info-value">---</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fa-solid fa-clock"></i>
+                        <div>
+                            <span class="info-label">අවසන් වරට පිවිසි දිනය</span>
+                            <p id="profileLastLogin" class="info-value">---</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- දකුණු පස: සැකසුම් කාඩ්පත් -->
+            <div class="settings-stack">
+
+                <!-- 1. නම වෙනස් කිරීම -->
+                <div class="card settings-card">
+                    <h3 class="settings-title"><i class="fa-solid fa-pen-to-square"></i> පූර්ණ නම යාවත්කාලීන කරන්න</h3>
+                    <form id="updateNameForm" class="settings-form">
+                        <div class="field">
+                            <label for="newFullName">නව නම</label>
+                            <input type="text" id="newFullName" placeholder="ඔබගේ නව නම ඇතුළත් කරන්න" required />
+                        </div>
+                        <button type="submit" class="btn-primary btn-sm">
+                            <i class="fa-solid fa-floppy-disk"></i> නම සුරකින්න
+                        </button>
+                        <div id="nameUpdateMsg" class="form-message hidden"></div>
+                    </form>
+                </div>
+
+                <!-- 2. මුරපදය වෙනස් කිරීම -->
+                <div class="card settings-card">
+                    <h3 class="settings-title"><i class="fa-solid fa-lock"></i> මුරපදය වෙනස් කරන්න</h3>
+                    <form id="changePasswordForm" class="settings-form">
+                        <div class="field">
+                            <label for="currentPassword">වත්මන් මුරපදය</label>
+                            <div class="input-icon-wrapper">
+                                <input type="password" id="currentPassword" placeholder="••••••••" required />
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('currentPassword', this)"><i class="fa-solid fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="newPassword">නව මුරපදය</label>
+                            <div class="input-icon-wrapper">
+                                <input type="password" id="newPassword" placeholder="අකුරු 6ක් හෝ ඊට වැඩි" required minlength="6" />
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('newPassword', this)"><i class="fa-solid fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="confirmPassword">නව මුරපදය තහවුරු කරන්න</label>
+                            <div class="input-icon-wrapper">
+                                <input type="password" id="confirmPassword" placeholder="••••••••" required />
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirmPassword', this)"><i class="fa-solid fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary btn-sm">
+                            <i class="fa-solid fa-key"></i> මුරපදය යාවත්කාලීන කරන්න
+                        </button>
+                        <div id="passwordChangeMsg" class="form-message hidden"></div>
+                    </form>
+                </div>
+
+                <!-- 3. අනතුරුදායක කලාපය (Danger Zone) -->
+                <div class="card settings-card danger-zone">
+                    <h3 class="settings-title"><i class="fa-solid fa-triangle-exclamation"></i> ගිණුම් ක්‍රියාකාරකම්</h3>
+                    <button onclick="handleLogout()" class="btn-danger">
+                        <i class="fa-solid fa-right-from-bracket"></i> ඉවත් වන්න (Logout)
+                    </button>
+                    <!-- මෙය අමතර ආරක්ෂාවක් සඳහා -->
+                    <button onclick="confirmDeleteAccount()" class="btn-danger btn-delete-account" style="margin-top:0.5rem;">
+                        <i class="fa-solid fa-trash-can"></i> ගිණුම මකා දමන්න (Delete)
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ===== පාදකය (Footer) ===== -->
+    <footer class="admin-footer">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <img src="images/sv_logo.png" alt="Dharmachakra" class="footer-icon"
+                    onerror="this.onerror=null; this.src='https://placehold.co/50x50/f59e0b/ffffff?text=☸️'" />
+            </div>
+            <div class="footer-links">
+                <a href="index.html">මුල් පිටුව</a>
+                <span>•</span>
+                <a href="suththra.html">සූත්‍ර කියවන්න</a>
+                <span>•</span>
+                <a href="about.html">අප ගැන</a>
+                <span>•</span>
+                <a href="terms.html">භාවිත නියමයන්</a>
+                <span>•</span>
+                <a href="privacy.html">රහස්‍යතා ප්‍රකාශනය</a>
+            </div>
+            <p class="footer-copy">ත්‍රිපිටක පාඨ අධ්‍යයන සහ පර්යේෂණ ඒකකය</p>
+            <p class="footer-copy">© 2026 ශ්‍රී සද්ධර්ම ද්විභාෂා පීඨිකාව | උතුම් ධර්ම දානය පිණීස පමණී.</p>
+        </div>
+    </footer>
+
+    <!-- ===== JavaScript ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/profile.js" defer></script>
+
+</body>
+
+</html>
