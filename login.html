@@ -35,8 +35,16 @@
                     </a>
                 </div>
 
-                <!-- Auth Container (will be filled by JS) -->
-                <div id="authContainer" class="header-controls"></div>
+                <div id="authContainer" class="auth-wrapper">
+                    <button onclick="loginWithGoogle()" class="btn-google">
+                        <i class="fa-brands fa-google"></i>
+                        <span class="btn-label">Google මඟින් ලොග් වන්න</span>
+                    </button>
+                    <a href="login.html" class="btn-login">
+                        <i class="fa-solid fa-user"></i>
+                        <span>පිවිසුම</span>
+                    </a>
+                </div>
 
                 <!-- Right: Navigation + Theme -->
                 <div class="header-controls">
@@ -241,7 +249,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js" defer></script>
     <script src="js/login.js" defer></script>
-    
+
 
 </body>
 
