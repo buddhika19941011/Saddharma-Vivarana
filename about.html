@@ -1,0 +1,154 @@
+<!-- ============================================================
+     ගොනුව: about.html (ප්‍රතිසංස්කරණය කළේ)
+     ============================================================ -->
+<!DOCTYPE html>
+<html lang="si">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>අප ගැන – සද්ධර්ම විවරණ ත්‍රිපිටක සූත්‍ර පීඨිකාව</title>
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@500;700;800&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Utility Stylesheet -->
+    <link rel="stylesheet" href="css/utility.css">
+</head>
+
+<body class="lotus-bg">
+
+    <!-- ===== HEADER ===== -->
+    <header class="admin-header no-print">
+        <div class="header-inner">
+            <div class="header-container">
+                <!-- Brand -->
+                <div class="brand-group">
+                    <div class="logo-wrapper">
+                        <img src="images/sv_logo.png" alt="Dharmachakra Logo" class="logo-img"
+                            onerror="this.onerror=null; this.src='https://placehold.co/100x100/f59e0b/ffffff?text=☸️'">
+                    </div>
+                    <div class="brand-text">
+                        <h1 class="brand-title">සද්ධර්ම විවරණ</h1>
+                        <p class="brand-sub">අප ගැන – ත්‍රිපිටක සූත්‍ර පීඨිකාව</p>
+                    </div>
+                </div>
+
+                <!-- Header Controls -->
+                <div class="header-controls">
+                    <nav class="nav-links">
+                        <a href="index.html" class="nav-link">මුල් පිටුව</a>
+                        <a href="suththra.html" class="nav-link">සූත්‍ර කියවන්න</a>
+                        <a href="about.html" class="nav-link active">අප ගැන</a>
+                        <a href="login.html" class="nav-link login-btn">ප්‍රවේශ වන්න</a>
+                    </nav>
+                    <div class="action-buttons">
+                        <button onclick="toggleTheme()" class="icon-btn theme-toggle" title="තේමාව මාරු කරන්න">
+                            <i id="themeIcon" class="fa-solid fa-sun"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content about-page">
+        <!-- Hero -->
+        <section class="about-hero">
+            <div class="about-hero-icon">
+                <img src="images/sv_logo.png" alt="ධර්ම චක්‍රය" class="hero-logo">
+            </div>
+            <h1 class="about-hero-title">'සද්ධර්ම විවරණ' ව්‍යාපෘතිය</h1>
+            <p class="about-hero-desc">
+                ශ්‍රී සම්බුද්ධ දේශනාවන් නූතන තාක්ෂණය ඔස්සේ පිරිසිදුව, සරලව සහ නිවැරදිව පරම්පරාවට දායාද කිරීමේ පරම
+                පිවිතුරු අරමුණින් නිර්මාණය වූ ධර්ම පීඨිකාවයි.
+            </p>
+        </section>
+
+        <!-- Mission & Vision -->
+        <div class="about-grid">
+            <div class="card about-card">
+                <div class="about-card-icon"><i class="fa-solid fa-bullseye"></i></div>
+                <h2 class="about-card-title">අපගේ අරමුණ</h2>
+                <p class="about-card-text">
+                    පාලි ත්‍රිපිටකයේ අඩංගු සූත්‍ර පාඨයන් සහ ඒවායේ සිංහල අර්ථ නිරූපණයන් ඕනෑම අයෙකුට ඉතා පහසුවෙන් කියවීමට,
+                    සෙවීමට සහ ධර්ම කරුණු නිරාකරණය කරගැනීමට හැකි ඩිජිටල් අවකාශයක් සම්පාදනය කිරීම.
+                </p>
+            </div>
+
+            <div class="card about-card">
+                <div class="about-card-icon"><i class="fa-solid fa-book-quran"></i></div>
+                <h2 class="about-card-title">ධර්ම කරුණුවල පිරිසිදුභාවය</h2>
+                <p class="about-card-text">
+                    ත්‍රිපිටක පාලි පාඨයන්ගෙන් බැහැර නොවී, මුල් අර්ථයට හානියක් නොවන පරිදි සිංහල පරිවර්තන එකතු කරමින්,
+                    සූත්‍ර පරිශීලනය කරන්නන්ට නිරවුල් අවබෝධයක් ලබාදීමට කටයුතු කරනු ලැබේ.
+                </p>
+            </div>
+        </div>
+
+        <!-- Tech Features -->
+        <div class="card tech-card">
+            <h2 class="tech-title">පද්ධතියේ ප්‍රධාන තාක්ෂණික විශේෂාංග</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <i class="fa-solid fa-laptop-code"></i>
+                    <h3>නවීන වෙබ් තාක්ෂණය</h3>
+                    <p>HTML5, CSS සහ Vanilla JS මඟින් ඉතා වේගවත් අතුරුමුහුණතක්.</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h3>ආරක්ෂිත Authentication</h3>
+                    <p>Supabase Cloud Database තාක්ෂණය හරහා පරිශීලක දත්ත අතිශය සුරක්ෂිතව ගබඩා කිරීම.</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                    <h3>Responsive Design</h3>
+                    <p>ජංගම දුරකථන, ටැබ් සහ පරිගණක ඕනෑම තිරයකට ගැලපෙන අයුරින් නිර්මාණය කර ඇත.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pure Dhamma Notice -->
+        <div class="card dhamma-notice">
+            <p>
+                "සබ්බදානං ධම්මදානං ජිනාති" — සියලු දානයන් අතුරින් ධර්ම දානය අග්‍ර වන්නේය.
+                <br>
+                <span>මෙම වෙබ් අඩවිය කිසිදු වාණිජමය අරමුණකින් තොරව නිර්මාණය කරන ලද නොමිලේ ලබාදෙන ධර්ම සේවාවකි.</span>
+            </p>
+        </div>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="admin-footer">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <img src="images/sv_logo.png" alt="Dharmachakra" class="footer-icon"
+                    onerror="this.onerror=null; this.src='https://placehold.co/50x50/f59e0b/ffffff?text=☸️'">
+            </div>
+            <div class="footer-links">
+                <a href="index.html">මුල් පිටුව</a>
+                <span>•</span>
+                <a href="terms.html">භාවිත නියමයන්</a>
+                <span>•</span>
+                <a href="privacy.html">රහස්‍යතා ප්‍රකාශනය</a>
+                <span>•</span>
+                <a href="about.html" class="active">අප ගැන</a>
+            </div>
+            <p class="footer-copy">ත්‍රිපිටක පාඨ අධ්‍යයන සහ පර්යේෂණ ඒකකය</p>
+            <p class="footer-copy">© 2026 ශ්‍රී සද්ධර්ම ද්විභාෂා පීඨිකාව | උතුම් ධර්ම දානය උදෙසාම පමණි.</p>
+        </div>
+    </footer>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js" defer></script>
+    <script src="js/index.js" defer></script>
+</body>
+
+</html>
