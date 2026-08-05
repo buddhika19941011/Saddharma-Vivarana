@@ -1,9 +1,6 @@
 /**
  * සද්ධර්ම විවරණ - සූත්‍ර කියවීමේ පිටුව (suththra.html සඳහා පමණක්)
- * ගොනුව: js/suththra-page.js
- * 
- * මෙය suththra.js හි සමාන කාර්යයන් ඇතුළත් වේ, නමුත් suththra.html සඳහා පමණක් විශේෂිත වේ.
- * suththra.js වෙනුවට මෙය භාවිතා කළ හැක.
+ * ගොනුව: js/suththra.js
  */
 
 // ============================================================
@@ -27,16 +24,18 @@ function getClient() {
 
 let TRIPITAKA_DATABASE = [];
 let currentSuttaId = "";
-let currentPageMode = 'comparative'; // 'comparative', 'pali', 'sinhala', 'glossary-page'
+let currentPageMode = 'comparative';
 let zoomMultiplier = 1.0;
 let currentSearchQuery = "";
+let allSuttasForSidebar = [];
+let sidebarTreeData = null;
 
 // URL එකෙන් සූත්‍රයේ ID එක ලබා ගැනීම
 const urlParams = new URLSearchParams(window.location.search);
 const suththraIdFromUrl = urlParams.get('id') || '';
 
 // ============================================================
-// 3. XSS ආරක්ෂාව සඳහා escape function
+// 3. XSS ආරක්ෂාව
 // ============================================================
 
 function escapeHtml(str) {
@@ -50,7 +49,217 @@ function escapeHtml(str) {
 }
 
 // ============================================================
-// 4. Database Functions
+// 4. Sidebar Tree Functions
+// ============================================================
+
+// සියලු සූත්‍ර ලබා ගැනීම
+async function fetchAllSuttas() {
+    const client = getClient();
+    if (!client) return;
+
+    try {
+        const { data, error } = await client
+            .from('suththra')
+            .select('id, title, pitaka, nikaya, vagga, order_no')
+            .order('order_no', { ascending: true });
+
+        if (error) throw error;
+        allSuttasForSidebar = data || [];
+        return allSuttasForSidebar;
+    } catch (err) {
+        console.error('සියලු සූත්‍ර ලබා ගැනීමේ දෝෂය:', err);
+        return [];
+    }
+}
+
+// දත්ත ගස් ව්‍යුහයක් බවට හැරවීම
+function buildTree(suttas) {
+    const tree = {};
+
+    suttas.forEach(sutta => {
+        const pitaka = sutta.pitaka || 'සූත්‍ර පිටකය';
+        const nikaya = sutta.nikaya || 'වෙනත් නිකාය';
+        const vagga = sutta.vagga || 'වෙනත් වග්ගය';
+
+        if (!tree[pitaka]) tree[pitaka] = {};
+        if (!tree[pitaka][nikaya]) tree[pitaka][nikaya] = {};
+        if (!tree[pitaka][nikaya][vagga]) tree[pitaka][nikaya][vagga] = [];
+
+        tree[pitaka][nikaya][vagga].push(sutta);
+    });
+
+    return tree;
+}
+
+// ගස් HTML උත්පාදනය
+function renderTreeHTML(tree, currentId) {
+    let html = '<ul class="tree-root">';
+
+    for (const [pitaka, nikayas] of Object.entries(tree)) {
+        html += `<li class="tree-node expanded">
+            <div class="node-label" onclick="toggleNode(this)">
+                <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                <span class="node-icon"><i class="fa-solid fa-book"></i></span>
+                <span class="node-name">${escapeHtml(pitaka)}</span>
+            </div>
+            <ul class="node-children">`;
+
+        for (const [nikaya, vaggas] of Object.entries(nikayas)) {
+            html += `<li class="tree-node expanded">
+                <div class="node-label" onclick="toggleNode(this)">
+                    <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                    <span class="node-icon"><i class="fa-solid fa-folder-open"></i></span>
+                    <span class="node-name">${escapeHtml(nikaya)}</span>
+                </div>
+                <ul class="node-children">`;
+
+            for (const [vagga, suttaList] of Object.entries(vaggas)) {
+                html += `<li class="tree-node expanded">
+                    <div class="node-label" onclick="toggleNode(this)">
+                        <span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                        <span class="node-icon"><i class="fa-solid fa-tags"></i></span>
+                        <span class="node-name">${escapeHtml(vagga)}</span>
+                    </div>
+                    <ul class="node-children">`;
+
+                suttaList.forEach(sutta => {
+                    const isActive = (sutta.id === currentId) ? 'active' : '';
+                    html += `<li class="tree-node sutta-node ${isActive}">
+                        <a href="suththra.html?id=${encodeURIComponent(sutta.id)}" class="node-label">
+                            <span class="node-icon"><i class="fa-solid fa-dharmachakra"></i></span>
+                            <span class="node-name">${escapeHtml(sutta.title)}</span>
+                        </a>
+                    </li>`;
+                });
+
+                html += `</ul></li>`;
+            }
+
+            html += `</ul></li>`;
+        }
+
+        html += `</ul></li>`;
+    }
+
+    html += '</ul>';
+    return html;
+}
+
+// ============================================================
+// Sidebar Toggle (Open/Close) - ඒකාබද්ධ ශ්‍රිතය
+// ============================================================
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('suttaSidebar');
+    if (!sidebar) return;
+
+    // Create overlay if not exists
+    let overlay = document.getElementById('sidebarOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'sidebarOverlay';
+        overlay.className = 'sidebar-overlay';
+        overlay.onclick = closeSidebar; // overlay click = close
+        document.body.appendChild(overlay);
+    }
+
+    const isOpen = sidebar.classList.toggle('open');
+    overlay.classList.toggle('active', isOpen);
+
+    // Body scroll lock
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+
+    // Accessibility
+    const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+    if (toggleBtn) {
+        toggleBtn.setAttribute('aria-expanded', isOpen);
+    }
+
+    // Focus management
+    if (isOpen) {
+        const closeBtn = sidebar.querySelector('.sidebar-close-btn');
+        if (closeBtn) setTimeout(() => closeBtn.focus(), 100);
+    }
+}
+
+// Close sidebar function
+function closeSidebar() {
+    const sidebar = document.getElementById('suttaSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+}
+
+// Close sidebar on ESC key
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+        const sidebar = document.getElementById('suttaSidebar');
+        if (sidebar && sidebar.classList.contains('open')) {
+            closeSidebar();
+        }
+    }
+});
+
+// Auto-close sidebar when resizing to desktop
+window.addEventListener('resize', function () {
+    if (window.innerWidth > 1024) {
+        const sidebar = document.getElementById('suttaSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (sidebar) sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+});
+
+// නෝඩයක් විස්තීරණ/සංයුක්ත කිරීම
+function toggleNode(labelEl) {
+    const li = labelEl.closest('.tree-node');
+    if (!li) return;
+    li.classList.toggle('expanded');
+}
+
+// පැති තීරුව පූරණය කිරීම
+async function loadSidebarTree(currentId) {
+    const nav = document.getElementById('sidebarNav');
+    if (!nav) return;
+
+    if (allSuttasForSidebar.length === 0) {
+        await fetchAllSuttas();
+    }
+
+    if (allSuttasForSidebar.length === 0) {
+        nav.innerHTML = `<p class="loading-state">කිසිදු සූත්‍රයක් හමු නොවීය.</p>`;
+        return;
+    }
+
+    const tree = buildTree(allSuttasForSidebar);
+    sidebarTreeData = tree;
+    const html = renderTreeHTML(tree, currentId);
+    nav.innerHTML = html;
+}
+
+// පැති තීරුවේ සෙවුම් පෙරීම
+function filterSidebar(query) {
+    const nav = document.getElementById('sidebarNav');
+    if (!nav) return;
+    const links = nav.querySelectorAll('.tree-node.sutta-node');
+    const q = query.trim().toLowerCase();
+
+    links.forEach(link => {
+        const name = link.querySelector('.node-name')?.textContent?.toLowerCase() || '';
+        if (q === '' || name.includes(q)) {
+            link.style.display = '';
+        } else {
+            link.style.display = 'none';
+        }
+    });
+}
+
+// ============================================================
+// 5. Database Functions (Sutta Fetch)
 // ============================================================
 
 async function fetchSuttaFromDatabase(id) {
@@ -85,13 +294,16 @@ async function fetchSuttaFromDatabase(id) {
         currentSuttaId = data.id;
         renderActivePage();
 
+        // Sidebar එකේ active තත්වය යාවත්කාලීන කරන්න
+        loadSidebarTree(currentSuttaId);
+
     } catch (err) {
         console.error('Unexpected Error:', err);
     }
 }
 
 // ============================================================
-// 5. Search & Highlighting
+// 6. Search & Highlighting
 // ============================================================
 
 function highlightText(text, query) {
@@ -119,40 +331,17 @@ function searchSutta() {
         if (generalInfo) generalInfo.classList.remove('hidden');
     }
 
-    const matchedSuttaIds = new Set();
-    TRIPITAKA_DATABASE.forEach(sutta => {
-        let isMatch = false;
-
-        if (sutta.title.toLowerCase().includes(query) || (sutta.subtitle && sutta.subtitle.toLowerCase().includes(query))) {
-            isMatch = true;
-        }
-
-        if (sutta.passages) {
-            sutta.passages.forEach(passage => {
-                if ((passage.pali && passage.pali.toLowerCase().includes(query)) ||
-                    (passage.sinhala && passage.sinhala.toLowerCase().includes(query))) {
-                    isMatch = true;
-                }
-            });
-        }
-
-        if (sutta.glossary) {
-            sutta.glossary.forEach(gloss => {
-                if ((gloss.word && gloss.word.toLowerCase().includes(query)) ||
-                    (gloss.meaning && gloss.meaning.toLowerCase().includes(query))) {
-                    isMatch = true;
-                }
-            });
-        }
-
-        if (isMatch) matchedSuttaIds.add(sutta.id);
-    });
+    // Sidebar එකේත් සෙවුම් පෙරීම කරන්න
+    const sidebarSearch = document.getElementById('sidebarSearchInput');
+    if (sidebarSearch) {
+        filterSidebar(query);
+    }
 
     renderActivePage();
 }
 
 // ============================================================
-// 6. Page Rendering
+// 7. Page Rendering
 // ============================================================
 
 function renderActivePage() {
@@ -302,7 +491,7 @@ function renderSinhalaOnlyPage(passages) {
 }
 
 // ============================================================
-// 7. Glossary Rendering
+// 8. Glossary Rendering
 // ============================================================
 
 function renderGlossary(glossaryList) {
@@ -320,7 +509,6 @@ function renderGlossary(glossaryList) {
         return;
     }
 
-    // Full glossary
     glossaryList.forEach(item => {
         const card = document.createElement('div');
         card.className = 'glossary-card';
@@ -335,7 +523,6 @@ function renderGlossary(glossaryList) {
         fullContainer.appendChild(card);
     });
 
-    // Bottom glossary preview (first 3 items)
     const previewList = glossaryList.slice(0, 3);
     previewList.forEach(item => {
         const card = document.createElement('div');
@@ -351,7 +538,6 @@ function renderGlossary(glossaryList) {
         bottomContainer.appendChild(card);
     });
 
-    // "View all" button if more than 3
     if (glossaryList.length > 3) {
         const linkBtn = document.createElement('button');
         linkBtn.onclick = () => navigateToPage('glossary-page');
@@ -363,7 +549,6 @@ function renderGlossary(glossaryList) {
         bottomContainer.appendChild(linkBtn);
     }
 
-    // Back button
     const backLink = document.createElement('button');
     backLink.onclick = () => { window.location.href = '../index.html'; };
     backLink.className = 'glossary-back-btn';
@@ -375,34 +560,29 @@ function renderGlossary(glossaryList) {
 }
 
 // ============================================================
-// 8. Navigation
+// 9. Navigation
 // ============================================================
 
 function navigateToPage(mode) {
     currentPageMode = mode;
 
-    // Hide all page views
     document.querySelectorAll('.page-view').forEach(container => {
         container.classList.add('hidden');
     });
 
-    // Reset all tab buttons
     document.querySelectorAll('[id^="btnPage-"]').forEach(btn => {
         btn.className = 'tab-btn';
     });
 
-    // Show the selected page
     const actualMode = mode === 'glossary-page' ? 'glossary' : mode;
     const activeContainer = document.getElementById(`pageContainer-${actualMode}`);
     if (activeContainer) activeContainer.classList.remove('hidden');
 
-    // Activate the corresponding tab button
     const activeBtn = document.getElementById(`btnPage-${mode}`);
     if (activeBtn) {
         activeBtn.classList.add('active');
     }
 
-    // Show/hide bottom glossary
     const bottomGlossary = document.getElementById('bottomGlossarySection');
     if (bottomGlossary) {
         if (mode === 'comparative') {
@@ -418,10 +598,11 @@ function navigateToPage(mode) {
 function loadSuttaById(id) {
     currentSuttaId = id;
     renderActivePage();
+    loadSidebarTree(id);
 }
 
 // ============================================================
-// 9. Font Size Controls
+// 10. Font Size Controls
 // ============================================================
 
 function changeFontSize(direction) {
@@ -436,8 +617,6 @@ function changeFontSize(direction) {
         indicator.innerText = `${Math.round(zoomMultiplier * 100)}%`;
     }
     applyFontSize();
-
-    // Save to localStorage
     localStorage.setItem('fontSize', zoomMultiplier);
 }
 
@@ -454,7 +633,7 @@ function applyFontSize() {
 }
 
 // ============================================================
-// 10. Theme Controls
+// 11. Theme Controls
 // ============================================================
 
 function toggleTheme() {
@@ -470,20 +649,6 @@ function toggleTheme() {
         if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
         localStorage.setItem('theme', 'dark');
     }
-}
-
-// ============================================================
-// 11. Sidebar Functions (placeholder - to be implemented if needed)
-// ============================================================
-
-function renderSidebarTree() {
-    // This function can be implemented to show navigation sidebar
-    // Currently empty as per original suththra.js
-}
-
-function toggleSidebar() {
-    // Sidebar toggle functionality
-    // Currently empty as per original suththra.js
 }
 
 // ============================================================
@@ -509,18 +674,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
     }
 
-    // 3. Render sidebar tree (placeholder)
-    renderSidebarTree();
+    // 3. Fetch all suttas for sidebar
+    await fetchAllSuttas();
 
     // 4. Fetch sutta from database
     if (suththraIdFromUrl) {
+        currentSuttaId = suththraIdFromUrl;
         await fetchSuttaFromDatabase(suththraIdFromUrl);
+        // Sidebar already loaded inside fetchSuttaFromDatabase
     } else {
-        // If no ID, show a message
+        // If no ID, show a message and load sidebar with no active
         const metaTitle = document.getElementById('metaTitle');
         if (metaTitle) metaTitle.innerText = 'සූත්‍රයක් තෝරාගෙන නැත';
         const metaSubtitle = document.getElementById('metaSubtitle');
         if (metaSubtitle) metaSubtitle.innerText = 'කරුණාකර ප්‍රධාන පිටුවෙන් සූත්‍රයක් තෝරන්න.';
+        await loadSidebarTree(null);
     }
 
     // 5. Setup search listener
@@ -528,4 +696,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (searchInput) {
         searchInput.addEventListener('input', searchSutta);
     }
+
+    // 6. Sidebar search listener
+    const sidebarSearch = document.getElementById('sidebarSearchInput');
+    if (sidebarSearch) {
+        sidebarSearch.addEventListener('input', function () {
+            filterSidebar(this.value);
+        });
+    }
+
+    // 7. Close sidebar on resize to desktop
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 1024) {
+            const sidebar = document.getElementById('suttaSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar) sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
 });
