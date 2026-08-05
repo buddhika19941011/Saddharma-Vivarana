@@ -122,6 +122,9 @@ html.dark {
     gap: 0.75rem;
     flex: 0 0 auto;
     max-width: auto;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 .logo-wrapper {

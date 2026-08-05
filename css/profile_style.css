@@ -145,6 +145,31 @@ html.dark .dropdown-item.active {
     margin: 0.3rem 0.5rem;
 }
 
+/* ============================================================
+   අලුතින් එකතු කරන ලද CSS (ලාංඡනය + පාඨය එක පේළියට)
+   ============================================================ */
+.brand-text {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.brand-text .brand-title {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.brand-text .brand-sub {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    display: inline;
+}
+/* ============================================================ */
+
 /* ----- 3. PROFILE PAGE LAYOUT ----- */
 .profile-page {
     max-width: 1024px !important;
@@ -350,6 +375,65 @@ html.dark .settings-title {
     background: #b45309;
     transform: scale(1.02);
 }
+
+/* ============================================================
+   අලුතින් එකතු කරන ලද CSS (ආදාන පෙට්ටි සහ අයිකන)
+   ============================================================ */
+.input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-icon-wrapper input {
+    width: 100%;
+    padding: 0.6rem 2.5rem 0.6rem 0.8rem;
+    border: 1px solid var(--card-border);
+    border-radius: 0.5rem;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.input-icon-wrapper input:focus {
+    border-color: #d97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+}
+
+.input-icon-wrapper input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.6rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    line-height: 1;
+}
+
+.password-toggle:hover {
+    color: var(--text-primary);
+}
+
+.password-toggle i {
+    pointer-events: none;
+}
+/* ============================================================ */
 
 /* Danger Zone */
 .danger-zone {
