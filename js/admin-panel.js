@@ -88,7 +88,7 @@ async function checkAdminAccess() {
 
         if (authError || !user) {
             console.warn('ලොග් වී නොමැත. Login පිටුවට යොමු කෙරේ.');
-            window.location.href = 'login/login.html';
+            window.location.href = 'login.html';
             return false;
         }
 
@@ -117,7 +117,7 @@ async function checkAdminAccess() {
         if (isBlocked) {
             alert('ඔබගේ ගිණුම තාවකාලිකව අත්හිටුවා ඇත.');
             await client.auth.signOut();
-            window.location.href = 'login/login.html';
+            window.location.href = 'login.html';
             return false;
         }
 
@@ -803,7 +803,7 @@ async function logoutAdmin() {
     if (client) {
         await client.auth.signOut();
     }
-    window.location.href = 'login/login.html';
+    window.location.href = 'login.html';
 }
 
 function toggleTheme() {

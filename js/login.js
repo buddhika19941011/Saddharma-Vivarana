@@ -180,7 +180,7 @@ window.handleLoginSubmit = async function (event) {
 
         showAlert('සාර්ථකව ප්‍රවේශ විය! ප්‍රධාන පිටුවට යොමු කෙරේ...', 'success');
         setTimeout(() => {
-            window.location.href = '../index.html';
+            window.location.href = 'index.html';
         }, 1500);
 
     } catch (err) {
@@ -238,7 +238,7 @@ window.handleRegisterSubmit = async function (event) {
         if (data.user && data.session) {
             await syncUserProfile(data.user);
             showAlert('ලියාපදිංචි වීම සාර්ථකයි! ප්‍රධාන පිටුවට යොමු කෙරේ...', 'success');
-            setTimeout(() => window.location.href = '../index.html', 1500);
+            setTimeout(() => window.location.href = 'index.html', 1500);
         } else if (data.user) {
             showAlert('සාර්ථකයි! කරුණාකර ඔබගේ ඊමේල් ලිපිනය පරීක්ෂා කර ගිණුම තහවුරු කරන්න.', 'success');
             if (event.target) event.target.reset();
