@@ -31,8 +31,6 @@
                         <div class="logo-wrapper">
                             <img src="images/sv_logo.png" alt="Dharmachakra Logo" class="logo-img"
                                 onerror="this.onerror=null; this.src='https://placehold.co/100x100/f59e0b/ffffff?text=☸️'" />
-                        </div>
-                        <div class="brand-text">
                             <h1 class="brand-title">සද්ධර්ම විවරණ</h1>
                             <p class="brand-sub">පැතිකඩ කළමනාකරණය</p>
                         </div>
@@ -45,21 +43,25 @@
                     <a href="suththra.html" class="nav-link"><i class="fa-solid fa-book-open"></i> සූත්‍ර කියවන්න</a>
                     <a href="about.html" class="nav-link"><i class="fa-solid fa-circle-info"></i> අප ගැන</a>
                     <!-- පරිපාලකයින්ට පමණක් පෙන්වීමට JS මගින් පාලනය වේ -->
-                    <a href="admin.html" id="navAdminLink" class="nav-link admin-only" style="display:none;"><i class="fa-solid fa-user-gear"></i> පරිපාලනය</a>
+                    <a href="admin.html" id="navAdminLink" class="nav-link admin-only" style="display:none;"><i
+                            class="fa-solid fa-user-gear"></i> පරිපාලනය</a>
                 </nav>
 
                 <!-- දකුණු පස පාලන (පරිශීලක Dropdown + තේමාව) -->
                 <div class="header-controls">
                     <div class="user-dropdown" id="userDropdown">
                         <button class="dropdown-toggle" onclick="toggleDropdown()" id="dropdownBtn">
-                            <img id="userAvatar" src="https://placehold.co/30x30/f59e0b/ffffff?text=U" alt="Avatar" class="avatar-thumb" />
+                            <img id="userAvatar" src="https://placehold.co/30x30/f59e0b/ffffff?text=U" alt="Avatar"
+                                class="avatar-thumb" />
                             <span id="userDisplayName">පූරණය වෙමින්...</span>
                             <i class="fa-solid fa-chevron-down"></i>
                         </button>
                         <div class="dropdown-menu" id="dropdownMenu">
-                            <a href="profile.html" class="dropdown-item active"><i class="fa-solid fa-user"></i> මගේ පැතිකඩ</a>
+                            <a href="profile.html" class="dropdown-item active"><i class="fa-solid fa-user"></i> මගේ
+                                පැතිකඩ</a>
                             <hr class="dropdown-divider" />
-                            <button onclick="handleLogout()" class="dropdown-item logout-btn"><i class="fa-solid fa-right-from-bracket"></i> ඉවත් වන්න</button>
+                            <button onclick="handleLogout()" class="dropdown-item logout-btn"><i
+                                    class="fa-solid fa-right-from-bracket"></i> ඉවත් වන්න</button>
                         </div>
                     </div>
 
@@ -82,7 +84,8 @@
             <!-- වම් පස: පැතිකඩ කාඩ්පත -->
             <section class="card profile-card">
                 <div class="profile-avatar-section">
-                    <img id="profileAvatarBig" src="https://placehold.co/120x120/f59e0b/ffffff?text=U" alt="Avatar" class="profile-avatar-big" />
+                    <img id="profileAvatarBig" src="https://placehold.co/120x120/f59e0b/ffffff?text=U" alt="Avatar"
+                        class="profile-avatar-big" />
                     <h2 id="profileFullName" class="profile-name">පූරණය වෙමින්...</h2>
                     <span id="profileRoleBadge" class="role-badge role-viewer">Viewer</span>
                     <span id="profileStatusBadge" class="status-badge status-active">Active</span>
@@ -139,21 +142,28 @@
                             <label for="currentPassword">වත්මන් මුරපදය</label>
                             <div class="input-icon-wrapper">
                                 <input type="password" id="currentPassword" placeholder="••••••••" required />
-                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('currentPassword', this)"><i class="fa-solid fa-eye"></i></button>
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePasswordVisibility('currentPassword', this)"><i
+                                        class="fa-solid fa-eye"></i></button>
                             </div>
                         </div>
                         <div class="field">
                             <label for="newPassword">නව මුරපදය</label>
                             <div class="input-icon-wrapper">
-                                <input type="password" id="newPassword" placeholder="අකුරු 6ක් හෝ ඊට වැඩි" required minlength="6" />
-                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('newPassword', this)"><i class="fa-solid fa-eye"></i></button>
+                                <input type="password" id="newPassword" placeholder="අකුරු 6ක් හෝ ඊට වැඩි" required
+                                    minlength="6" />
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePasswordVisibility('newPassword', this)"><i
+                                        class="fa-solid fa-eye"></i></button>
                             </div>
                         </div>
                         <div class="field">
                             <label for="confirmPassword">නව මුරපදය තහවුරු කරන්න</label>
                             <div class="input-icon-wrapper">
                                 <input type="password" id="confirmPassword" placeholder="••••••••" required />
-                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirmPassword', this)"><i class="fa-solid fa-eye"></i></button>
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePasswordVisibility('confirmPassword', this)"><i
+                                        class="fa-solid fa-eye"></i></button>
                             </div>
                         </div>
                         <button type="submit" class="btn-primary btn-sm">
@@ -165,12 +175,14 @@
 
                 <!-- 3. අනතුරුදායක කලාපය (Danger Zone) -->
                 <div class="card settings-card danger-zone">
-                    <h3 class="settings-title"><i class="fa-solid fa-triangle-exclamation"></i> ගිණුම් ක්‍රියාකාරකම්</h3>
+                    <h3 class="settings-title"><i class="fa-solid fa-triangle-exclamation"></i> ගිණුම් ක්‍රියාකාරකම්
+                    </h3>
                     <button onclick="handleLogout()" class="btn-danger">
                         <i class="fa-solid fa-right-from-bracket"></i> ඉවත් වන්න (Logout)
                     </button>
                     <!-- මෙය අමතර ආරක්ෂාවක් සඳහා -->
-                    <button onclick="confirmDeleteAccount()" class="btn-danger btn-delete-account" style="margin-top:0.5rem;">
+                    <button onclick="confirmDeleteAccount()" class="btn-danger btn-delete-account"
+                        style="margin-top:0.5rem;">
                         <i class="fa-solid fa-trash-can"></i> ගිණුම මකා දමන්න (Delete)
                     </button>
                 </div>
