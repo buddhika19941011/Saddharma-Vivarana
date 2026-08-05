@@ -203,7 +203,7 @@ async function loadSuttasFromDatabase() {
 
                     suttaList.forEach(sutta => {
                         htmlContent += `
-                            <a href="./suththra/suththraya.html?id=${encodeURIComponent(sutta.id)}" class="sutta-link" style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0.6rem;border-radius:0.5rem;border:1px solid var(--card-border);background:var(--input-bg);transition:all 0.2s;text-decoration:none;color:var(--text-primary);">
+                            <a href="suththra.html?id=${encodeURIComponent(sutta.id)}" class="sutta-link" style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0.6rem;border-radius:0.5rem;border:1px solid var(--card-border);background:var(--input-bg);transition:all 0.2s;text-decoration:none;color:var(--text-primary);">
                                 <span style="display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;font-weight:600;">
                                     <span style="display:inline-block;width:1.2rem;height:1.2rem;border-radius:50%;background:rgba(16,185,129,0.12);color:#059669;text-align:center;line-height:1.2rem;font-size:0.6rem;">☸</span>
                                     ${escapeHTML(sutta.title)}
