@@ -49,21 +49,21 @@
                     </div>
                 </div>
 
-                <!-- Header Controls (Search + User Dropdown + Theme/Print) -->
-                <div class="header-controls">
-                    <!-- Search -->
-                    <div class="search-wrapper">
-                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="text" id="searchQuery" placeholder="පාලි, සිංහල හෝ නිරුක්ති වදනක් සොයන්න..."
-                            onkeyup="searchSutta()" />
-                    </div>
+                <!-- Search – now centered -->
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="searchQuery" placeholder="පාලි, සිංහල හෝ නිරුක්ති වදනක් සොයන්න..."
+                        onkeyup="searchSutta()" />
+                </div>
 
+                <!-- Header Controls (User Dropdown + Action Buttons) -->
+                <div class="header-controls">
                     <!-- User Dropdown -->
                     <div class="user-dropdown" id="userDropdown">
                         <button class="dropdown-toggle" onclick="toggleDropdown()" id="dropdownBtn">
                             <img id="userAvatar" src="https://placehold.co/30x30/f59e0b/ffffff?text=U" alt="Avatar"
                                 class="avatar-thumb" />
-                            <span id="userDisplayName">පූරණය වෙමින්...</span>
+                            <span id="userDisplayName" class="user-name-label">පූරණය වෙමින්...</span>
                             <i class="fa-solid fa-chevron-down"></i>
                         </button>
                         <div class="dropdown-menu" id="dropdownMenu">
@@ -98,6 +98,9 @@
     ප්‍රධාන අන්තර්ගතය
     ============================================================ -->
     <main class="main-content sutta-layout" id="mainContent">
+
+        <!-- Sidebar Overlay (click to close) -->
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
         <!-- ===== SIDEBAR ===== -->
         <aside class="sutta-sidebar" id="suttaSidebar">
@@ -135,7 +138,7 @@
                     <button onclick="navigateToPage('sinhala')" id="btnPage-sinhala" class="tab-btn">
                         <i class="fa-solid fa-feather-pointed"></i> <span class="tab-label">සිංහල පමණි</span>
                     </button>
-                    <button onclick="navigateToPage('glossary-page')" id="btnPage-glossary-page" class="tab-btn">
+                    <button onclick="navigateToPage('glossary')" id="btnPage-glossary" class="tab-btn">
                         <i class="fa-solid fa-spell-check"></i> <span class="tab-label">පද නිරුක්ති</span>
                     </button>
                 </div>
@@ -145,11 +148,8 @@
             <section class="card banner-card sutta-meta-banner">
                 <div class="sutta-meta-inner">
                     <div>
-                        <!-- 1. වග්ගය (අලංකාරව) -->
                         <span id="metaVagga" class="meta-vagga-badge"></span>
-                        <!-- 2. සූත්‍රයේ නම -->
                         <h2 id="metaTitle" class="meta-title"></h2>
-                        <!-- 3. උප සිරැසිය (Subtitle) -->
                         <p id="metaSubtitle" class="meta-subtitle"></p>
                     </div>
                     <div class="meta-speaker-box">
@@ -203,7 +203,6 @@
                         <span class="page-info">සූත්‍ර දේශනාවේ අඩංගු සියලුම පාලි වචනවල ගැඹුරු පද බෙදීම් සහ සිංහල
                             තේරුම්.</span>
                     </div>
-                    <!-- මෙය සම්පූර්ණ ලැයිස්තුව පෙන්වයි (ද්විත්වයක් නැත) -->
                     <div id="fullGlossaryContainer" class="glossary-full-grid"></div>
                 </div>
 

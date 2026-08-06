@@ -21,7 +21,7 @@ function getClient() {
 }
 
 // ============================================================
-// 2. උපකාරක ශ්‍රිත (Helper Functions)
+// 2. උපකාරක ශ්‍රිත
 // ============================================================
 
 function escapeHtml(str) {
@@ -61,16 +61,16 @@ function showToast(message, type = 'info', timeout = 4000) {
 }
 
 // ============================================================
-// 3. පිටුවේ තත්ත්වය (State)
+// 3. State
 // ============================================================
 
 let currentSuttaId = null;
-let allSuttas = [];           // සියලු සූත්‍ර (sidebar සඳහා)
-let suttaMap = {};           // id -> full data
+let allSuttas = [];
+let suttaMap = {};
 let currentSearchTerm = '';
 
 // ============================================================
-// 4. පැති තීරුව (Sidebar)
+// 4. Sidebar functions (with overlay & page-click close)
 // ============================================================
 
 function toggleSidebar() {
@@ -85,6 +85,8 @@ function toggleSidebar() {
   if (toggleBtn) {
     toggleBtn.setAttribute('aria-expanded', isOpen);
   }
+  // Prevent body scroll when sidebar is open
+  document.body.style.overflow = isOpen ? 'hidden' : '';
 }
 
 function closeSidebar() {
@@ -96,39 +98,49 @@ function closeSidebar() {
   if (toggleBtn) {
     toggleBtn.setAttribute('aria-expanded', 'false');
   }
+  document.body.style.overflow = '';
 }
 
-// Overlay click – close sidebar
+// Close sidebar when clicking on the main content area (or overlay)
 document.addEventListener('DOMContentLoaded', function() {
   const overlay = document.getElementById('sidebarOverlay');
   if (overlay) {
     overlay.addEventListener('click', closeSidebar);
   }
+
+  const mainContent = document.getElementById('mainContent');
+  if (mainContent) {
+    mainContent.addEventListener('click', function(e) {
+      const sidebar = document.getElementById('suttaSidebar');
+      if (sidebar && sidebar.classList.contains('open')) {
+        // If the click is not inside the sidebar, close it
+        if (!sidebar.contains(e.target)) {
+          closeSidebar();
+        }
+      }
+    });
+  }
 });
 
 // ============================================================
-// 5. පැති තීරුව ගස (Tree) ගොඩනැගීම
+// 5. Sidebar Tree
 // ============================================================
 
 function buildSidebarTree() {
   const nav = document.getElementById('sidebarNav');
   if (!nav) return;
 
-  // Group by pitaka -> nikaya -> vagga
   const tree = {};
-
   allSuttas.forEach(s => {
     const pitaka = s.pitaka || 'අනෙකුත්';
     const nikaya = s.nikaya || 'අනෙකුත්';
     const vagga = s.vagga || 'අනෙකුත්';
-
     if (!tree[pitaka]) tree[pitaka] = {};
     if (!tree[pitaka][nikaya]) tree[pitaka][nikaya] = {};
     if (!tree[pitaka][nikaya][vagga]) tree[pitaka][nikaya][vagga] = [];
     tree[pitaka][nikaya][vagga].push(s);
   });
 
-  // Build HTML
   let html = '<ul class="tree-root">';
   for (const pitaka in tree) {
     html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-book"></i></span><span class="node-name">${escapeHtml(pitaka)}</span></div><ul>`;
@@ -152,7 +164,6 @@ function buildSidebarTree() {
 
   nav.innerHTML = html;
 
-  // Click handlers for sutta nodes
   nav.querySelectorAll('.node-label[data-sutta-id]').forEach(el => {
     el.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -162,7 +173,6 @@ function buildSidebarTree() {
     });
   });
 
-  // Expand/collapse toggle
   nav.querySelectorAll('.tree-node > .node-label .toggle-icon').forEach(icon => {
     icon.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -178,7 +188,6 @@ function buildSidebarTree() {
   });
 }
 
-// Sidebar filter
 function filterSidebar(query) {
   const nav = document.getElementById('sidebarNav');
   if (!nav) return;
@@ -192,19 +201,16 @@ function filterSidebar(query) {
       item.style.display = match ? '' : 'none';
     }
   });
-  // Also hide empty parent groups? For simplicity we just hide sutta nodes.
-  // Optionally show/hide parent if all children hidden.
 }
 
 // ============================================================
-// 6. සූත්‍රය පූරණය කිරීම හා පෙන්වීම
+// 6. Load & Render Sutta
 // ============================================================
 
 async function loadSutta(suttaId) {
   if (!suttaId) return;
   currentSuttaId = suttaId;
 
-  // If we already have the data in cache
   if (suttaMap[suttaId]) {
     renderSutta(suttaMap[suttaId]);
     return;
@@ -229,7 +235,6 @@ async function loadSutta(suttaId) {
       return;
     }
 
-    // Parse passages & glossary if stored as JSON strings
     if (typeof data.passages === 'string') {
       try { data.passages = JSON.parse(data.passages); } catch(e) { data.passages = []; }
     }
@@ -248,23 +253,19 @@ async function loadSutta(suttaId) {
 function renderSutta(data) {
   if (!data) return;
 
-  // Meta banner
   document.getElementById('metaVagga').textContent = data.vagga || 'වග්ගය සඳහන් නැත';
   document.getElementById('metaTitle').textContent = data.title || 'නම් රහිත සූත්‍රය';
   document.getElementById('metaSubtitle').textContent = data.subtitle || '';
   document.getElementById('metaSpeaker').textContent = data.speaker || 'භාග්‍යවතුන් වහන්සේ';
 
-  // Passages
   const passages = data.passages || [];
   renderComparative(passages);
   renderPali(passages);
   renderSinhala(passages);
 
-  // Glossary
   const glossary = data.glossary || [];
   renderGlossary(glossary);
 
-  // Update URL and title
   if (history.pushState) {
     const url = new URL(window.location);
     url.searchParams.set('id', data.id);
@@ -272,32 +273,26 @@ function renderSutta(data) {
   }
   document.title = data.title + ' – ත්‍රිපිටක පාලි-සිංහල පරිවර්තනය';
 
-  // If there was a search term, re-apply highlight
   if (currentSearchTerm) {
     highlightSearch(currentSearchTerm);
   }
 }
 
 // ============================================================
-// 7. ටැබ් (Tabs) සහ පිටු පෙන්වීම
+// 7. Tabs
 // ============================================================
 
 function navigateToPage(page) {
-  // Hide all page containers
   document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
-
-  // Show selected
   const container = document.getElementById('pageContainer-' + page);
   if (container) container.classList.remove('hidden');
-
-  // Update tab buttons
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   const activeBtn = document.getElementById('btnPage-' + page);
   if (activeBtn) activeBtn.classList.add('active');
 }
 
 // ============================================================
-// 8. අන්තර්ගත පෙන්වීම (Comparative, Pali, Sinhala, Glossary)
+// 8. Render functions (comparative, pali, sinhala, glossary)
 // ============================================================
 
 function renderComparative(passages) {
@@ -307,7 +302,6 @@ function renderComparative(passages) {
     container.innerHTML = '<p class="empty-msg">මෙම සූත්‍රය සඳහා ඡේද නොමැත.</p>';
     return;
   }
-
   let html = '';
   passages.forEach((p, idx) => {
     const paliText = escapeHtml(p.pali || '');
@@ -335,7 +329,6 @@ function renderPali(passages) {
     container.innerHTML = '<p class="empty-msg">පාලි ඡේද නොමැත.</p>';
     return;
   }
-
   let html = '';
   passages.forEach((p, idx) => {
     const paliText = escapeHtml(p.pali || '');
@@ -356,7 +349,6 @@ function renderSinhala(passages) {
     container.innerHTML = '<p class="empty-msg">සිංහල ඡේද නොමැත.</p>';
     return;
   }
-
   let html = '';
   passages.forEach((p, idx) => {
     const sinhalaText = escapeHtml(p.sinhala || '');
@@ -380,7 +372,6 @@ function renderGlossary(glossary) {
     container.innerHTML = '<div class="glossary-empty">මෙම සූත්‍රය සඳහා පද නිරුක්ති නොමැත.</div>';
     return;
   }
-
   let html = '';
   glossary.forEach(g => {
     const word = escapeHtml(g.word || '');
@@ -396,7 +387,7 @@ function renderGlossary(glossary) {
 }
 
 // ============================================================
-// 9. සෙවුම (Search) – client-side highlight
+// 9. Search
 // ============================================================
 
 function searchSutta() {
@@ -404,7 +395,6 @@ function searchSutta() {
   if (!input) return;
   const term = input.value.trim();
   currentSearchTerm = term;
-
   const statusEl = document.getElementById('searchStatusInfo');
   if (statusEl) {
     if (term) {
@@ -414,21 +404,17 @@ function searchSutta() {
       statusEl.classList.add('hidden');
     }
   }
-
   highlightSearch(term);
 }
 
 function highlightSearch(term) {
-  // Remove previous highlights
   document.querySelectorAll('.search-highlight').forEach(el => {
     const parent = el.parentNode;
     parent.replaceChild(document.createTextNode(el.textContent), el);
     parent.normalize();
   });
-
   if (!term) return;
 
-  // We'll highlight in comparative, pali, sinhala containers
   const containers = [
     document.getElementById('comparativeContentTable'),
     document.getElementById('paliOnlyContent'),
@@ -437,14 +423,12 @@ function highlightSearch(term) {
 
   containers.forEach(container => {
     if (!container) return;
-    // Walk text nodes in .pali-text, .sinhala-text, .pali-only-text, .sinhala-only-text
     const elements = container.querySelectorAll('.pali-text, .sinhala-text, .pali-only-text, .sinhala-only-text');
     elements.forEach(el => {
       const text = el.textContent;
       if (!text) return;
       const regex = new RegExp(escapeRegex(term), 'gi');
       if (!regex.test(text)) return;
-      // Split and wrap matches
       const parts = text.split(regex);
       const matches = text.match(regex);
       if (!matches) return;
@@ -465,7 +449,7 @@ function escapeRegex(str) {
 }
 
 // ============================================================
-// 10. අකුරු ප්‍රමාණය (Font Size)
+// 10. Font size & Theme
 // ============================================================
 
 function changeFontSize(delta) {
@@ -478,10 +462,6 @@ function changeFontSize(delta) {
   document.getElementById('fontSizeIndicator').textContent = Math.round((newSize / 18) * 100) + '%';
 }
 
-// ============================================================
-// 11. තේමාව (Theme)
-// ============================================================
-
 function toggleTheme() {
   const html = document.documentElement;
   const icon = document.getElementById('themeIcon');
@@ -492,7 +472,7 @@ function toggleTheme() {
 }
 
 // ============================================================
-// 12. පරිශීලක Dropdown
+// 11. User dropdown & logout
 // ============================================================
 
 function toggleDropdown() {
@@ -502,7 +482,6 @@ function toggleDropdown() {
   }
 }
 
-// Close dropdown when clicking outside
 document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('click', function(e) {
     const dropdown = document.getElementById('userDropdown');
@@ -512,10 +491,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
-
-// ============================================================
-// 13. පිවිසුම් / ඉවත්වීම
-// ============================================================
 
 async function handleLogout() {
   const client = getClient();
@@ -532,13 +507,11 @@ async function loadUserInfo() {
   try {
     const { data: { user }, error } = await client.auth.getUser();
     if (error || !user) {
-      // Not logged in – show guest
       document.getElementById('userDisplayName').textContent = 'ආගන්තුක';
       document.getElementById('userAvatar').src = 'https://placehold.co/30x30/9ca3af/ffffff?text=G';
       return;
     }
 
-    // Get profile
     const { data: profile } = await client
       .from('profiles')
       .select('full_name, avatar_url')
@@ -559,21 +532,18 @@ async function loadUserInfo() {
 }
 
 // ============================================================
-// 14. මුලික පූරණය (Initialization)
+// 12. Initialization
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', async function() {
-  // 1. Theme from localStorage
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme === 'dark') {
     document.documentElement.classList.add('dark');
     document.getElementById('themeIcon').className = 'fa-solid fa-moon';
   }
 
-  // 2. Load user info
   await loadUserInfo();
 
-  // 3. Fetch all suttas for sidebar and cache
   const client = getClient();
   if (client) {
     try {
@@ -584,9 +554,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
       if (error) throw error;
       allSuttas = data || [];
-      // Build map for quick access
       allSuttas.forEach(s => {
-        // Parse passages & glossary if needed
         if (typeof s.passages === 'string') {
           try { s.passages = JSON.parse(s.passages); } catch(e) { s.passages = []; }
         }
@@ -596,16 +564,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         suttaMap[s.id] = s;
       });
 
-      // Build sidebar tree
       buildSidebarTree();
 
-      // 4. Load sutta from URL param
       const params = new URLSearchParams(window.location.search);
       const suttaId = params.get('id');
       if (suttaId && suttaMap[suttaId]) {
-        // We have it in cache
         renderSutta(suttaMap[suttaId]);
-        // Highlight active node
         const nav = document.getElementById('sidebarNav');
         if (nav) {
           nav.querySelectorAll('.tree-node.sutta-node').forEach(li => {
@@ -613,13 +577,10 @@ document.addEventListener('DOMContentLoaded', async function() {
           });
         }
       } else if (suttaId) {
-        // Not in cache, fetch separately
         await loadSutta(suttaId);
       } else if (allSuttas.length > 0) {
-        // No ID, load first sutta
         const first = allSuttas[0];
         renderSutta(first);
-        // Update URL
         const url = new URL(window.location);
         url.searchParams.set('id', first.id);
         history.replaceState({ suttaId: first.id }, '', url);
@@ -634,17 +595,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     showToast('Supabase සම්බන්ධතාවය අසාර්ථකයි.', 'error');
   }
 
-  // 5. Set initial font indicator (base 18px)
   const baseFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
   const percent = Math.round((baseFontSize / 18) * 100);
   document.getElementById('fontSizeIndicator').textContent = percent + '%';
-
-  // 6. Click outside dropdown to close
-  // Already handled above.
 });
 
 // ============================================================
-// 15. Toast Styles (if not present in CSS, add minimal)
+// 13. Toast styles (injected)
 // ============================================================
 (function injectToastStyles() {
   const style = document.createElement('style');
