@@ -142,7 +142,7 @@ function renderTreeHTML(tree, currentId) {
 }
 
 // ============================================================
-// 5. Sidebar Toggle
+// 5. Sidebar Toggle + Close on Main Click
 // ============================================================
 
 function toggleSidebar() {
@@ -186,6 +186,22 @@ function closeSidebar() {
     const toggleBtn = document.querySelector('.sidebar-toggle-btn');
     if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
 }
+
+// Close sidebar when clicking on main content area (except sidebar itself)
+document.addEventListener('click', function (event) {
+    const sidebar = document.getElementById('suttaSidebar');
+    const mainContent = document.getElementById('mainContent');
+    const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+
+    // If sidebar is open and click is outside sidebar and not on toggle button
+    if (sidebar && sidebar.classList.contains('open')) {
+        const isClickInsideSidebar = sidebar.contains(event.target);
+        const isClickOnToggle = toggleBtn && toggleBtn.contains(event.target);
+        if (!isClickInsideSidebar && !isClickOnToggle) {
+            closeSidebar();
+        }
+    }
+});
 
 document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
@@ -299,6 +315,8 @@ async function fetchSuttaFromDatabase(id) {
         currentSuttaId = data.id;
         renderActivePage();
         loadSidebarTree(currentSuttaId);
+
+        // Update user dropdown with sutta info if needed? Not required.
 
     } catch (err) {
         console.error('Unexpected Error:', err);
@@ -538,8 +556,6 @@ function navigateToPage(mode) {
         activeBtn.classList.add('active');
     }
 
-    // පහළ glossary කොටසක් නොමැති බැවින්, මෙහි කිසිදු සඟවීමක් අවශ්‍ය නොවේ
-
     renderActivePage();
 }
 
@@ -579,7 +595,6 @@ function applyFontSize() {
         el.style.fontSize = `${0.95 * zoomMultiplier}rem`;
     });
 
-    // පද නිරුක්ති සඳහාද අකුරු ප්‍රමාණය වෙනස් කරන්න
     const glossaryWords = document.querySelectorAll('.glossary-word');
     glossaryWords.forEach(el => {
         el.style.fontSize = `${0.8 * zoomMultiplier}rem`;
@@ -611,7 +626,97 @@ function toggleTheme() {
 }
 
 // ============================================================
-// 13. Initialization
+// 13. User Dropdown Functions
+// ============================================================
+
+function toggleDropdown() {
+    const menu = document.getElementById('dropdownMenu');
+    const btn = document.getElementById('dropdownBtn');
+    if (!menu) return;
+    const isOpen = menu.classList.toggle('open');
+    if (btn) btn.setAttribute('aria-expanded', isOpen);
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function (event) {
+    const dropdown = document.getElementById('userDropdown');
+    if (!dropdown) return;
+    const menu = document.getElementById('dropdownMenu');
+    const btn = document.getElementById('dropdownBtn');
+    if (!menu || !btn) return;
+    if (!dropdown.contains(event.target)) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+    }
+});
+
+// Load user info from Supabase (if available)
+async function loadUserInfo() {
+    const client = getClient();
+    if (!client) return;
+
+    try {
+        const { data: { user }, error } = await client.auth.getUser();
+        if (error || !user) {
+            // User not logged in - show default
+            document.getElementById('userDisplayName').textContent = 'ආගන්තුක';
+            document.getElementById('userAvatar').src = 'https://placehold.co/30x30/64748b/ffffff?text=G';
+            return;
+        }
+
+        // User is logged in
+        const name = user.user_metadata?.full_name || user.email || 'පරිශීලක';
+        document.getElementById('userDisplayName').textContent = name;
+        const avatarUrl = user.user_metadata?.avatar_url || `https://placehold.co/30x30/f59e0b/ffffff?text=${name.charAt(0).toUpperCase()}`;
+        document.getElementById('userAvatar').src = avatarUrl;
+    } catch (err) {
+        console.error('User info load error:', err);
+        document.getElementById('userDisplayName').textContent = 'ආගන්තුක';
+    }
+}
+
+// Logout function
+async function handleLogout() {
+    const client = getClient();
+    if (!client) return;
+
+    try {
+        await client.auth.signOut();
+        window.location.href = 'index.html';
+    } catch (err) {
+        console.error('Logout error:', err);
+        alert('ඉවත් වීමේදී දෝෂයක් ඇති විය. කරුණාකර නැවත උත්සාහ කරන්න.');
+    }
+}
+
+// ============================================================
+// 14. Random Sutta Logic
+// ============================================================
+
+async function loadRandomSutta() {
+    // If we already have all suttas loaded, pick random
+    if (allSuttasForSidebar.length === 0) {
+        await fetchAllSuttas();
+    }
+
+    if (allSuttasForSidebar.length === 0) {
+        console.error('No suttas available to pick random.');
+        return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * allSuttasForSidebar.length);
+    const randomSutta = allSuttasForSidebar[randomIndex];
+    if (randomSutta && randomSutta.id) {
+        await fetchSuttaFromDatabase(randomSutta.id);
+        // Update URL without reload
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('id', randomSutta.id);
+        window.history.pushState({}, '', newUrl);
+    }
+}
+
+// ============================================================
+// 15. Initialization
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -633,19 +738,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
     }
 
-    // Fetch all suttas for sidebar
+    // Load user info
+    await loadUserInfo();
+
+    // Fetch all suttas for sidebar (needed for random selection)
     await fetchAllSuttas();
 
-    // Fetch sutta from database
+    // Determine which sutta to load
     if (suththraIdFromUrl) {
+        // Load sutta from URL
         currentSuttaId = suththraIdFromUrl;
         await fetchSuttaFromDatabase(suththraIdFromUrl);
     } else {
-        const metaTitle = document.getElementById('metaTitle');
-        if (metaTitle) metaTitle.innerText = 'සූත්‍රයක් තෝරාගෙන නැත';
-        const metaSubtitle = document.getElementById('metaSubtitle');
-        if (metaSubtitle) metaSubtitle.innerText = 'කරුණාකර ප්‍රධාන පිටුවෙන් සූත්‍රයක් තෝරන්න.';
-        await loadSidebarTree(null);
+        // No sutta in URL – load random
+        await loadRandomSutta();
     }
 
     // Setup search listener

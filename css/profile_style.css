@@ -149,16 +149,20 @@ html.dark .dropdown-item.active {
    අලුතින් එකතු කරන ලද CSS (ලාංඡනය + පාඨය එක පේළියට)
    ============================================================ */
 .brand-text {
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 6px;
+    line-height: 1.2;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: auto;
 }
 
-.brand-text .brand-title {
-    margin: 0;
-    font-size: 1.1rem;
+.brand-title {
+    font-family: 'Abhaya Libre', serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    transition: color 0.3s;
+    white-space: nowrap;
 }
 
 .brand-text .brand-sub {
@@ -168,6 +172,7 @@ html.dark .dropdown-item.active {
     color: var(--text-muted);
     display: inline;
 }
+
 /* ============================================================ */
 
 /* ----- 3. PROFILE PAGE LAYOUT ----- */
@@ -231,11 +236,13 @@ html.dark .profile-name {
     color: #d97706;
     border: 1px solid rgba(217, 119, 6, 0.15);
 }
+
 .role-editor {
     background: rgba(59, 130, 246, 0.10);
     color: #2563eb;
     border: 1px solid rgba(59, 130, 246, 0.15);
 }
+
 .role-viewer {
     background: rgba(16, 185, 129, 0.10);
     color: #059669;
@@ -249,10 +256,12 @@ html.dark .profile-name {
     font-size: 0.6rem;
     font-weight: 700;
 }
+
 .status-active {
     background: rgba(16, 185, 129, 0.08);
     color: #059669;
 }
+
 .status-blocked {
     background: rgba(239, 68, 68, 0.08);
     color: #dc2626;
@@ -433,6 +442,7 @@ html.dark .settings-title {
 .password-toggle i {
     pointer-events: none;
 }
+
 /* ============================================================ */
 
 /* Danger Zone */
@@ -476,6 +486,7 @@ html.dark .settings-title {
     background: rgba(220, 38, 38, 0.06);
     border-color: rgba(220, 38, 38, 0.3);
 }
+
 .btn-delete-account:hover {
     background: #dc2626;
     color: #fff;
@@ -488,14 +499,17 @@ html.dark .settings-title {
     border-radius: 0.5rem;
     margin-top: 0.2rem;
 }
+
 .form-message.success {
     color: #059669;
     background: rgba(5, 150, 105, 0.06);
 }
+
 .form-message.error {
     color: #dc2626;
     background: rgba(220, 38, 38, 0.06);
 }
+
 .form-message.hidden {
     display: none;
 }
@@ -544,12 +558,15 @@ html.dark .settings-title {
         font-size: 0.6rem;
         padding: 0.2rem 0.4rem;
     }
+
     .main-nav .nav-link i {
         display: none;
     }
+
     .dropdown-toggle span {
         display: none;
     }
+
     .dropdown-toggle {
         padding: 0.2rem;
     }

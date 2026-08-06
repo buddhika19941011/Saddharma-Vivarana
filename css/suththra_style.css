@@ -246,6 +246,7 @@ html.dark .brand-title {
     letter-spacing: 0.3px;
 }
 
+/* Header Controls - Flex layout */
 .header-controls {
     display: flex;
     align-items: center;
@@ -258,7 +259,7 @@ html.dark .brand-title {
 .search-wrapper {
     position: relative;
     width: 100%;
-    max-width: 280px;
+    max-width: 365px;
 }
 
 .search-icon {
@@ -293,6 +294,117 @@ html.dark .search-wrapper input:focus {
     box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.10);
 }
 
+/* User Dropdown */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(245, 158, 11, 0.06);
+    border: 1px solid var(--card-border);
+    border-radius: 9999px;
+    padding: 0.2rem 0.6rem 0.2rem 0.2rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.dropdown-toggle:hover {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.dropdown-toggle .avatar-thumb {
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    object-fit: cover;
+}
+
+.dropdown-toggle i.fa-chevron-down {
+    font-size: 0.5rem;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+}
+
+.dropdown-toggle[aria-expanded="true"] i.fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.3rem);
+    min-width: 180px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-lg);
+    padding: 0.4rem 0;
+    z-index: 60;
+    backdrop-filter: blur(4px);
+}
+
+.dropdown-menu.open {
+    display: block;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 1rem;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+    background: var(--hover-row);
+    color: #d97706;
+}
+
+html.dark .dropdown-item:hover {
+    color: #fbbf24;
+}
+
+.dropdown-item i {
+    width: 1.2rem;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.dropdown-item.logout-btn {
+    color: #dc2626;
+}
+
+.dropdown-item.logout-btn:hover {
+    background: rgba(220, 38, 38, 0.08);
+    color: #dc2626;
+}
+
+.dropdown-divider {
+    border: none;
+    border-top: 1px solid var(--card-border);
+    margin: 0.2rem 0.6rem;
+}
+
+/* Action Buttons (font, print, theme) */
 .action-buttons {
     display: flex;
     align-items: center;
@@ -1207,39 +1319,8 @@ html.dark .glossary-view-all-link:hover {
     color: #fbbf24;
 }
 
-/* ----- 12. BOTTOM GLOSSARY ----- */
-.bottom-glossary {
-    padding: 1rem 1.25rem;
-}
-
-.bottom-glossary-title {
-    font-family: 'Abhaya Libre', serif;
-    font-weight: 800;
-    font-size: 0.9rem;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.3rem;
-}
-
-html.dark .bottom-glossary-title {
-    color: #fbbf24;
-}
-
-.bottom-glossary-title i {
-    color: #d97706;
-}
-
-html.dark .bottom-glossary-title i {
-    color: #fbbf24;
-}
-
-.bottom-glossary-desc {
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    margin-bottom: 0.75rem;
-}
+/* ----- 12. BOTTOM GLOSSARY (removed, kept for reference) ----- */
+/* .bottom-glossary styles removed */
 
 /* ----- 13. FOOTER ----- */
 .admin-footer {
@@ -1356,6 +1437,10 @@ html.dark .footer-copy:first-of-type {
         flex: 1 1 100%;
     }
 
+    .user-dropdown {
+        order: -1;
+    }
+
     .action-buttons {
         flex: 0 0 auto;
     }
@@ -1454,5 +1539,29 @@ html.dark .footer-copy:first-of-type {
 
     .admin-footer {
         border-top: 1px solid #ccc !important;
+    }
+
+    /* Hide URL, date, time and page number */
+    @page {
+        margin: 0.5in;
+        size: auto;
+    }
+
+    /* Remove default browser print header/footer */
+    @page {
+        @top-center {
+            content: none;
+        }
+
+        @bottom-center {
+            content: none;
+        }
+    }
+
+    /* Ensure no extra text appears */
+    body::before,
+    body::after {
+        display: none !important;
+        content: none !important;
     }
 }

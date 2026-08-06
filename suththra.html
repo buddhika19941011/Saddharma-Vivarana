@@ -49,13 +49,32 @@
                     </div>
                 </div>
 
-                <!-- Header Controls -->
+                <!-- Header Controls (Search + User Dropdown + Theme/Print) -->
                 <div class="header-controls">
+                    <!-- Search -->
                     <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="text" id="searchQuery" placeholder="පාලි, සිංහල හෝ නිරුක්ති වදනක් සොයන්න..."
                             onkeyup="searchSutta()" />
                     </div>
+
+                    <!-- User Dropdown -->
+                    <div class="user-dropdown" id="userDropdown">
+                        <button class="dropdown-toggle" onclick="toggleDropdown()" id="dropdownBtn">
+                            <img id="userAvatar" src="https://placehold.co/30x30/f59e0b/ffffff?text=U" alt="Avatar"
+                                class="avatar-thumb" />
+                            <span id="userDisplayName">පූරණය වෙමින්...</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <a href="profile.html" class="dropdown-item"><i class="fa-solid fa-user"></i> මගේ පැතිකඩ</a>
+                            <hr class="dropdown-divider" />
+                            <button onclick="handleLogout()" class="dropdown-item logout-btn"><i
+                                    class="fa-solid fa-right-from-bracket"></i> ඉවත් වන්න</button>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons (Font, Print, Theme) -->
                     <div class="action-buttons">
                         <div class="font-controls">
                             <button onclick="changeFontSize(-1)" class="font-btn" title="අකුරු කුඩා කරන්න">A-</button>
@@ -78,7 +97,7 @@
     <!-- ============================================================
     ප්‍රධාන අන්තර්ගතය
     ============================================================ -->
-    <main class="main-content sutta-layout">
+    <main class="main-content sutta-layout" id="mainContent">
 
         <!-- ===== SIDEBAR ===== -->
         <aside class="sutta-sidebar" id="suttaSidebar">
@@ -104,8 +123,8 @@
         <!-- ===== CONTENT AREA ===== -->
         <div class="sutta-content-area">
 
-            <!-- Tabs -->
-            <section class="tab-nav">
+            <!-- Tabs (no-print) -->
+            <section class="tab-nav no-print">
                 <div class="tab-nav-inner">
                     <button onclick="navigateToPage('comparative')" id="btnPage-comparative" class="tab-btn active">
                         <i class="fa-solid fa-columns"></i> <span class="tab-label">සන්සන්දනය</span>
@@ -190,16 +209,15 @@
 
             </section>
 
-
         </div>
         <!-- .sutta-content-area -->
 
     </main>
 
     <!-- ============================================================
-    පාදකය (Footer)
+    පාදකය (Footer) - no-print
     ============================================================ -->
-    <footer class="admin-footer">
+    <footer class="admin-footer no-print">
         <div class="footer-inner">
             <div class="footer-logo">
                 <img src="images/sv_logo.png" alt="Dharmachakra" class="footer-icon"
