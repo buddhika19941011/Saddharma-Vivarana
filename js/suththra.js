@@ -1,9 +1,8 @@
 /**
- * සද්ධර්ම විවරණ - Admin Panel Logic (admin.html සඳහා පමණක්)
- * ගොනුව: js/admin-panel.js
+ * සද්ධර්ම විවරණ – සූත්‍ර පාඨක පිටුව (suththra.html)
+ * ගොනුව: js/suththra.js
  * 
- * මෙය admin.js හි සමාන කාර්යයන් ඇතුළත් වේ, නමුත් admin.html සඳහා පමණක් විශේෂිත වේ.
- * admin.js වෙනුවට මෙය භාවිතා කළ හැක.
+ * කාර්යයන්: සූත්‍ර පෙන්වීම, පැති තීරුව, ටැබ්, සෙවුම, අකුරු ප්‍රමාණය, තේමාව, පරිශීලක.
  */
 
 // ============================================================
@@ -11,894 +10,676 @@
 // ============================================================
 
 function getClient() {
-    if (typeof window.getAuthSupabaseClient === 'function') {
-        return window.getAuthSupabaseClient();
-    }
-    // Fallback: auth.js හි ඇති global supabaseClient භාවිතා කරන්න
-    if (typeof window.supabaseClient !== 'undefined') {
-        return window.supabaseClient;
-    }
-    console.error('Supabase Client ලබා ගැනීමට නොහැකි විය.');
-    return null;
+  if (typeof window.getAuthSupabaseClient === 'function') {
+    return window.getAuthSupabaseClient();
+  }
+  if (typeof window.supabaseClient !== 'undefined') {
+    return window.supabaseClient;
+  }
+  console.error('Supabase Client ලබා ගැනීමට නොහැකි විය.');
+  return null;
 }
 
 // ============================================================
 // 2. උපකාරක ශ්‍රිත (Helper Functions)
 // ============================================================
 
-function getInputValue(id) {
-    const el = document.getElementById(id);
-    return el ? el.value.trim() : '';
-}
-
 function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 function showToast(message, type = 'info', timeout = 4000) {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toastContainer';
-        container.setAttribute('aria-live', 'polite');
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-    }
-
-    const toast = document.createElement('div');
-    const base = 'toast-message';
-    const colours = {
-        info: 'toast-info',
-        success: 'toast-success',
-        error: 'toast-error',
-        warning: 'toast-warning'
-    };
-
-    toast.className = `${base} ${colours[type] || colours.info}`;
-    toast.innerText = message;
-    container.appendChild(toast);
-
-    setTimeout(() => {
-        toast.classList.add('toast-fadeout');
-        setTimeout(() => toast.remove(), 400);
-    }, timeout);
+  let container = document.getElementById('toastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.setAttribute('aria-live', 'polite');
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  const base = 'toast-message';
+  const colours = {
+    info: 'toast-info',
+    success: 'toast-success',
+    error: 'toast-error',
+    warning: 'toast-warning'
+  };
+  toast.className = `${base} ${colours[type] || colours.info}`;
+  toast.innerText = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('toast-fadeout');
+    setTimeout(() => toast.remove(), 400);
+  }, timeout);
 }
 
 // ============================================================
-// 3. Admin Access පරීක්ෂාව
+// 3. පිටුවේ තත්ත්වය (State)
 // ============================================================
 
-async function checkAdminAccess() {
-    const client = getClient();
-    if (!client) {
-        console.error('Supabase Client සක්‍රීය වී නැත.');
-        return false;
-    }
+let currentSuttaId = null;
+let allSuttas = [];           // සියලු සූත්‍ර (sidebar සඳහා)
+let suttaMap = {};           // id -> full data
+let currentSearchTerm = '';
 
-    try {
-        const authResponse = await client.auth.getUser();
-        const user = authResponse?.data?.user;
-        const authError = authResponse?.error;
+// ============================================================
+// 4. පැති තීරුව (Sidebar)
+// ============================================================
 
-        if (authError || !user) {
-            console.warn('ලොග් වී නොමැත. Login පිටුවට යොමු කෙරේ.');
-            window.location.href = 'login.html';
-            return false;
-        }
-
-        let { data: profile, error: profileError } = await client
-            .from('profiles')
-            .select('role, is_blocked')
-            .eq('id', user.id)
-            .maybeSingle();
-
-        if (profileError) {
-            console.error('Database Profile Read Error:', profileError);
-        }
-
-        if (!profile && user.email) {
-            const { data: emailProfile } = await client
-                .from('profiles')
-                .select('role, is_blocked')
-                .eq('email', user.email)
-                .maybeSingle();
-            profile = emailProfile;
-        }
-
-        const userRole = profile?.role ? String(profile.role).trim().toLowerCase() : 'viewer';
-        const isBlocked = profile?.is_blocked || false;
-
-        if (isBlocked) {
-            alert('ඔබගේ ගිණුම තාවකාලිකව අත්හිටුවා ඇත.');
-            await client.auth.signOut();
-            window.location.href = 'login.html';
-            return false;
-        }
-
-        // Admin හෝ Editor පමණක් admin panel එකට පිවිසිය හැක
-        if (userRole !== 'admin' && userRole !== 'editor') {
-            alert(`පාලක පුවරුවට පිවිසීමට ඔබට අවසර නොමැත. (වත්මන් Role එක: '${userRole}')`);
-            window.location.href = 'index.html';
-            return false;
-        }
-
-        const adminEmailDisplay = document.getElementById('currentAdminEmail');
-        if (adminEmailDisplay) {
-            adminEmailDisplay.innerText = `${user.email} (${userRole.toUpperCase()})`;
-        }
-
-        // Editor ට User Tab එක නොපෙන්වන්න
-        if (userRole === 'editor') {
-            const userTabBtn = document.getElementById('btnTab-user');
-            if (userTabBtn) {
-                userTabBtn.style.display = 'none';
-            }
-        }
-
-        return true;
-
-    } catch (err) {
-        console.error('Admin Check Exception:', err);
-        return false;
-    }
+function toggleSidebar() {
+  const sidebar = document.getElementById('suttaSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (!sidebar) return;
+  const isOpen = sidebar.classList.toggle('open');
+  if (overlay) {
+    overlay.classList.toggle('active', isOpen);
+  }
+  const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-expanded', isOpen);
+  }
 }
 
-// ============================================================
-// 4. Tab Switcher
-// ============================================================
-
-function switchTab(tabId) {
-    const suttaTab = document.getElementById('sutta_tab');
-    const userTab = document.getElementById('user_tab');
-    const btnSutta = document.getElementById('btnTab-sutta');
-    const btnUser = document.getElementById('btnTab-user');
-
-    if (!suttaTab || !userTab) return;
-
-    // Editor ට User Tab එක නොපෙන්වන්න
-    const client = getClient();
-    if (client) {
-        client.auth.getUser().then(({ data }) => {
-            if (data?.user) {
-                client.from('profiles').select('role').eq('id', data.user.id).maybeSingle()
-                    .then(({ data: profile }) => {
-                        if (profile?.role === 'editor' && tabId === 'user_tab') {
-                            showToast('ඔබට පරිශීලක නියාමනය සඳහා අවසර නොමැත.', 'error');
-                            return;
-                        }
-                    });
-            }
-        });
-    }
-
-    if (tabId === 'sutta_tab') {
-        suttaTab.classList.remove('hidden');
-        userTab.classList.add('hidden');
-        if (btnSutta) {
-            btnSutta.className = 'tab-btn active';
-        }
-        if (btnUser) {
-            btnUser.className = 'tab-btn';
-        }
-    } else {
-        suttaTab.classList.add('hidden');
-        userTab.classList.remove('hidden');
-        if (btnUser) {
-            btnUser.className = 'tab-btn active';
-        }
-        if (btnSutta) {
-            btnSutta.className = 'tab-btn';
-        }
-        loadUsersTable();
-    }
+function closeSidebar() {
+  const sidebar = document.getElementById('suttaSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.classList.remove('active');
+  const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-expanded', 'false');
+  }
 }
 
-// ============================================================
-// 5. Input Method Switchers
-// ============================================================
-
-function toggleInputMethod() {
-    const methodEl = document.getElementById('input_method');
-    const lineContainer = document.getElementById('line_by_line_container');
-    const fullContainer = document.getElementById('full_text_container');
-
-    if (!methodEl || !lineContainer || !fullContainer) return;
-
-    if (methodEl.value === 'line_by_line') {
-        lineContainer.classList.remove('hidden');
-        fullContainer.classList.add('hidden');
-    } else {
-        lineContainer.classList.add('hidden');
-        fullContainer.classList.remove('hidden');
-    }
-}
-
-function toggleGlossaryInputMethod() {
-    const methodEl = document.getElementById('glossary_input_method');
-    const bulkContainer = document.getElementById('glossary_bulk_container');
-    const lineContainer = document.getElementById('glossary_line_container');
-
-    if (!methodEl || !bulkContainer || !lineContainer) return;
-
-    if (methodEl.value === 'bulk_paste') {
-        bulkContainer.classList.remove('hidden');
-        lineContainer.classList.add('hidden');
-    } else {
-        bulkContainer.classList.add('hidden');
-        lineContainer.classList.remove('hidden');
-    }
-}
-
-// ============================================================
-// 6. Dynamic Rows - Passages (with Enter key support)
-// ============================================================
-
-function addPassageRow(pali = '', sinhala = '') {
-    const container = document.getElementById('passages_dynamic_rows');
-    if (!container) return;
-
-    const rowId = 'passage_row_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-    const rowDiv = document.createElement('div');
-    rowDiv.id = rowId;
-    rowDiv.className = 'dynamic-row';
-
-    rowDiv.innerHTML = `
-        <div class="field">
-            <label>පාලි ඡේදය</label>
-            <textarea class="passage-pali" rows="3"></textarea>
-        </div>
-        <div class="field">
-            <label>සිංහල පරිවර්තනය</label>
-            <textarea class="passage-sinhala" rows="3"></textarea>
-        </div>
-        <button type="button" onclick="removeRow('${rowId}')" class="row-remove-btn" title="ඡේදය ඉවත් කරන්න">
-            <i class="fa-solid fa-trash-can"></i>
-        </button>
-    `;
-
-    container.appendChild(rowDiv);
-
-    const paliEl = rowDiv.querySelector('.passage-pali');
-    const sinhalaEl = rowDiv.querySelector('.passage-sinhala');
-    if (paliEl) paliEl.value = pali;
-    if (sinhalaEl) sinhalaEl.value = sinhala;
-
-    // Add Enter key support for new row
-    [paliEl, sinhalaEl].forEach(textarea => {
-        if (textarea) {
-            textarea.addEventListener('keydown', function (e) {
-                // If Shift+Enter is pressed, add a new row
-                if (e.key === 'Enter' && e.shiftKey) {
-                    e.preventDefault();
-                    // Check if this is the last textarea in the last row
-                    const allRows = container.querySelectorAll('.dynamic-row');
-                    const lastRow = allRows[allRows.length - 1];
-                    if (lastRow) {
-                        const lastPali = lastRow.querySelector('.passage-pali');
-                        const lastSinhala = lastRow.querySelector('.passage-sinhala');
-                        // If current textarea is in the last row, add new row
-                        if (this === lastPali || this === lastSinhala) {
-                            addPassageRow();
-                            // Focus the new row's pali textarea
-                            const newRows = container.querySelectorAll('.dynamic-row');
-                            const newRow = newRows[newRows.length - 1];
-                            if (newRow) {
-                                const newPali = newRow.querySelector('.passage-pali');
-                                if (newPali) setTimeout(() => newPali.focus(), 50);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    });
-}
-
-// ============================================================
-// 7. Dynamic Rows - Glossary
-// ============================================================
-
-function addGlossaryRow(word = '', meaning = '') {
-    const container = document.getElementById('glossary_dynamic_rows');
-    if (!container) return;
-
-    const rowId = 'glossary_row_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-    const rowDiv = document.createElement('div');
-    rowDiv.id = rowId;
-    rowDiv.className = 'dynamic-row';
-
-    rowDiv.innerHTML = `
-        <div class="field">
-            <label>පාලි වචනය (Word)</label>
-            <input type="text" class="glossary-word" />
-        </div>
-        <div class="field">
-            <label>සිංහල තේරුම (Meaning)</label>
-            <input type="text" class="glossary-meaning" />
-        </div>
-        <button type="button" onclick="removeRow('${rowId}')" class="row-remove-btn" title="වචනය ඉවත් කරන්න">
-            <i class="fa-solid fa-trash-can"></i>
-        </button>
-    `;
-
-    container.appendChild(rowDiv);
-    const wordEl = rowDiv.querySelector('.glossary-word');
-    const meaningEl = rowDiv.querySelector('.glossary-meaning');
-    if (wordEl) wordEl.value = word;
-    if (meaningEl) meaningEl.value = meaning;
-}
-
-function removeRow(rowId) {
-    const el = document.getElementById(rowId);
-    if (el) el.remove();
-}
-
-// ============================================================
-// 8. Sutta CRUD Operations
-// ============================================================
-
-let isSavingSutta = false;
-
-// Save / Update Sutta
-document.addEventListener('DOMContentLoaded', function () {
-    const suttaForm = document.getElementById('suttaForm');
-    if (suttaForm) {
-        suttaForm.addEventListener('submit', handleSuttaSubmit);
-    }
+// Overlay click – close sidebar
+document.addEventListener('DOMContentLoaded', function() {
+  const overlay = document.getElementById('sidebarOverlay');
+  if (overlay) {
+    overlay.addEventListener('click', closeSidebar);
+  }
 });
 
-async function handleSuttaSubmit(e) {
-    e.preventDefault();
+// ============================================================
+// 5. පැති තීරුව ගස (Tree) ගොඩනැගීම
+// ============================================================
 
-    if (isSavingSutta) {
-        showToast('දත්ත සුරැකීම දැනට ක්‍රියාත්මකයි — කරුණාකර රැඳී සිටින්න...', 'info');
-        return;
-    }
+function buildSidebarTree() {
+  const nav = document.getElementById('sidebarNav');
+  if (!nav) return;
 
-    const client = getClient();
-    if (!client) {
-        showToast('Supabase සම්බන්ධතාවය අසාර්ථකයි.', 'error');
-        return;
-    }
+  // Group by pitaka -> nikaya -> vagga
+  const tree = {};
 
-    const saveBtn = document.getElementById('saveSuttaBtn');
-    const editId = getInputValue('edit_sutta_id');
-    const suttaId = getInputValue('sutta_id_input');
-    const title = getInputValue('title');
+  allSuttas.forEach(s => {
+    const pitaka = s.pitaka || 'අනෙකුත්';
+    const nikaya = s.nikaya || 'අනෙකුත්';
+    const vagga = s.vagga || 'අනෙකුත්';
 
-    if (!editId && !suttaId) {
-        showToast('කරුණාකර සූත්‍ර හඳුනාගැනීමේ අංකය (Sutta ID) ඇතුළත් කරන්න.', 'error');
-        return;
-    }
-    if (!title) {
-        showToast('කරුණාකර සූත්‍ර මාතෘකාව ඇතුළත් කරන්න.', 'error');
-        return;
-    }
+    if (!tree[pitaka]) tree[pitaka] = {};
+    if (!tree[pitaka][nikaya]) tree[pitaka][nikaya] = {};
+    if (!tree[pitaka][nikaya][vagga]) tree[pitaka][nikaya][vagga] = [];
+    tree[pitaka][nikaya][vagga].push(s);
+  });
 
-    const subtitle = getInputValue('subtitle');
-    const order_no = parseInt(getInputValue('order_no'), 10) || 1;
-    const pitaka = getInputValue('pitaka');
-    const nikaya = getInputValue('nikaya');
-    const vagga = getInputValue('vagga');
-    const speaker = getInputValue('speaker');
-    const category = getInputValue('category');
-
-    // Collect passages
-    let passages = [];
-    const method = getInputValue('input_method') || 'line_by_line';
-
-    if (method === 'line_by_line') {
-        const rows = document.querySelectorAll('#passages_dynamic_rows > .dynamic-row');
-        rows.forEach(row => {
-            const pali = row.querySelector('.passage-pali')?.value || '';
-            const sinhala = row.querySelector('.passage-sinhala')?.value || '';
-            if (pali.trim() || sinhala.trim()) {
-                passages.push({ pali: pali.trim(), sinhala: sinhala.trim() });
-            }
+  // Build HTML
+  let html = '<ul class="tree-root">';
+  for (const pitaka in tree) {
+    html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-book"></i></span><span class="node-name">${escapeHtml(pitaka)}</span></div><ul>`;
+    for (const nikaya in tree[pitaka]) {
+      html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-folder"></i></span><span class="node-name">${escapeHtml(nikaya)}</span></div><ul>`;
+      for (const vagga in tree[pitaka][nikaya]) {
+        const suttas = tree[pitaka][nikaya][vagga];
+        html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-folder-open"></i></span><span class="node-name">${escapeHtml(vagga)}</span></div><ul>`;
+        suttas.sort((a, b) => (a.order_no || 0) - (b.order_no || 0));
+        suttas.forEach(s => {
+          const active = (s.id === currentSuttaId) ? 'active' : '';
+          html += `<li class="tree-node sutta-node ${active}"><div class="node-label" data-sutta-id="${escapeHtml(s.id)}"><span class="node-icon"><i class="fa-solid fa-scroll"></i></span><span class="node-name">${escapeHtml(s.title || s.id)}</span></div></li>`;
         });
-    } else {
-        const fullPali = getInputValue('full_pali_text');
-        const fullSinhala = getInputValue('full_sinhala_text');
-
-        const paliParagraphs = fullPali ? fullPali.split(/\n\s*\n/) : [];
-        const sinhalaParagraphs = fullSinhala ? fullSinhala.split(/\n\s*\n/) : [];
-
-        const maxLen = Math.max(paliParagraphs.length, sinhalaParagraphs.length);
-        for (let i = 0; i < maxLen; i++) {
-            const pali = paliParagraphs[i] ? paliParagraphs[i].trim() : '';
-            const sinhala = sinhalaParagraphs[i] ? sinhalaParagraphs[i].trim() : '';
-            if (pali || sinhala) {
-                passages.push({ pali, sinhala });
-            }
-        }
+        html += `</ul></li>`;
+      }
+      html += `</ul></li>`;
     }
+    html += `</ul></li>`;
+  }
+  html += '</ul>';
 
-    // Collect glossary
-    let glossary = [];
-    const glossaryMethod = getInputValue('glossary_input_method') || 'bulk_paste';
+  nav.innerHTML = html;
 
-    if (glossaryMethod === 'bulk_paste') {
-        const bulkGlossaryText = getInputValue('full_glossary_text');
-        if (bulkGlossaryText) {
-            const lines = bulkGlossaryText.split('\n');
-            lines.forEach(line => {
-                const trimmedLine = line.trim();
-                if (trimmedLine) {
-                    // Split by common separators: '-' '–' ':' '=' 
-                    const parts = trimmedLine.split(/[-:=–]/);
-                    if (parts.length >= 2) {
-                        const word = parts[0].trim();
-                        const meaning = parts.slice(1).join('-').trim();
-                        if (word || meaning) {
-                            glossary.push({ word, meaning });
-                        }
-                    }
-                }
-            });
-        }
-    } else {
-        const gRows = document.querySelectorAll('#glossary_dynamic_rows > .dynamic-row');
-        gRows.forEach(row => {
-            const word = row.querySelector('.glossary-word')?.value.trim() || '';
-            const meaning = row.querySelector('.glossary-meaning')?.value.trim() || '';
-            if (word || meaning) {
-                glossary.push({ word, meaning });
-            }
-        });
-    }
-
-    const suttaPayload = {
-        title,
-        subtitle,
-        order_no,
-        pitaka,
-        nikaya,
-        vagga,
-        speaker,
-        category,
-        passages: passages,
-        glossary: glossary
-    };
-
-    // Begin save
-    isSavingSutta = true;
-    setSuttaFormDisabled(true);
-    if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> සුරකිමින් පවතී...';
-    }
-
-    try {
-        let result;
-        if (editId) {
-            result = await client.from('suththra').update(suttaPayload).eq('id', editId);
-        } else {
-            suttaPayload.id = suttaId;
-            result = await client.from('suththra').insert([suttaPayload]);
-        }
-
-        if (result.error) throw result.error;
-
-        showToast('සූත්‍ර දත්ත සාර්ථකව සුරක්ෂිත කරන ලදී.', 'success');
-        resetSuttaForm();
-        await loadSuttasTable();
-
-    } catch (err) {
-        console.error('Save error:', err);
-        showToast('දත්ත සුරැකීමේදී දෝෂයක්: ' + (err?.message || err), 'error', 7000);
-    } finally {
-        isSavingSutta = false;
-        setSuttaFormDisabled(false);
-        if (saveBtn) {
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> සූත්‍රය සුරකින්න';
-        }
-    }
-}
-
-function setSuttaFormDisabled(state) {
-    const form = document.getElementById('suttaForm');
-    if (!form) return;
-    const elements = form.querySelectorAll('input, textarea, select, button');
-    elements.forEach(el => {
-        if (el.id !== 'saveSuttaBtn') {
-            el.disabled = state;
-        }
+  // Click handlers for sutta nodes
+  nav.querySelectorAll('.node-label[data-sutta-id]').forEach(el => {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const id = this.dataset.suttaId;
+      if (id) loadSutta(id);
+      closeSidebar();
     });
+  });
+
+  // Expand/collapse toggle
+  nav.querySelectorAll('.tree-node > .node-label .toggle-icon').forEach(icon => {
+    icon.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const parentLi = this.closest('.tree-node');
+      if (parentLi) {
+        parentLi.classList.toggle('expanded');
+        const iconEl = parentLi.querySelector('.toggle-icon i');
+        if (iconEl) {
+          iconEl.className = parentLi.classList.contains('expanded') ? 'fa-solid fa-chevron-down' : 'fa-solid fa-chevron-right';
+        }
+      }
+    });
+  });
+}
+
+// Sidebar filter
+function filterSidebar(query) {
+  const nav = document.getElementById('sidebarNav');
+  if (!nav) return;
+  const items = nav.querySelectorAll('.tree-node.sutta-node');
+  const q = query.trim().toLowerCase();
+  items.forEach(item => {
+    const label = item.querySelector('.node-name');
+    if (label) {
+      const text = label.textContent.toLowerCase();
+      const match = text.includes(q);
+      item.style.display = match ? '' : 'none';
+    }
+  });
+  // Also hide empty parent groups? For simplicity we just hide sutta nodes.
+  // Optionally show/hide parent if all children hidden.
 }
 
 // ============================================================
-// 9. Reset Form
+// 6. සූත්‍රය පූරණය කිරීම හා පෙන්වීම
 // ============================================================
 
-function resetSuttaForm() {
-    const form = document.getElementById('suttaForm');
-    if (form) form.reset();
+async function loadSutta(suttaId) {
+  if (!suttaId) return;
+  currentSuttaId = suttaId;
 
-    const editIdInput = document.getElementById('edit_sutta_id');
-    const suttaIdInput = document.getElementById('sutta_id_input');
-    const formTitleText = document.getElementById('formTitleText');
+  // If we already have the data in cache
+  if (suttaMap[suttaId]) {
+    renderSutta(suttaMap[suttaId]);
+    return;
+  }
 
-    if (editIdInput) editIdInput.value = '';
-    if (suttaIdInput) suttaIdInput.disabled = false;
-    if (formTitleText) formTitleText.innerText = 'නව සූත්‍ර දේශනාවක් එක් කිරීම';
+  const client = getClient();
+  if (!client) {
+    showToast('Supabase සම්බන්ධතාවය අසාර්ථකයි.', 'error');
+    return;
+  }
 
-    const passagesContainer = document.getElementById('passages_dynamic_rows');
-    const glossaryContainer = document.getElementById('glossary_dynamic_rows');
+  try {
+    const { data, error } = await client
+      .from('suththra')
+      .select('*')
+      .eq('id', suttaId)
+      .single();
 
-    if (passagesContainer) passagesContainer.innerHTML = '';
-    if (glossaryContainer) glossaryContainer.innerHTML = '';
-
-    addPassageRow();
-    addGlossaryRow();
-
-    const methodEl = document.getElementById('input_method');
-    if (methodEl) {
-        methodEl.value = 'line_by_line';
-        toggleInputMethod();
+    if (error) throw error;
+    if (!data) {
+      showToast('සූත්‍රය සොයා ගැනීමට නොහැකි විය.', 'error');
+      return;
     }
 
-    const glossaryMethodEl = document.getElementById('glossary_input_method');
-    if (glossaryMethodEl) {
-        glossaryMethodEl.value = 'bulk_paste';
-        toggleGlossaryInputMethod();
+    // Parse passages & glossary if stored as JSON strings
+    if (typeof data.passages === 'string') {
+      try { data.passages = JSON.parse(data.passages); } catch(e) { data.passages = []; }
     }
+    if (typeof data.glossary === 'string') {
+      try { data.glossary = JSON.parse(data.glossary); } catch(e) { data.glossary = []; }
+    }
+
+    suttaMap[suttaId] = data;
+    renderSutta(data);
+  } catch (err) {
+    console.error('Load sutta error:', err);
+    showToast('සූත්‍රය පූරණය කිරීමේ දෝෂයකි: ' + err.message, 'error');
+  }
+}
+
+function renderSutta(data) {
+  if (!data) return;
+
+  // Meta banner
+  document.getElementById('metaVagga').textContent = data.vagga || 'වග්ගය සඳහන් නැත';
+  document.getElementById('metaTitle').textContent = data.title || 'නම් රහිත සූත්‍රය';
+  document.getElementById('metaSubtitle').textContent = data.subtitle || '';
+  document.getElementById('metaSpeaker').textContent = data.speaker || 'භාග්‍යවතුන් වහන්සේ';
+
+  // Passages
+  const passages = data.passages || [];
+  renderComparative(passages);
+  renderPali(passages);
+  renderSinhala(passages);
+
+  // Glossary
+  const glossary = data.glossary || [];
+  renderGlossary(glossary);
+
+  // Update URL and title
+  if (history.pushState) {
+    const url = new URL(window.location);
+    url.searchParams.set('id', data.id);
+    history.pushState({ suttaId: data.id }, '', url);
+  }
+  document.title = data.title + ' – ත්‍රිපිටක පාලි-සිංහල පරිවර්තනය';
+
+  // If there was a search term, re-apply highlight
+  if (currentSearchTerm) {
+    highlightSearch(currentSearchTerm);
+  }
 }
 
 // ============================================================
-// 10. Load Suttas Table
+// 7. ටැබ් (Tabs) සහ පිටු පෙන්වීම
 // ============================================================
 
-async function loadSuttasTable() {
-    const tbody = document.getElementById('suttas_table_body');
-    if (!tbody) return;
+function navigateToPage(page) {
+  // Hide all page containers
+  document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
 
-    const client = getClient();
-    if (!client) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-msg">Supabase සම්බන්ධතාවය අසාර්ථකයි.</td></tr>';
-        return;
-    }
+  // Show selected
+  const container = document.getElementById('pageContainer-' + page);
+  if (container) container.classList.remove('hidden');
 
-    tbody.innerHTML = '<tr><td colspan="5" class="loading-msg">පූරණය වෙමින්...</td></tr>';
-
-    try {
-        const { data, error } = await client.from('suththra').select('*').order('order_no', { ascending: true });
-        if (error) throw error;
-
-        if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-msg">දැනට කිසිදු සූත්‍රයක් ඇතුළත් කර නැත.</td></tr>';
-            return;
-        }
-
-        const rowsHtml = data.map(sutta => {
-            const encodedId = encodeURIComponent(sutta.id);
-            return `
-                <tr>
-                    <td>${sutta.order_no ?? 1}</td>
-                    <td><strong>${escapeHtml(sutta.id)}</strong></td>
-                    <td>${escapeHtml(sutta.title)}</td>
-                    <td>${escapeHtml(sutta.nikaya || '')} (${escapeHtml(sutta.pitaka || '')})</td>
-                    <td class="text-center">
-                        <button onclick="editSutta(decodeURIComponent('${encodedId}'))" class="action-btn action-btn-edit">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button onclick="deleteSutta(decodeURIComponent('${encodedId}'))" class="action-btn action-btn-delete">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-
-        tbody.innerHTML = rowsHtml;
-
-    } catch (err) {
-        console.error('Table load error:', err);
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-msg" style="color:#dc2626;">දත්ත ලබා ගැනීමේ දෝෂයකි: ' + escapeHtml(err.message) + '</td></tr>';
-    }
+  // Update tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById('btnPage-' + page);
+  if (activeBtn) activeBtn.classList.add('active');
 }
 
 // ============================================================
-// 11. Edit Sutta (UPDATED: loads passages & glossary properly)
+// 8. අන්තර්ගත පෙන්වීම (Comparative, Pali, Sinhala, Glossary)
 // ============================================================
 
-async function editSutta(id) {
-    const client = getClient();
-    if (!client) {
-        showToast('Supabase සම්බන්ධතාවය අසාර්ථකයි.', 'error');
-        return;
-    }
+function renderComparative(passages) {
+  const container = document.getElementById('comparativeContentTable');
+  if (!container) return;
+  if (!passages || passages.length === 0) {
+    container.innerHTML = '<p class="empty-msg">මෙම සූත්‍රය සඳහා ඡේද නොමැත.</p>';
+    return;
+  }
 
-    try {
-        const { data: sutta, error } = await client.from('suththra').select('*').eq('id', id).single();
-        if (error) throw error;
+  let html = '';
+  passages.forEach((p, idx) => {
+    const paliText = escapeHtml(p.pali || '');
+    const sinhalaText = escapeHtml(p.sinhala || '');
+    html += `
+      <div class="comparative-row">
+        <div class="comparative-pali-col">
+          <span class="comparative-badge pali-badge">පාලි</span>
+          <div class="pali-text">${paliText}</div>
+        </div>
+        <div class="comparative-sinhala-col">
+          <span class="comparative-badge sinhala-badge">සිංහල</span>
+          <div class="sinhala-text">${sinhalaText}</div>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
 
-        // --- Basic metadata ---
-        const editIdInput = document.getElementById('edit_sutta_id');
-        const suttaIdInput = document.getElementById('sutta_id_input');
-        const titleInput = document.getElementById('title');
-        const subtitleInput = document.getElementById('subtitle');
-        const orderNoInput = document.getElementById('order_no');
-        const pitakaInput = document.getElementById('pitaka');
-        const nikayaInput = document.getElementById('nikaya');
-        const vaggaInput = document.getElementById('vagga');
-        const speakerInput = document.getElementById('speaker');
-        const categoryInput = document.getElementById('category');
-        const formTitleText = document.getElementById('formTitleText');
+function renderPali(passages) {
+  const container = document.getElementById('paliOnlyContent');
+  if (!container) return;
+  if (!passages || passages.length === 0) {
+    container.innerHTML = '<p class="empty-msg">පාලි ඡේද නොමැත.</p>';
+    return;
+  }
 
-        if (editIdInput) editIdInput.value = sutta.id;
-        if (suttaIdInput) {
-            suttaIdInput.value = sutta.id;
-            suttaIdInput.disabled = true;
-        }
-        if (titleInput) titleInput.value = sutta.title || '';
-        if (subtitleInput) subtitleInput.value = sutta.subtitle || '';
-        if (orderNoInput) orderNoInput.value = sutta.order_no ?? 1;
-        if (pitakaInput) pitakaInput.value = sutta.pitaka || '';
-        if (nikayaInput) nikayaInput.value = sutta.nikaya || '';
-        if (vaggaInput) vaggaInput.value = sutta.vagga || '';
-        if (speakerInput) speakerInput.value = sutta.speaker || '';
-        if (categoryInput) categoryInput.value = sutta.category || '';
-        if (formTitleText) {
-            formTitleText.innerText = 'සූත්‍රය සංස්කරණය කිරීම (' + (sutta.title || '') + ')';
-        }
+  let html = '';
+  passages.forEach((p, idx) => {
+    const paliText = escapeHtml(p.pali || '');
+    html += `
+      <div class="pali-only-block">
+        <div class="pali-block-number">${idx + 1}</div>
+        <div class="pali-only-text">${paliText}</div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
 
-        // --- Parse passages ---
-        let passagesData = sutta.passages;
-        if (typeof passagesData === 'string') {
-            try { passagesData = JSON.parse(passagesData); } catch (e) { passagesData = []; }
-        }
-        if (!Array.isArray(passagesData)) passagesData = [];
+function renderSinhala(passages) {
+  const container = document.getElementById('sinhalaOnlyContent');
+  if (!container) return;
+  if (!passages || passages.length === 0) {
+    container.innerHTML = '<p class="empty-msg">සිංහල ඡේද නොමැත.</p>';
+    return;
+  }
 
-        // Set input method to 'line_by_line' (default for editing)
-        const methodEl = document.getElementById('input_method');
-        if (methodEl) {
-            methodEl.value = 'line_by_line';
-            toggleInputMethod();
-        }
+  let html = '';
+  passages.forEach((p, idx) => {
+    const sinhalaText = escapeHtml(p.sinhala || '');
+    html += `
+      <div class="sinhala-only-block">
+        <div class="sinhala-block-header">
+          <span class="sinhala-block-number">${idx + 1}</span>
+          <hr class="sinhala-divider" />
+        </div>
+        <div class="sinhala-only-text">${sinhalaText}</div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
 
-        // Clear existing rows and add passage rows
-        const passagesContainer = document.getElementById('passages_dynamic_rows');
-        if (passagesContainer) passagesContainer.innerHTML = '';
+function renderGlossary(glossary) {
+  const container = document.getElementById('fullGlossaryContainer');
+  if (!container) return;
+  if (!glossary || glossary.length === 0) {
+    container.innerHTML = '<div class="glossary-empty">මෙම සූත්‍රය සඳහා පද නිරුක්ති නොමැත.</div>';
+    return;
+  }
 
-        if (passagesData.length > 0) {
-            passagesData.forEach(p => addPassageRow(p.pali || '', p.sinhala || ''));
-        } else {
-            addPassageRow(); // add one empty row
-        }
-
-        // Also clear full text areas (they might contain old data)
-        const fullPaliEl = document.getElementById('full_pali_text');
-        const fullSinhalaEl = document.getElementById('full_sinhala_text');
-        if (fullPaliEl) fullPaliEl.value = '';
-        if (fullSinhalaEl) fullSinhalaEl.value = '';
-
-        // --- Parse glossary ---
-        let glossaryData = sutta.glossary;
-        if (typeof glossaryData === 'string') {
-            try { glossaryData = JSON.parse(glossaryData); } catch (e) { glossaryData = []; }
-        }
-        if (!Array.isArray(glossaryData)) glossaryData = [];
-
-        // Set glossary method to 'bulk_paste' and fill the bulk textarea
-        const glossaryMethodEl = document.getElementById('glossary_input_method');
-        if (glossaryMethodEl) {
-            glossaryMethodEl.value = 'bulk_paste';
-            toggleGlossaryInputMethod();
-        }
-
-        const bulkGlossaryTextarea = document.getElementById('full_glossary_text');
-        if (bulkGlossaryTextarea) {
-            if (glossaryData.length > 0) {
-                const glossaryLines = glossaryData.map(g => `${g.word || ''} – ${g.meaning || ''}`).join('\n');
-                bulkGlossaryTextarea.value = glossaryLines;
-            } else {
-                bulkGlossaryTextarea.value = '';
-            }
-        }
-
-        // Also clear the line-by-line glossary container (since we are using bulk)
-        const glossaryContainer = document.getElementById('glossary_dynamic_rows');
-        if (glossaryContainer) glossaryContainer.innerHTML = '';
-        addGlossaryRow(); // add one empty row just in case
-
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    } catch (err) {
-        showToast('සංස්කරණය සඳහා දත්ත ලබා ගැනීමේ දෝෂයකි: ' + err.message, 'error');
-    }
+  let html = '';
+  glossary.forEach(g => {
+    const word = escapeHtml(g.word || '');
+    const meaning = escapeHtml(g.meaning || '');
+    html += `
+      <div class="glossary-card">
+        <span class="glossary-word">${word}</span>
+        <span class="glossary-meaning">${meaning}</span>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
 }
 
 // ============================================================
-// 12. Delete Sutta
+// 9. සෙවුම (Search) – client-side highlight
 // ============================================================
 
-async function deleteSutta(id) {
-    if (!confirm(`'${id}' අංකනය සහිත සූත්‍ර දේශනාව පද්ධතියෙන් සම්පූර්ණයෙන්ම මකා දැමීමට ඔබට අවශ්‍යද?`)) {
-        return;
-    }
+function searchSutta() {
+  const input = document.getElementById('searchQuery');
+  if (!input) return;
+  const term = input.value.trim();
+  currentSearchTerm = term;
 
-    const client = getClient();
-    if (!client) {
-        showToast('Supabase සම්බන්ධතාවය අසාර්ථකයි.', 'error');
-        return;
+  const statusEl = document.getElementById('searchStatusInfo');
+  if (statusEl) {
+    if (term) {
+      statusEl.classList.remove('hidden');
+      statusEl.textContent = `“${escapeHtml(term)}” සඳහා කහ පැහැයෙන් ඉස්මතු කර ඇත.`;
+    } else {
+      statusEl.classList.add('hidden');
     }
+  }
 
-    try {
-        const { error } = await client.from('suththra').delete().eq('id', id);
-        if (error) throw error;
-
-        showToast('සූත්‍රය සාර්ථකව මකා දමන ලදී.', 'success');
-        await loadSuttasTable();
-    } catch (err) {
-        console.error('Delete error:', err);
-        showToast('සූත්‍රය මකා දැමීමේදී දෝෂයක් විය: ' + err.message, 'error');
-    }
+  highlightSearch(term);
 }
 
-// ============================================================
-// 13. Load Users Table
-// ============================================================
+function highlightSearch(term) {
+  // Remove previous highlights
+  document.querySelectorAll('.search-highlight').forEach(el => {
+    const parent = el.parentNode;
+    parent.replaceChild(document.createTextNode(el.textContent), el);
+    parent.normalize();
+  });
 
-async function loadUsersTable() {
-    const tbody = document.getElementById('users_table_body');
-    if (!tbody) return;
+  if (!term) return;
 
-    const client = getClient();
-    if (!client) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-msg">Supabase සම්බන්ධතාවය අසාර්ථකයි.</td></tr>';
-        return;
-    }
+  // We'll highlight in comparative, pali, sinhala containers
+  const containers = [
+    document.getElementById('comparativeContentTable'),
+    document.getElementById('paliOnlyContent'),
+    document.getElementById('sinhalaOnlyContent')
+  ];
 
-    tbody.innerHTML = '<tr><td colspan="5" class="loading-msg">පරිශීලක දත්ත පූරණය වෙමින්...</td></tr>';
-
-    try {
-        const { data: profiles, error } = await client.from('profiles').select('*');
-        if (error) throw error;
-
-        if (!profiles || profiles.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-msg">ලියාපදිංචි පරිශීලකයන් නොමැත.</td></tr>';
-            return;
+  containers.forEach(container => {
+    if (!container) return;
+    // Walk text nodes in .pali-text, .sinhala-text, .pali-only-text, .sinhala-only-text
+    const elements = container.querySelectorAll('.pali-text, .sinhala-text, .pali-only-text, .sinhala-only-text');
+    elements.forEach(el => {
+      const text = el.textContent;
+      if (!text) return;
+      const regex = new RegExp(escapeRegex(term), 'gi');
+      if (!regex.test(text)) return;
+      // Split and wrap matches
+      const parts = text.split(regex);
+      const matches = text.match(regex);
+      if (!matches) return;
+      let newHtml = '';
+      for (let i = 0; i < parts.length; i++) {
+        newHtml += escapeHtml(parts[i]);
+        if (i < matches.length) {
+          newHtml += `<span class="search-highlight">${escapeHtml(matches[i])}</span>`;
         }
+      }
+      el.innerHTML = newHtml;
+    });
+  });
+}
 
-        const rowsHtml = profiles.map(user => {
-            const role = user.role || 'viewer';
-            const isBlocked = user.is_blocked || false;
-            const encodedUserId = encodeURIComponent(user.id);
-
-            const statusBadge = isBlocked
-                ? '<span class="status-badge status-badge-blocked">Blocked</span>'
-                : '<span class="status-badge status-badge-active">Active</span>';
-
-            return `
-                <tr>
-                    <td>${escapeHtml(user.full_name || 'නම සඳහන් නැත')}</td>
-                    <td>${escapeHtml(user.email || '')}</td>
-                    <td><strong>${escapeHtml(role)}</strong></td>
-                    <td>${statusBadge}</td>
-                    <td class="text-center">
-                        <select onchange="updateUserRole(decodeURIComponent('${encodedUserId}'), this.value)" class="role-select">
-                            <option value="viewer" ${role === 'viewer' ? 'selected' : ''}>Viewer</option>
-                            <option value="editor" ${role === 'editor' ? 'selected' : ''}>Editor</option>
-                            <option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option>
-                        </select>
-                        <button onclick="toggleBlockUser(decodeURIComponent('${encodedUserId}'), ${isBlocked})" class="action-btn ${isBlocked ? 'action-btn-unblock' : 'action-btn-block'}">
-                            ${isBlocked ? 'Unblock' : 'Block'}
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-
-        tbody.innerHTML = rowsHtml;
-
-    } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-msg" style="color:#dc2626;">පරිශීලකයන් ලබා ගැනීමේ දෝෂයකි: ' + escapeHtml(err.message) + '</td></tr>';
-    }
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // ============================================================
-// 14. User Management
+// 10. අකුරු ප්‍රමාණය (Font Size)
 // ============================================================
 
-async function updateUserRole(userId, newRole) {
-    const client = getClient();
-    if (!client) {
-        showToast('Supabase සම්බන්ධතාවය අසාර්ථකයි.', 'error');
-        return;
-    }
-
-    try {
-        const { error } = await client.from('profiles').update({ role: newRole }).eq('id', userId);
-        if (error) throw error;
-        showToast('පරිශීලක බලතල (Role) සාර්ථකව යාවත්කාලීන කරන ලදී.', 'success');
-        await loadUsersTable();
-    } catch (err) {
-        showToast('Role යාවත්කාලීන කිරීමේ දෝෂයකි: ' + err.message, 'error');
-    }
-}
-
-async function toggleBlockUser(userId, currentStatus) {
-    if (!confirm('මෙම පරිශීලකයාගේ පිවිසුම් තත්ත්වය වෙනස් කිරීමට අවශ්‍ය බව තහවුරු කරන්න.')) return;
-
-    const client = getClient();
-    if (!client) {
-        showToast('Supabase සම්බන්ධතාවය අසාර්ථකයි.', 'error');
-        return;
-    }
-
-    try {
-        const { error } = await client.from('profiles').update({ is_blocked: !currentStatus }).eq('id', userId);
-        if (error) throw error;
-        showToast('පරිශීලක තත්ත්වය සාර්ථකව වෙනස් විය.', 'success');
-        await loadUsersTable();
-    } catch (err) {
-        showToast('තත්ත්වය වෙනස් කිරීමේ දෝෂයකි: ' + err.message, 'error');
-    }
+function changeFontSize(delta) {
+  const html = document.documentElement;
+  let current = parseFloat(getComputedStyle(html).fontSize);
+  let newSize = current + delta * 2;
+  if (newSize < 12) newSize = 12;
+  if (newSize > 26) newSize = 26;
+  html.style.fontSize = newSize + 'px';
+  document.getElementById('fontSizeIndicator').textContent = Math.round((newSize / 18) * 100) + '%';
 }
 
 // ============================================================
-// 15. Logout & Theme
+// 11. තේමාව (Theme)
 // ============================================================
-
-async function logoutAdmin() {
-    const client = getClient();
-    if (client) {
-        await client.auth.signOut();
-    }
-    window.location.href = 'login.html';
-}
 
 function toggleTheme() {
-    const htmlEl = document.documentElement;
-    const themeIcon = document.getElementById('themeIcon');
-    if (!themeIcon) return;
-
-    if (htmlEl.classList.contains('dark')) {
-        htmlEl.classList.remove('dark');
-        themeIcon.className = 'fa-solid fa-sun';
-    } else {
-        htmlEl.classList.add('dark');
-        themeIcon.className = 'fa-solid fa-moon';
-    }
+  const html = document.documentElement;
+  const icon = document.getElementById('themeIcon');
+  if (!icon) return;
+  const isDark = html.classList.toggle('dark');
+  icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
 // ============================================================
-// 16. Initialization
+// 12. පරිශීලක Dropdown
 // ============================================================
 
-document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Admin access පරීක්ෂා කරන්න
-    const hasAccess = await checkAdminAccess();
-    if (!hasAccess) return;
+function toggleDropdown() {
+  const menu = document.getElementById('dropdownMenu');
+  if (menu) {
+    menu.classList.toggle('open');
+  }
+}
 
-    // 2. මුලින්ම එක් ඡේදයක් සහ Glossary පේළියක් එක් කරන්න
-    addPassageRow();
-    addGlossaryRow();
-
-    // 3. සූත්‍ර වගුව පූරණය කරන්න
-    await loadSuttasTable();
-
-    // 4. තේමාව පරීක්ෂා කරන්න (පෙර තේමාව මතක තබා ගැනීමට)
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-        const themeIcon = document.getElementById('themeIcon');
-        if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
+// Close dropdown when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('userDropdown');
+    const menu = document.getElementById('dropdownMenu');
+    if (dropdown && menu && !dropdown.contains(e.target)) {
+      menu.classList.remove('open');
     }
+  });
 });
 
-// තේමාව වෙනස් වන විට localStorage එකේ සුරකින්න
-const origToggleTheme = toggleTheme;
-toggleTheme = function () {
-    origToggleTheme();
-    const isDark = document.documentElement.classList.contains('dark');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-};
+// ============================================================
+// 13. පිවිසුම් / ඉවත්වීම
+// ============================================================
+
+async function handleLogout() {
+  const client = getClient();
+  if (client) {
+    await client.auth.signOut();
+  }
+  window.location.href = 'login.html';
+}
+
+async function loadUserInfo() {
+  const client = getClient();
+  if (!client) return;
+
+  try {
+    const { data: { user }, error } = await client.auth.getUser();
+    if (error || !user) {
+      // Not logged in – show guest
+      document.getElementById('userDisplayName').textContent = 'ආගන්තුක';
+      document.getElementById('userAvatar').src = 'https://placehold.co/30x30/9ca3af/ffffff?text=G';
+      return;
+    }
+
+    // Get profile
+    const { data: profile } = await client
+      .from('profiles')
+      .select('full_name, avatar_url')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const name = profile?.full_name || user.email || 'පරිශීලක';
+    document.getElementById('userDisplayName').textContent = name;
+    if (profile?.avatar_url) {
+      document.getElementById('userAvatar').src = profile.avatar_url;
+    } else {
+      document.getElementById('userAvatar').src = `https://placehold.co/30x30/f59e0b/ffffff?text=${name.charAt(0).toUpperCase()}`;
+    }
+  } catch (err) {
+    console.warn('User info load error:', err);
+    document.getElementById('userDisplayName').textContent = 'ආගන්තුක';
+  }
+}
+
+// ============================================================
+// 14. මුලික පූරණය (Initialization)
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', async function() {
+  // 1. Theme from localStorage
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark');
+    document.getElementById('themeIcon').className = 'fa-solid fa-moon';
+  }
+
+  // 2. Load user info
+  await loadUserInfo();
+
+  // 3. Fetch all suttas for sidebar and cache
+  const client = getClient();
+  if (client) {
+    try {
+      const { data, error } = await client
+        .from('suththra')
+        .select('id, pitaka, nikaya, vagga, title, order_no, passages, glossary, subtitle, speaker')
+        .order('order_no', { ascending: true });
+
+      if (error) throw error;
+      allSuttas = data || [];
+      // Build map for quick access
+      allSuttas.forEach(s => {
+        // Parse passages & glossary if needed
+        if (typeof s.passages === 'string') {
+          try { s.passages = JSON.parse(s.passages); } catch(e) { s.passages = []; }
+        }
+        if (typeof s.glossary === 'string') {
+          try { s.glossary = JSON.parse(s.glossary); } catch(e) { s.glossary = []; }
+        }
+        suttaMap[s.id] = s;
+      });
+
+      // Build sidebar tree
+      buildSidebarTree();
+
+      // 4. Load sutta from URL param
+      const params = new URLSearchParams(window.location.search);
+      const suttaId = params.get('id');
+      if (suttaId && suttaMap[suttaId]) {
+        // We have it in cache
+        renderSutta(suttaMap[suttaId]);
+        // Highlight active node
+        const nav = document.getElementById('sidebarNav');
+        if (nav) {
+          nav.querySelectorAll('.tree-node.sutta-node').forEach(li => {
+            li.classList.toggle('active', li.querySelector('.node-label')?.dataset?.suttaId === suttaId);
+          });
+        }
+      } else if (suttaId) {
+        // Not in cache, fetch separately
+        await loadSutta(suttaId);
+      } else if (allSuttas.length > 0) {
+        // No ID, load first sutta
+        const first = allSuttas[0];
+        renderSutta(first);
+        // Update URL
+        const url = new URL(window.location);
+        url.searchParams.set('id', first.id);
+        history.replaceState({ suttaId: first.id }, '', url);
+      } else {
+        showToast('කිසිදු සූත්‍රයක් හමු නොවීය.', 'warning');
+      }
+    } catch (err) {
+      console.error('Initialization error:', err);
+      showToast('දත්ත පූරණය අසාර්ථකයි: ' + err.message, 'error');
+    }
+  } else {
+    showToast('Supabase සම්බන්ධතාවය අසාර්ථකයි.', 'error');
+  }
+
+  // 5. Set initial font indicator (base 18px)
+  const baseFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  const percent = Math.round((baseFontSize / 18) * 100);
+  document.getElementById('fontSizeIndicator').textContent = percent + '%';
+
+  // 6. Click outside dropdown to close
+  // Already handled above.
+});
+
+// ============================================================
+// 15. Toast Styles (if not present in CSS, add minimal)
+// ============================================================
+(function injectToastStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .toast-container {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-width: 320px;
+    }
+    .toast-message {
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      background: var(--card-bg, #fff);
+      color: var(--text-primary, #1e1a17);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      border-left: 4px solid #f59e0b;
+      font-size: 0.75rem;
+      font-weight: 500;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .toast-message.toast-fadeout {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    .toast-success { border-left-color: #22c55e; }
+    .toast-error { border-left-color: #ef4444; }
+    .toast-warning { border-left-color: #f59e0b; }
+    .toast-info { border-left-color: #3b82f6; }
+  `;
+  document.head.appendChild(style);
+})();
