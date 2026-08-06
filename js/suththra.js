@@ -372,8 +372,9 @@ function renderActivePage() {
         setHTML('comparativeContentTable', loadingHTML);
         setHTML('paliOnlyContent', loadingHTML);
         setHTML('sinhalaOnlyContent', loadingHTML);
-        renderGlossary([], 5, true);
-        renderGlossary([], 0, false);
+        // glossary හිස් කරන්න
+        const fullContainer = document.getElementById('fullGlossaryContainer');
+        if (fullContainer) fullContainer.innerHTML = '<p class="glossary-empty">පද නිරුක්ති ඇතුළත් කර නැත.</p>';
         return;
     }
 
@@ -384,10 +385,8 @@ function renderActivePage() {
     setText('metaCategory', escapeHtml(sutta.category || ''));
     setText('metaSpeaker', escapeHtml(sutta.speaker || ''));
 
-    // --- Render Glossary ---
-    // දැන් sutta.glossary යනු array එකකි (JSON.parse කර ඇති නිසා)
-    renderGlossary(sutta.glossary || [], 5, true);
-    renderGlossary(sutta.glossary || [], 0, false);
+    // --- Render Glossary (only for the full glossary tab) ---
+    renderGlossary(sutta.glossary || []);
 
     // --- Render Passages ---
     if (currentPageMode === 'comparative') {
@@ -396,6 +395,8 @@ function renderActivePage() {
         renderPaliOnlyPage(sutta.passages || []);
     } else if (currentPageMode === 'sinhala') {
         renderSinhalaOnlyPage(sutta.passages || []);
+    } else if (currentPageMode === 'glossary-page') {
+        // ග්ලොසරි පිටුව සඳහා කිසිදු පාඨයක් නොපෙන්වයි, එය දැනටමත් renderGlossary මගින් පුරවා ඇත.
     }
 
     applyFontSize();
@@ -484,59 +485,20 @@ function renderSinhalaOnlyPage(passages) {
 }
 
 // ============================================================
-// 9. Glossary Rendering (මෙය ද්විත්වය වළක්වයි)
+// 9. Glossary Rendering (සරල කර ඇත - "පද නිරුක්ති" ටැබය සඳහා පමණක්)
 // ============================================================
 
-function renderGlossary(glossaryList, limit = 0, showViewAllLink = false) {
-    const bottomContainer = document.getElementById('glossaryContainer');
+function renderGlossary(glossaryList) {
     const fullContainer = document.getElementById('fullGlossaryContainer');
-    if (!bottomContainer || !fullContainer) return;
+    if (!fullContainer) return;
 
-    // පැරණි අන්තර්ගතය හිස් කරන්න
-    bottomContainer.innerHTML = '';
     fullContainer.innerHTML = '';
 
-    // glossaryList array එකක් නොවේ නම් හිස් array එකක් ලෙස සලකන්න
     if (!Array.isArray(glossaryList) || glossaryList.length === 0) {
-        const emptyMsg = `<p class="glossary-empty">පද නිරුක්ති ඇතුළත් කර නැත.</p>`;
-        bottomContainer.innerHTML = emptyMsg;
-        fullContainer.innerHTML = emptyMsg;
+        fullContainer.innerHTML = `<p class="glossary-empty">පද නිරුක්ති ඇතුළත් කර නැත.</p>`;
         return;
     }
 
-    const totalCount = glossaryList.length;
-
-    // 1. පහළ Glossary එක (limit අනුව)
-    const itemsToShow = (limit > 0) ? glossaryList.slice(0, limit) : glossaryList;
-    itemsToShow.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'glossary-card preview';
-
-        const highlightedWord = highlightText(escapeHtml(item.word), currentSearchQuery);
-        const highlightedMeaning = highlightText(escapeHtml(item.meaning), currentSearchQuery);
-
-        card.innerHTML = `
-            <span class="glossary-word">${highlightedWord}</span>
-            <span class="glossary-meaning">${highlightedMeaning}</span>
-        `;
-        bottomContainer.appendChild(card);
-    });
-
-    // "සම්පූර්ණ පද නිරුක්ති" ලින්ක් එක
-    if (showViewAllLink && totalCount > limit && limit > 0) {
-        const viewAllLink = document.createElement('button');
-        viewAllLink.className = 'glossary-view-all-link';
-        viewAllLink.innerHTML = `
-            <i class="fa-solid fa-arrow-right"></i>
-            සම්පූර්ණ පද නිරුක්ති බලන්න (සියල්ලම ${totalCount} ක්)
-        `;
-        viewAllLink.onclick = function() {
-            navigateToPage('glossary-page');
-        };
-        bottomContainer.appendChild(viewAllLink);
-    }
-
-    // 2. සම්පූර්ණ Glossary එක ("පද නිරුක්ති" ටැබය සඳහා)
     glossaryList.forEach(item => {
         const card = document.createElement('div');
         card.className = 'glossary-card';
@@ -576,15 +538,7 @@ function navigateToPage(mode) {
         activeBtn.classList.add('active');
     }
 
-    // "පද නිරුක්ති" ටැබය තුළ පහළ ග්ලොසරි කොටස සඟවන්න
-    const bottomGlossary = document.getElementById('bottomGlossarySection');
-    if (bottomGlossary) {
-        if (mode === 'glossary-page') {
-            bottomGlossary.classList.add('hidden');
-        } else {
-            bottomGlossary.classList.remove('hidden');
-        }
-    }
+    // පහළ glossary කොටසක් නොමැති බැවින්, මෙහි කිසිදු සඟවීමක් අවශ්‍ය නොවේ
 
     renderActivePage();
 }
