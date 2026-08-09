@@ -654,8 +654,7 @@ html.dark .font-btn {
     transform: translateX(0);
 }
 
-/* ----- rest of CSS unchanged (cards, tabs, glossary, footer, print) ----- */
-/* ... (the remaining CSS from your original file stays exactly the same) ... */
+/* ----- sidebar tree styles ----- */
 .sidebar-header {
     display: flex;
     align-items: center;
@@ -1197,6 +1196,7 @@ html.dark .search-highlight {
     border: 1px solid rgba(5, 150, 105, 0.10);
 }
 
+/* පාඨ ආකෘතිකරණය - වෙනස් කිරීම: white-space: pre-wrap; එකතු කරන ලදී */
 .pali-text {
     font-family: 'Abhaya Libre', serif;
     font-weight: 700;
@@ -1205,6 +1205,7 @@ html.dark .search-highlight {
     line-height: 1.8;
     font-style: italic;
     text-align: justify;
+    white-space: pre-wrap; /* නව රේඛා ආරක්ෂා කිරීමට */
 }
 
 .sinhala-text {
@@ -1212,6 +1213,7 @@ html.dark .search-highlight {
     color: var(--text-secondary);
     line-height: 1.8;
     text-align: justify;
+    white-space: pre-wrap; /* නව රේඛා ආරක්ෂා කිරීමට */
 }
 
 /* Pali Only */
@@ -1266,6 +1268,7 @@ html.dark .pali-block-number {
     color: var(--text-primary);
     font-style: italic;
     line-height: 2;
+    white-space: pre-wrap; /* නව රේඛා ආරක්ෂා කිරීමට */
 }
 
 /* Sinhala Only */
@@ -1330,6 +1333,7 @@ html.dark .sinhala-block-number {
     color: var(--text-secondary);
     line-height: 1.8;
     text-align: justify;
+    white-space: pre-wrap; /* නව රේඛා ආරක්ෂා කිරීමට */
 }
 
 /* ----- 11. GLOSSARY ----- */
@@ -1406,7 +1410,6 @@ html.dark .glossary-meaning {
     padding: 1rem 0;
 }
 
-/* "සම්පූර්ණ පද නිරුක්ති" ලින්ක් එක */
 .glossary-view-all-link {
     grid-column: 1 / -1;
     display: inline-flex;
@@ -1439,9 +1442,6 @@ html.dark .glossary-view-all-link:hover {
     border-color: #fbbf24;
     color: #fbbf24;
 }
-
-/* ----- 12. BOTTOM GLOSSARY (removed, kept for reference) ----- */
-/* .bottom-glossary styles removed */
 
 /* ----- 13. FOOTER ----- */
 .admin-footer {
