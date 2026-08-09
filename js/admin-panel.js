@@ -573,7 +573,7 @@ async function loadSuttasTable() {
 }
 
 // ============================================================
-// 11. Edit Sutta
+// 11. Edit Sutta (ආදාන ක්‍රමය නිවැරදි හැසිරවීම සහිත)
 // ============================================================
 
 async function editSutta(id) {
@@ -616,10 +616,7 @@ async function editSutta(id) {
             formTitleText.innerText = 'සූත්‍රය සංස්කරණය කිරීම (' + (sutta.title || '') + ')';
         }
 
-        // Passages
-        const passagesContainer = document.getElementById('passages_dynamic_rows');
-        if (passagesContainer) passagesContainer.innerHTML = '';
-
+        // Passages - determine input method based on data
         let passagesData = sutta.passages;
         if (typeof passagesData === 'string') {
             try { passagesData = JSON.parse(passagesData); } catch (e) { passagesData = []; }
@@ -627,36 +624,89 @@ async function editSutta(id) {
 
         const fullPaliEl = document.getElementById('full_pali_text');
         const fullSinhalaEl = document.getElementById('full_sinhala_text');
+        const methodEl = document.getElementById('input_method');
+
+        // Check if the passages are structured as line-by-line or full text
+        // If passages length > 1 OR any passage has both pali and sinhala with line breaks, treat as line_by_line
+        // Otherwise treat as full_text if there is at least one passage with combined content
+        let isLineByLine = false;
         if (Array.isArray(passagesData) && passagesData.length > 0) {
-            if (fullPaliEl) fullPaliEl.value = passagesData.map(p => p.pali || '').join('\n\n');
-            if (fullSinhalaEl) fullSinhalaEl.value = passagesData.map(p => p.sinhala || '').join('\n\n');
+            // If more than one passage, it's likely line-by-line
+            if (passagesData.length > 1) {
+                isLineByLine = true;
+            } else if (passagesData.length === 1) {
+                // Single passage: check if it contains multiple lines (paragraphs) - treat as full_text
+                const p = passagesData[0];
+                const paliLines = (p.pali || '').split(/\n\s*\n/).filter(s => s.trim());
+                const sinhalaLines = (p.sinhala || '').split(/\n\s*\n/).filter(s => s.trim());
+                if (paliLines.length <= 1 && sinhalaLines.length <= 1) {
+                    isLineByLine = true; // single paragraph, treat as line_by_line for editing
+                } else {
+                    isLineByLine = false; // multiple paragraphs, treat as full_text
+                }
+            }
         }
 
-        const methodEl = document.getElementById('input_method');
+        // Set the input method
         if (methodEl) {
-            methodEl.value = 'line_by_line';
+            methodEl.value = isLineByLine ? 'line_by_line' : 'full_text';
             toggleInputMethod();
         }
 
+        // Populate passages
+        const passagesContainer = document.getElementById('passages_dynamic_rows');
+        if (passagesContainer) passagesContainer.innerHTML = '';
+
         if (Array.isArray(passagesData) && passagesData.length > 0) {
-            passagesData.forEach(p => addPassageRow(p.pali || '', p.sinhala || ''));
+            if (isLineByLine) {
+                // Line-by-line: add each passage as a separate row
+                passagesData.forEach(p => addPassageRow(p.pali || '', p.sinhala || ''));
+            } else {
+                // Full text: fill the textareas with the combined passages
+                if (fullPaliEl) fullPaliEl.value = passagesData.map(p => p.pali || '').join('\n\n');
+                if (fullSinhalaEl) fullSinhalaEl.value = passagesData.map(p => p.sinhala || '').join('\n\n');
+            }
         } else {
-            addPassageRow();
+            // No passages: add one empty row
+            if (isLineByLine) {
+                addPassageRow();
+            }
         }
 
         // Glossary
-        const glossaryContainer = document.getElementById('glossary_dynamic_rows');
-        if (glossaryContainer) glossaryContainer.innerHTML = '';
-
         let glossaryData = sutta.glossary;
         if (typeof glossaryData === 'string') {
             try { glossaryData = JSON.parse(glossaryData); } catch (e) { glossaryData = []; }
         }
 
+        const glossaryContainer = document.getElementById('glossary_dynamic_rows');
+        if (glossaryContainer) glossaryContainer.innerHTML = '';
+
+        const glossaryMethodEl = document.getElementById('glossary_input_method');
+        if (glossaryMethodEl) {
+            // Determine glossary method: if glossary has multiple entries, use line_by_line; else bulk_paste
+            if (Array.isArray(glossaryData) && glossaryData.length > 1) {
+                glossaryMethodEl.value = 'line_by_line';
+            } else {
+                glossaryMethodEl.value = 'bulk_paste';
+            }
+            toggleGlossaryInputMethod();
+        }
+
         if (Array.isArray(glossaryData) && glossaryData.length > 0) {
-            glossaryData.forEach(g => addGlossaryRow(g.word || '', g.meaning || ''));
+            const bulkGlossaryEl = document.getElementById('full_glossary_text');
+            if (glossaryMethodEl && glossaryMethodEl.value === 'bulk_paste' && bulkGlossaryEl) {
+                // Combine glossary entries into bulk text
+                bulkGlossaryEl.value = glossaryData.map(g => `${g.word || ''} – ${g.meaning || ''}`).join('\n');
+            } else {
+                // Line-by-line: add rows
+                glossaryData.forEach(g => addGlossaryRow(g.word || '', g.meaning || ''));
+            }
         } else {
-            addGlossaryRow();
+            // No glossary: add one empty row if line_by_line
+            if (glossaryMethodEl && glossaryMethodEl.value === 'line_by_line') {
+                addGlossaryRow();
+            }
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
