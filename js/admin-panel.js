@@ -573,7 +573,7 @@ async function loadSuttasTable() {
 }
 
 // ============================================================
-// 11. Edit Sutta (ආදාන ක්‍රමය නිවැරදි හැසිරවීම සහිත)
+// 11. Edit Sutta - නව අනුවාදය (ඉවත් කර නැවත ඇතුළත් කිරීම)
 // ============================================================
 
 async function editSutta(id) {
@@ -587,6 +587,7 @@ async function editSutta(id) {
         const { data: sutta, error } = await client.from('suththra').select('*').eq('id', id).single();
         if (error) throw error;
 
+        // --- 1. මූලික දත්ත පිරවීම ---
         const editIdInput = document.getElementById('edit_sutta_id');
         const suttaIdInput = document.getElementById('sutta_id_input');
         const titleInput = document.getElementById('title');
@@ -616,7 +617,7 @@ async function editSutta(id) {
             formTitleText.innerText = 'සූත්‍රය සංස්කරණය කිරීම (' + (sutta.title || '') + ')';
         }
 
-        // Passages - determine input method based on data
+        // --- 2. Passages දත්ත සකස් කිරීම ---
         let passagesData = sutta.passages;
         if (typeof passagesData === 'string') {
             try { passagesData = JSON.parse(passagesData); } catch (e) { passagesData = []; }
@@ -624,89 +625,71 @@ async function editSutta(id) {
 
         const fullPaliEl = document.getElementById('full_pali_text');
         const fullSinhalaEl = document.getElementById('full_sinhala_text');
+        const passagesContainer = document.getElementById('passages_dynamic_rows');
         const methodEl = document.getElementById('input_method');
 
-        // Check if the passages are structured as line-by-line or full text
-        // If passages length > 1 OR any passage has both pali and sinhala with line breaks, treat as line_by_line
-        // Otherwise treat as full_text if there is at least one passage with combined content
-        let isLineByLine = false;
-        if (Array.isArray(passagesData) && passagesData.length > 0) {
-            // If more than one passage, it's likely line-by-line
-            if (passagesData.length > 1) {
-                isLineByLine = true;
-            } else if (passagesData.length === 1) {
-                // Single passage: check if it contains multiple lines (paragraphs) - treat as full_text
-                const p = passagesData[0];
-                const paliLines = (p.pali || '').split(/\n\s*\n/).filter(s => s.trim());
-                const sinhalaLines = (p.sinhala || '').split(/\n\s*\n/).filter(s => s.trim());
-                if (paliLines.length <= 1 && sinhalaLines.length <= 1) {
-                    isLineByLine = true; // single paragraph, treat as line_by_line for editing
-                } else {
-                    isLineByLine = false; // multiple paragraphs, treat as full_text
-                }
-            }
-        }
-
-        // Set the input method
-        if (methodEl) {
-            methodEl.value = isLineByLine ? 'line_by_line' : 'full_text';
-            toggleInputMethod();
-        }
-
-        // Populate passages
-        const passagesContainer = document.getElementById('passages_dynamic_rows');
+        // 2.1. පැරණි ඡේද පේළි ඉවත් කරන්න
         if (passagesContainer) passagesContainer.innerHTML = '';
 
+        // 2.2. දත්ත ඇති බව පරීක්ෂා කරන්න
         if (Array.isArray(passagesData) && passagesData.length > 0) {
-            if (isLineByLine) {
-                // Line-by-line: add each passage as a separate row
-                passagesData.forEach(p => addPassageRow(p.pali || '', p.sinhala || ''));
-            } else {
-                // Full text: fill the textareas with the combined passages
-                if (fullPaliEl) fullPaliEl.value = passagesData.map(p => p.pali || '').join('\n\n');
-                if (fullSinhalaEl) fullSinhalaEl.value = passagesData.map(p => p.sinhala || '').join('\n\n');
+            // **නව තර්කනය**: පරිශීලකයා තෝරාගත් ක්‍රමය කුමක් වුවද, අපි දත්ත සියල්ලම line-by-line ක්‍රමයෙන් පෙන්වමු.
+            // එමගින් සම්පූර්ණ පෙළ, ඡේදයෙන් ඡේදය, තනි තනිව, එකවර copy-paste ඕනෑම ක්‍රමයක් තෝරාගෙන ඇති විටදී පාඨ නිවැරදිව textbox වලට පැමිණේ.
+            // පරිශීලකයාට අවශ්‍ය නම් පසුව ක්‍රමය වෙනස් කර ගත හැක.
+
+            // 2.2.1. සියලුම passages line-by-line rows ලෙස පෙන්වන්න
+            passagesData.forEach(p => addPassageRow(p.pali || '', p.sinhala || ''));
+
+            // 2.2.2. input_method select එක 'line_by_line' ලෙස සකසා toggle කරන්න (එවිට line container පෙන්වයි, full container සැඟවෙයි)
+            if (methodEl) {
+                methodEl.value = 'line_by_line';
+                toggleInputMethod();
             }
+
+            // 2.2.3. full_text කොටස් පිරිසිදු කරන්න (අවශ්‍ය නම් පසුව පිරවීමට)
+            if (fullPaliEl) fullPaliEl.value = '';
+            if (fullSinhalaEl) fullSinhalaEl.value = '';
+
         } else {
-            // No passages: add one empty row
-            if (isLineByLine) {
-                addPassageRow();
+            // දත්ත නොමැති විට: හිස් පේළියක් එක් කරන්න
+            addPassageRow();
+            if (methodEl) {
+                methodEl.value = 'line_by_line';
+                toggleInputMethod();
             }
+            if (fullPaliEl) fullPaliEl.value = '';
+            if (fullSinhalaEl) fullSinhalaEl.value = '';
         }
 
-        // Glossary
+        // --- 3. Glossary දත්ත සකස් කිරීම ---
         let glossaryData = sutta.glossary;
         if (typeof glossaryData === 'string') {
             try { glossaryData = JSON.parse(glossaryData); } catch (e) { glossaryData = []; }
         }
 
         const glossaryContainer = document.getElementById('glossary_dynamic_rows');
+        const glossaryMethodEl = document.getElementById('glossary_input_method');
+        const bulkGlossaryEl = document.getElementById('full_glossary_text');
+
         if (glossaryContainer) glossaryContainer.innerHTML = '';
 
-        const glossaryMethodEl = document.getElementById('glossary_input_method');
-        if (glossaryMethodEl) {
-            // Determine glossary method: if glossary has multiple entries, use line_by_line; else bulk_paste
-            if (Array.isArray(glossaryData) && glossaryData.length > 1) {
-                glossaryMethodEl.value = 'line_by_line';
-            } else {
-                glossaryMethodEl.value = 'bulk_paste';
-            }
-            toggleGlossaryInputMethod();
-        }
-
         if (Array.isArray(glossaryData) && glossaryData.length > 0) {
-            const bulkGlossaryEl = document.getElementById('full_glossary_text');
-            if (glossaryMethodEl && glossaryMethodEl.value === 'bulk_paste' && bulkGlossaryEl) {
-                // Combine glossary entries into bulk text
-                bulkGlossaryEl.value = glossaryData.map(g => `${g.word || ''} – ${g.meaning || ''}`).join('\n');
-            } else {
-                // Line-by-line: add rows
-                glossaryData.forEach(g => addGlossaryRow(g.word || '', g.meaning || ''));
+            // Glossary දත්ත සියල්ම line-by-line rows ලෙස පෙන්වන්න (එය වඩාත් පැහැදිලි)
+            glossaryData.forEach(g => addGlossaryRow(g.word || '', g.meaning || ''));
+
+            if (glossaryMethodEl) {
+                glossaryMethodEl.value = 'line_by_line';
+                toggleGlossaryInputMethod();
             }
+            if (bulkGlossaryEl) bulkGlossaryEl.value = '';
         } else {
-            // No glossary: add one empty row if line_by_line
-            if (glossaryMethodEl && glossaryMethodEl.value === 'line_by_line') {
-                addGlossaryRow();
+            // Glossary නොමැති විට හිස් පේළියක්
+            addGlossaryRow();
+            if (glossaryMethodEl) {
+                glossaryMethodEl.value = 'line_by_line';
+                toggleGlossaryInputMethod();
             }
+            if (bulkGlossaryEl) bulkGlossaryEl.value = '';
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
