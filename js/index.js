@@ -143,9 +143,11 @@ async function loadSuttasFromDatabase() {
     }
 
     try {
+        // ✅ වෙනස් කිරීම: ප්‍රකාශිත (published) සූත්‍ර පමණක් ලබා ගැනීමට පෙරීම
         const { data: suttas, error } = await client
             .from('suththra')
             .select('id, title, pitaka, nikaya, vagga, order_no')
+            .eq('status', 'published')
             .order('order_no', { ascending: true });
 
         if (error) throw error;

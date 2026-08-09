@@ -21,7 +21,7 @@ function getClient() {
 }
 
 // ============================================================
-// 2. උපකාරක ශ්‍රිත
+// 2. උපකාරක ශ්‍රිතය
 // ============================================================
 
 function escapeHtml(str) {
@@ -102,7 +102,7 @@ function closeSidebar() {
 }
 
 // Close sidebar when clicking on the main content area (or overlay)
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const overlay = document.getElementById('sidebarOverlay');
   if (overlay) {
     overlay.addEventListener('click', closeSidebar);
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const mainContent = document.getElementById('mainContent');
   if (mainContent) {
-    mainContent.addEventListener('click', function(e) {
+    mainContent.addEventListener('click', function (e) {
       const sidebar = document.getElementById('suttaSidebar');
       if (sidebar && sidebar.classList.contains('open')) {
         // If the click is not inside the sidebar, close it
@@ -166,7 +166,7 @@ function buildSidebarTree() {
 
   // Sidebar click events for sutta navigation
   nav.querySelectorAll('.node-label[data-sutta-id]').forEach(el => {
-    el.addEventListener('click', function(e) {
+    el.addEventListener('click', function (e) {
       e.stopPropagation();
       const id = this.dataset.suttaId;
       if (id) loadSutta(id);
@@ -176,7 +176,7 @@ function buildSidebarTree() {
 
   // Toggle expand/collapse
   nav.querySelectorAll('.tree-node > .node-label .toggle-icon').forEach(icon => {
-    icon.addEventListener('click', function(e) {
+    icon.addEventListener('click', function (e) {
       e.stopPropagation();
       const parentLi = this.closest('.tree-node');
       if (parentLi) {
@@ -199,7 +199,7 @@ function filterSidebar(query) {
   if (!nav) return;
   const items = nav.querySelectorAll('.tree-node.sutta-node');
   const q = query.trim().toLowerCase();
-  
+
   items.forEach(item => {
     const label = item.querySelector('.node-name');
     if (label) {
@@ -256,12 +256,26 @@ async function loadSutta(suttaId) {
       return;
     }
 
+    // ✅ වෙනස් කිරීම: කටු සටහනක් (draft) නම් පෙන්වීමට ඉඩ නොදෙන්න
+    if (data.status === 'draft') {
+      showToast('මෙම සූත්‍රය කටු සටහනක් වන අතර තවමත් ප්‍රකාශයට පත් කර නැත.', 'error');
+      document.getElementById('metaTitle').textContent = 'ප්‍රකාශයට පත් නොකළ සූත්‍රයකි';
+      document.getElementById('metaSubtitle').textContent = '';
+      document.getElementById('metaVagga').textContent = '';
+      document.getElementById('metaSpeaker').textContent = '';
+      document.getElementById('comparativeContentTable').innerHTML = '';
+      document.getElementById('paliOnlyContent').innerHTML = '';
+      document.getElementById('sinhalaOnlyContent').innerHTML = '';
+      document.getElementById('fullGlossaryContainer').innerHTML = '';
+      return;
+    }
+
     // Parse JSON fields
     if (typeof data.passages === 'string') {
-      try { data.passages = JSON.parse(data.passages); } catch(e) { data.passages = []; }
+      try { data.passages = JSON.parse(data.passages); } catch (e) { data.passages = []; }
     }
     if (typeof data.glossary === 'string') {
-      try { data.glossary = JSON.parse(data.glossary); } catch(e) { data.glossary = []; }
+      try { data.glossary = JSON.parse(data.glossary); } catch (e) { data.glossary = []; }
     }
 
     // Cache and render
@@ -450,17 +464,15 @@ function highlightSearch(term) {
 
   if (!term) return;
 
-  // ✅ වෙනස් කිරීම: සෙවීමට අදාළ සියලුම කන්ටේනර් ඇතුළත් කර ඇත (Glossary ඇතුළුව)
   const containers = [
     document.getElementById('comparativeContentTable'),
     document.getElementById('paliOnlyContent'),
     document.getElementById('sinhalaOnlyContent'),
-    document.getElementById('fullGlossaryContainer') // පද නිරුක්ති සඳහා එකතු කරන ලදී
+    document.getElementById('fullGlossaryContainer')
   ];
 
   containers.forEach(container => {
     if (!container) return;
-    // ✅ වෙනස් කිරීම: Glossary වල ඇති වචන සහ තේරුම් ද සොයා ගැනීමට
     const elements = container.querySelectorAll(
       '.pali-text, .sinhala-text, .pali-only-text, .sinhala-only-text, ' +
       '.glossary-word, .glossary-meaning'
@@ -497,28 +509,24 @@ function escapeRegex(str) {
 // 11. Font size & Theme (Resize only text data inside the 4 tabs)
 // ============================================================
 
-// ✅ වෙනස් කිරීම: අකුරු ප්‍රමාණය වෙනස් වන්නේ පාඨ දත්ත අඩංගු මූලද්‍රව්‍ය සඳහා පමණි
 function changeFontSize(delta) {
-  // Target only the text containers inside the reader card
   const textElements = document.querySelectorAll(
     '.comparative-row .pali-text, .comparative-row .sinhala-text, ' +
     '.pali-only-block .pali-only-text, .sinhala-only-block .sinhala-only-text, ' +
     '.glossary-card .glossary-word, .glossary-card .glossary-meaning'
   );
-  
+
   if (!textElements.length) return;
-  
-  // Get current font size from the first element
+
   let current = parseFloat(getComputedStyle(textElements[0]).fontSize);
   let newSize = current + delta * 2;
   if (newSize < 12) newSize = 12;
   if (newSize > 26) newSize = 26;
-  
+
   textElements.forEach(el => {
     el.style.fontSize = newSize + 'px';
   });
-  
-  // Update percentage based on base 18px
+
   document.getElementById('fontSizeIndicator').textContent = Math.round((newSize / 18) * 100) + '%';
 }
 
@@ -542,8 +550,8 @@ function toggleDropdown() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  document.addEventListener('click', function(e) {
+document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('click', function (e) {
     const dropdown = document.getElementById('userDropdown');
     const menu = document.getElementById('dropdownMenu');
     if (dropdown && menu && !dropdown.contains(e.target)) {
@@ -578,7 +586,6 @@ async function loadUserInfo() {
       .eq('id', user.id)
       .maybeSingle();
 
-    // Use full_name from profile, else fallback to metadata, then email, then default
     const name = profile?.full_name || user.user_metadata?.full_name || user.email || 'පරිශීලක';
     document.getElementById('userDisplayName').textContent = name;
     if (profile?.avatar_url) {
@@ -596,7 +603,7 @@ async function loadUserInfo() {
 // 13. Initialization
 // ============================================================
 
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme === 'dark') {
     document.documentElement.classList.add('dark');
@@ -608,17 +615,17 @@ document.addEventListener('DOMContentLoaded', async function() {
   const client = getClient();
   if (client) {
     try {
-      // Load ONLY metadata initially for performance
+      // ✅ වෙනස් කිරීම: ප්‍රකාශිත (published) සූත්‍ර පමණක් ලබා ගැනීමට පෙරීම
       const { data, error } = await client
         .from('suththra')
         .select('id, pitaka, nikaya, vagga, title, order_no')
+        .eq('status', 'published')
         .order('order_no', { ascending: true });
 
       if (error) throw error;
       allSuttas = data || [];
-      // Populate suttaMap with metadata (passages and glossary will be loaded on demand)
       allSuttas.forEach(s => {
-        suttaMap[s.id] = { ...s }; // store metadata initially
+        suttaMap[s.id] = { ...s };
       });
 
       buildSidebarTree();
@@ -626,7 +633,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       const params = new URLSearchParams(window.location.search);
       const suttaId = params.get('id');
       if (suttaId && suttaMap[suttaId]) {
-        // Attempt to load full data (will fetch if not already cached)
         await loadSutta(suttaId);
         const nav = document.getElementById('sidebarNav');
         if (nav) {
@@ -653,7 +659,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     showToast('Supabase සම්බන්ධතාවය අසාර්ථකයි.', 'error');
   }
 
-  // Update font indicator based on default size
   const defaultText = document.querySelector('.pali-text, .sinhala-text, .pali-only-text, .sinhala-only-text, .glossary-word');
   const baseFontSize = defaultText ? parseFloat(getComputedStyle(defaultText).fontSize) : 18;
   const percent = Math.round((baseFontSize / 18) * 100);
