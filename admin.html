@@ -136,6 +136,21 @@
                         </div>
                     </div>
 
+                    <!-- Status Field (නවතම) -->
+                    <div class="form-grid-2">
+                        <div class="field">
+                            <label for="sutta_status">තත්ත්වය (Status)</label>
+                            <select id="sutta_status">
+                                <option value="published">ප්‍රකාශිත (Published)</option>
+                                <option value="draft">කටු සටහන (Draft)</option>
+                            </select>
+                            <span style="font-size:0.55rem;color:var(--text-muted);margin-top:0.1rem;">'Draft' ලෙස සුරැකුවහොත් පරිශීලකයින්ට නොපෙනේ.</span>
+                        </div>
+                        <div class="field">
+                            <!-- හිස් තීරුවක් සමතුලිත කිරීමට -->
+                        </div>
+                    </div>
+
                     <!-- Passages -->
                     <div class="section-divider">
                         <h3><i class="fa-solid fa-quote-left"></i> සූත්‍ර ඡේද (Passages)</h3>
@@ -166,9 +181,10 @@
                     <!-- Glossary -->
                     <div class="section-divider">
                         <h3><i class="fa-solid fa-spell-check"></i> පද නිරුක්ති සහ වචනාර්ථ විග්‍රහය (Glossary)</h3>
+                        <!-- මෙහි label එක වෙනස් කර ඇත -->
                         <select id="glossary_input_method" onchange="toggleGlossaryInputMethod()"
                             class="glossary-method-select">
-                            <option value="bulk_paste">1. එකවර Copy-Paste (Bulk)</option>
+                            <option value="bulk_paste">1. වචනාර්ථ විග්‍රහය (Bulk)</option>
                             <option value="line_by_line">2. තනි තනිව (Row by Row)</option>
                         </select>
                     </div>

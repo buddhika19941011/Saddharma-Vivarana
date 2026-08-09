@@ -871,44 +871,7 @@ function toggleTheme() {
 }
 
 // ============================================================
-// 17. Helper Functions to inject UI elements dynamically
-// ============================================================
-
-function addStatusField() {
-    const form = document.getElementById('suttaForm');
-    if (!form) return;
-    // Look for the last field in form-grid-2 to insert status before it
-    const target = document.querySelector('.form-grid-2');
-    if (target) {
-        // Check if already exists to avoid duplicates
-        if (document.getElementById('sutta_status')) return;
-        const statusHtml = `
-            <div class="field" style="margin-top:0.25rem;">
-                <label for="sutta_status">තත්ත්වය (Status)</label>
-                <select id="sutta_status">
-                    <option value="published">ප්‍රකාශිත (Published)</option>
-                    <option value="draft">කටු සටහන (Draft)</option>
-                </select>
-                <span style="font-size:0.55rem;color:var(--text-muted);margin-top:0.1rem;">'Draft' ලෙස සුරැකුවහොත් පරිශීලකයින්ට නොපෙනේ.</span>
-            </div>
-        `;
-        target.insertAdjacentHTML('beforeend', statusHtml);
-    }
-}
-
-function renameGlossaryLabel() {
-    const methodEl = document.getElementById('glossary_input_method');
-    if (methodEl) {
-        // Change the text of the first option
-        const firstOption = methodEl.querySelector('option[value="bulk_paste"]');
-        if (firstOption) {
-            firstOption.textContent = '1. වචනාර්ථ විග්‍රහය (Bulk)';
-        }
-    }
-}
-
-// ============================================================
-// 18. Initialization
+// 17. Initialization
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -916,18 +879,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const hasAccess = await checkAdminAccess();
     if (!hasAccess) return;
 
-    // 2. Add Status field and rename glossary label dynamically
-    addStatusField();
-    renameGlossaryLabel();
-
-    // 3. මුලින්ම එක් ඡේදයක් සහ Glossary පේළියක් එක් කරන්න (for new forms)
+    // 2. මුලින්ම එක් ඡේදයක් සහ Glossary පේළියක් එක් කරන්න (for new forms)
     addPassageRow();
     addGlossaryRow();
 
-    // 4. සූත්‍ර වගුව පූරණය කරන්න
+    // 3. සූත්‍ර වගුව පූරණය කරන්න
     await loadSuttasTable();
 
-    // 5. තේමාව පරීක්ෂා කරන්න (පෙර තේමාව මතක තබා ගැනීමට)
+    // 4. තේමාව පරීක්ෂා කරන්න (පෙර තේමාව මතක තබා ගැනීමට)
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
