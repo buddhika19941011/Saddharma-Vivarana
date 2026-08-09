@@ -269,6 +269,11 @@ function addPassageRow(pali = '', sinhala = '') {
     if (sinhalaEl) sinhalaEl.value = sinhala;
 }
 
+function removeRow(rowId) {
+    const el = document.getElementById(rowId);
+    if (el) el.remove();
+}
+
 // ============================================================
 // 7. Dynamic Rows - Glossary
 // ============================================================
@@ -340,6 +345,7 @@ async function handleSuttaSubmit(e) {
     const editId = getInputValue('edit_sutta_id');
     const suttaId = getInputValue('sutta_id_input');
     const title = getInputValue('title');
+    const status = getInputValue('sutta_status') || 'published'; // Status එක ලබා ගැනීම
 
     if (!editId && !suttaId) {
         showToast('කරුණාකර සූත්‍ර හඳුනාගැනීමේ අංකය (Sutta ID) ඇතුළත් කරන්න.', 'error');
@@ -360,31 +366,21 @@ async function handleSuttaSubmit(e) {
 
     // Collect passages
     let passages = [];
-    const method = getInputValue('input_method') || 'line_by_line';
+    const method = getInputValue('input_method') || 'full_text'; // Default to full_text
 
-    if (method === 'line_by_line') {
-        const rows = document.querySelectorAll('#passages_dynamic_rows > .dynamic-row');
-        rows.forEach(row => {
-            const pali = row.querySelector('.passage-pali')?.value || '';
-            const sinhala = row.querySelector('.passage-sinhala')?.value || '';
-            if (pali.trim() || sinhala.trim()) {
-                passages.push({ pali: pali.trim(), sinhala: sinhala.trim() });
-            }
-        });
-    } else {
-        const fullPali = getInputValue('full_pali_text');
-        const fullSinhala = getInputValue('full_sinhala_text');
+    // Only full_text method is now supported effectively
+    const fullPali = getInputValue('full_pali_text');
+    const fullSinhala = getInputValue('full_sinhala_text');
 
-        const paliParagraphs = fullPali ? fullPali.split(/\n\s*\n/) : [];
-        const sinhalaParagraphs = fullSinhala ? fullSinhala.split(/\n\s*\n/) : [];
+    const paliParagraphs = fullPali ? fullPali.split(/\n\s*\n/) : [];
+    const sinhalaParagraphs = fullSinhala ? fullSinhala.split(/\n\s*\n/) : [];
 
-        const maxLen = Math.max(paliParagraphs.length, sinhalaParagraphs.length);
-        for (let i = 0; i < maxLen; i++) {
-            const pali = paliParagraphs[i] ? paliParagraphs[i].trim() : '';
-            const sinhala = sinhalaParagraphs[i] ? sinhalaParagraphs[i].trim() : '';
-            if (pali || sinhala) {
-                passages.push({ pali, sinhala });
-            }
+    const maxLen = Math.max(paliParagraphs.length, sinhalaParagraphs.length);
+    for (let i = 0; i < maxLen; i++) {
+        const pali = paliParagraphs[i] ? paliParagraphs[i].trim() : '';
+        const sinhala = sinhalaParagraphs[i] ? sinhalaParagraphs[i].trim() : '';
+        if (pali || sinhala) {
+            passages.push({ pali, sinhala });
         }
     }
 
@@ -411,6 +407,7 @@ async function handleSuttaSubmit(e) {
             });
         }
     } else {
+        // Fallback if somehow line_by_line is selected
         const gRows = document.querySelectorAll('#glossary_dynamic_rows > .dynamic-row');
         gRows.forEach(row => {
             const word = row.querySelector('.glossary-word')?.value.trim() || '';
@@ -431,7 +428,8 @@ async function handleSuttaSubmit(e) {
         speaker,
         category,
         passages: passages,
-        glossary: glossary
+        glossary: glossary,
+        status: status // Status එක payload එකට ඇතුළත් කිරීම
     };
 
     // Begin save
@@ -508,7 +506,7 @@ function resetSuttaForm() {
 
     const methodEl = document.getElementById('input_method');
     if (methodEl) {
-        methodEl.value = 'line_by_line';
+        methodEl.value = 'full_text'; // Default to full_text
         toggleInputMethod();
     }
 
@@ -517,42 +515,67 @@ function resetSuttaForm() {
         glossaryMethodEl.value = 'bulk_paste';
         toggleGlossaryInputMethod();
     }
+
+    const statusEl = document.getElementById('sutta_status');
+    if (statusEl) statusEl.value = 'published'; // Reset status to published
 }
 
 // ============================================================
-// 10. Load Suttas Table
+// 10. Load Suttas Table (Status column & View button added)
 // ============================================================
 
 async function loadSuttasTable() {
     const tbody = document.getElementById('suttas_table_body');
     if (!tbody) return;
 
+    // Ensure the status column exists in the table header (dynamically)
+    const thead = tbody.closest('table').querySelector('thead tr');
+    if (thead) {
+        let statusTh = thead.querySelector('.status-col');
+        if (!statusTh) {
+            // Insert Status column before Actions
+            const actionTh = thead.querySelector('.text-center');
+            if (actionTh) {
+                statusTh = document.createElement('th');
+                statusTh.className = 'status-col';
+                statusTh.textContent = 'තත්ත්වය';
+                thead.insertBefore(statusTh, actionTh);
+            }
+        }
+    }
+
     const client = getClient();
     if (!client) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-msg">Supabase සම්බන්ධතාවය අසාර්ථකයි.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="loading-msg">Supabase සම්බන්ධතාවය අසාර්ථකයි.</td></tr>';
         return;
     }
 
-    tbody.innerHTML = '<tr><td colspan="5" class="loading-msg">පූරණය වෙමින්...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="loading-msg">පූරණය වෙමින්...</td></tr>';
 
     try {
         const { data, error } = await client.from('suththra').select('*').order('order_no', { ascending: true });
         if (error) throw error;
 
         if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-msg">දැනට කිසිදු සූත්‍රයක් ඇතුළත් කර නැත.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="loading-msg">දැනට කිසිදු සූත්‍රයක් ඇතුළත් කර නැත.</td></tr>';
             return;
         }
 
         const rowsHtml = data.map(sutta => {
             const encodedId = encodeURIComponent(sutta.id);
+            const statusDisplay = sutta.status === 'draft' ? 'කටු සටහන' : 'ප්‍රකාශිත';
+            const statusClass = sutta.status === 'draft' ? 'status-badge status-badge-blocked' : 'status-badge status-badge-active';
             return `
                 <tr>
                     <td>${sutta.order_no ?? 1}</td>
                     <td><strong>${escapeHtml(sutta.id)}</strong></td>
                     <td>${escapeHtml(sutta.title)}</td>
                     <td>${escapeHtml(sutta.nikaya || '')} (${escapeHtml(sutta.pitaka || '')})</td>
+                    <td><span class="${statusClass}">${statusDisplay}</span></td>
                     <td class="text-center">
+                        <button onclick="viewSutta(decodeURIComponent('${encodedId}'))" class="action-btn action-btn-view" title="සූත්‍රය බලන්න">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
                         <button onclick="editSutta(decodeURIComponent('${encodedId}'))" class="action-btn action-btn-edit">
                             <i class="fa-solid fa-pen"></i>
                         </button>
@@ -568,12 +591,22 @@ async function loadSuttasTable() {
 
     } catch (err) {
         console.error('Table load error:', err);
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-msg" style="color:#dc2626;">දත්ත ලබා ගැනීමේ දෝෂයකි: ' + escapeHtml(err.message) + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="loading-msg" style="color:#dc2626;">දත්ත ලබා ගැනීමේ දෝෂයකි: ' + escapeHtml(err.message) + '</td></tr>';
     }
 }
 
 // ============================================================
-// 11. Edit Sutta - නව අනුවාදය (ඉවත් කර නැවත ඇතුළත් කිරීම)
+// 11. View Sutta (New function to open the sutta in a new tab)
+// ============================================================
+
+function viewSutta(id) {
+    if (id) {
+        window.open('suththra.html?id=' + encodeURIComponent(id), '_blank');
+    }
+}
+
+// ============================================================
+// 12. Edit Sutta - Full Text & Bulk Glossary only
 // ============================================================
 
 async function editSutta(id) {
@@ -599,6 +632,7 @@ async function editSutta(id) {
         const speakerInput = document.getElementById('speaker');
         const categoryInput = document.getElementById('category');
         const formTitleText = document.getElementById('formTitleText');
+        const statusEl = document.getElementById('sutta_status');
 
         if (editIdInput) editIdInput.value = sutta.id;
         if (suttaIdInput) {
@@ -616,8 +650,9 @@ async function editSutta(id) {
         if (formTitleText) {
             formTitleText.innerText = 'සූත්‍රය සංස්කරණය කිරීම (' + (sutta.title || '') + ')';
         }
+        if (statusEl) statusEl.value = sutta.status || 'published';
 
-        // --- 2. Passages දත්ත සකස් කිරීම ---
+        // --- 2. Passages - Full Text Only (Remove line-by-line) ---
         let passagesData = sutta.passages;
         if (typeof passagesData === 'string') {
             try { passagesData = JSON.parse(passagesData); } catch (e) { passagesData = []; }
@@ -625,43 +660,28 @@ async function editSutta(id) {
 
         const fullPaliEl = document.getElementById('full_pali_text');
         const fullSinhalaEl = document.getElementById('full_sinhala_text');
-        const passagesContainer = document.getElementById('passages_dynamic_rows');
         const methodEl = document.getElementById('input_method');
+        const passagesContainer = document.getElementById('passages_dynamic_rows');
 
-        // 2.1. පැරණි ඡේද පේළි ඉවත් කරන්න
+        // Clear any existing line-by-line rows
         if (passagesContainer) passagesContainer.innerHTML = '';
 
-        // 2.2. දත්ත ඇති බව පරීක්ෂා කරන්න
+        // Fill the full text areas
         if (Array.isArray(passagesData) && passagesData.length > 0) {
-            // **නව තර්කනය**: පරිශීලකයා තෝරාගත් ක්‍රමය කුමක් වුවද, අපි දත්ත සියල්ලම line-by-line ක්‍රමයෙන් පෙන්වමු.
-            // එමගින් සම්පූර්ණ පෙළ, ඡේදයෙන් ඡේදය, තනි තනිව, එකවර copy-paste ඕනෑම ක්‍රමයක් තෝරාගෙන ඇති විටදී පාඨ නිවැරදිව textbox වලට පැමිණේ.
-            // පරිශීලකයාට අවශ්‍ය නම් පසුව ක්‍රමය වෙනස් කර ගත හැක.
-
-            // 2.2.1. සියලුම passages line-by-line rows ලෙස පෙන්වන්න
-            passagesData.forEach(p => addPassageRow(p.pali || '', p.sinhala || ''));
-
-            // 2.2.2. input_method select එක 'line_by_line' ලෙස සකසා toggle කරන්න (එවිට line container පෙන්වයි, full container සැඟවෙයි)
-            if (methodEl) {
-                methodEl.value = 'line_by_line';
-                toggleInputMethod();
-            }
-
-            // 2.2.3. full_text කොටස් පිරිසිදු කරන්න (අවශ්‍ය නම් පසුව පිරවීමට)
-            if (fullPaliEl) fullPaliEl.value = '';
-            if (fullSinhalaEl) fullSinhalaEl.value = '';
-
+            if (fullPaliEl) fullPaliEl.value = passagesData.map(p => p.pali || '').join('\n\n');
+            if (fullSinhalaEl) fullSinhalaEl.value = passagesData.map(p => p.sinhala || '').join('\n\n');
         } else {
-            // දත්ත නොමැති විට: හිස් පේළියක් එක් කරන්න
-            addPassageRow();
-            if (methodEl) {
-                methodEl.value = 'line_by_line';
-                toggleInputMethod();
-            }
             if (fullPaliEl) fullPaliEl.value = '';
             if (fullSinhalaEl) fullSinhalaEl.value = '';
         }
 
-        // --- 3. Glossary දත්ත සකස් කිරීම ---
+        // Set method to full_text and toggle
+        if (methodEl) {
+            methodEl.value = 'full_text';
+            toggleInputMethod();
+        }
+
+        // --- 3. Glossary - Bulk Paste Only (Remove row-by-row) ---
         let glossaryData = sutta.glossary;
         if (typeof glossaryData === 'string') {
             try { glossaryData = JSON.parse(glossaryData); } catch (e) { glossaryData = []; }
@@ -671,25 +691,22 @@ async function editSutta(id) {
         const glossaryMethodEl = document.getElementById('glossary_input_method');
         const bulkGlossaryEl = document.getElementById('full_glossary_text');
 
+        // Clear any existing glossary rows
         if (glossaryContainer) glossaryContainer.innerHTML = '';
 
+        // Fill the bulk glossary text area
         if (Array.isArray(glossaryData) && glossaryData.length > 0) {
-            // Glossary දත්ත සියල්ම line-by-line rows ලෙස පෙන්වන්න (එය වඩාත් පැහැදිලි)
-            glossaryData.forEach(g => addGlossaryRow(g.word || '', g.meaning || ''));
-
-            if (glossaryMethodEl) {
-                glossaryMethodEl.value = 'line_by_line';
-                toggleGlossaryInputMethod();
+            if (bulkGlossaryEl) {
+                bulkGlossaryEl.value = glossaryData.map(g => (g.word || '') + ' – ' + (g.meaning || '')).join('\n');
             }
-            if (bulkGlossaryEl) bulkGlossaryEl.value = '';
         } else {
-            // Glossary නොමැති විට හිස් පේළියක්
-            addGlossaryRow();
-            if (glossaryMethodEl) {
-                glossaryMethodEl.value = 'line_by_line';
-                toggleGlossaryInputMethod();
-            }
             if (bulkGlossaryEl) bulkGlossaryEl.value = '';
+        }
+
+        // Set method to bulk_paste and toggle
+        if (glossaryMethodEl) {
+            glossaryMethodEl.value = 'bulk_paste';
+            toggleGlossaryInputMethod();
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -700,7 +717,7 @@ async function editSutta(id) {
 }
 
 // ============================================================
-// 12. Delete Sutta
+// 13. Delete Sutta
 // ============================================================
 
 async function deleteSutta(id) {
@@ -727,7 +744,7 @@ async function deleteSutta(id) {
 }
 
 // ============================================================
-// 13. Load Users Table
+// 14. Load Users Table
 // ============================================================
 
 async function loadUsersTable() {
@@ -788,7 +805,7 @@ async function loadUsersTable() {
 }
 
 // ============================================================
-// 14. User Management
+// 15. User Management
 // ============================================================
 
 async function updateUserRole(userId, newRole) {
@@ -828,7 +845,7 @@ async function toggleBlockUser(userId, currentStatus) {
 }
 
 // ============================================================
-// 15. Logout & Theme
+// 16. Logout & Theme
 // ============================================================
 
 async function logoutAdmin() {
@@ -854,7 +871,44 @@ function toggleTheme() {
 }
 
 // ============================================================
-// 16. Initialization
+// 17. Helper Functions to inject UI elements dynamically
+// ============================================================
+
+function addStatusField() {
+    const form = document.getElementById('suttaForm');
+    if (!form) return;
+    // Look for the last field in form-grid-2 to insert status before it
+    const target = document.querySelector('.form-grid-2');
+    if (target) {
+        // Check if already exists to avoid duplicates
+        if (document.getElementById('sutta_status')) return;
+        const statusHtml = `
+            <div class="field" style="margin-top:0.25rem;">
+                <label for="sutta_status">තත්ත්වය (Status)</label>
+                <select id="sutta_status">
+                    <option value="published">ප්‍රකාශිත (Published)</option>
+                    <option value="draft">කටු සටහන (Draft)</option>
+                </select>
+                <span style="font-size:0.55rem;color:var(--text-muted);margin-top:0.1rem;">'Draft' ලෙස සුරැකුවහොත් පරිශීලකයින්ට නොපෙනේ.</span>
+            </div>
+        `;
+        target.insertAdjacentHTML('beforeend', statusHtml);
+    }
+}
+
+function renameGlossaryLabel() {
+    const methodEl = document.getElementById('glossary_input_method');
+    if (methodEl) {
+        // Change the text of the first option
+        const firstOption = methodEl.querySelector('option[value="bulk_paste"]');
+        if (firstOption) {
+            firstOption.textContent = '1. වචනාර්ථ විග්‍රහය (Bulk)';
+        }
+    }
+}
+
+// ============================================================
+// 18. Initialization
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -862,14 +916,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const hasAccess = await checkAdminAccess();
     if (!hasAccess) return;
 
-    // 2. මුලින්ම එක් ඡේදයක් සහ Glossary පේළියක් එක් කරන්න
+    // 2. Add Status field and rename glossary label dynamically
+    addStatusField();
+    renameGlossaryLabel();
+
+    // 3. මුලින්ම එක් ඡේදයක් සහ Glossary පේළියක් එක් කරන්න (for new forms)
     addPassageRow();
     addGlossaryRow();
 
-    // 3. සූත්‍ර වගුව පූරණය කරන්න
+    // 4. සූත්‍ර වගුව පූරණය කරන්න
     await loadSuttasTable();
 
-    // 4. තේමාව පරීක්ෂා කරන්න (පෙර තේමාව මතක තබා ගැනීමට)
+    // 5. තේමාව පරීක්ෂා කරන්න (පෙර තේමාව මතක තබා ගැනීමට)
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
