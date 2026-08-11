@@ -12,8 +12,8 @@
         href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@500;700;800&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap"
         rel="stylesheet" />
 
+    <!-- API Admin පිටුව සඳහා අමතර ශෛලීන් -->
     <style>
-        /* පිටුවේ අමතර ශෛලීන් (එලෙසම පවත්වා ගන්න) */
         .api-card {
             margin-bottom: 1.5rem;
         }
@@ -77,25 +77,6 @@
             transform: scale(1.02);
         }
 
-        .api-card .btn-secondary {
-            padding: 0.4rem 1.2rem;
-            border-radius: 0.75rem;
-            font-size: 0.7rem;
-            font-weight: 700;
-            cursor: pointer;
-            border: 1px solid var(--card-border);
-            background: transparent;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .api-card .btn-secondary:hover {
-            background: rgba(0, 0, 0, 0.04);
-        }
-
         .api-status {
             font-size: 0.7rem;
             color: var(--text-secondary);
@@ -118,73 +99,179 @@
             border-color: rgba(220, 38, 38, 0.15);
         }
 
-        .log-list {
-            display: flex;
-            flex-direction: column;
+        /* ===== Login Section Styles (හරියටම login_style.css මෙන්) ===== */
+        #loginSection {
+            max-width: 28rem;
+            margin: 2rem auto;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1.5rem;
+            padding: 1.5rem 1.75rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .login-title {
+            font-family: 'Abhaya Libre', serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-form .field {
+            margin-bottom: 1rem;
+        }
+
+        .login-form .field label {
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .login-form .field input {
+            width: 100%;
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            font-family: inherit;
+            font-size: 0.75rem;
+            color: var(--text-primary);
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .login-form .field input:focus {
+            border-color: #d97706;
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.12);
+        }
+
+        .login-submit {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: #d97706;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .login-submit:hover {
+            background: #b45309;
+            transform: scale(1.02);
+        }
+
+        .social-login {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .btn-google {
+            padding: 0.3rem 0.7rem;
+            border-radius: 9999px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--card-border);
+            background: rgba(245, 158, 11, 0.06);
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
             gap: 0.3rem;
         }
 
-        .log-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.3rem 0.6rem;
-            border-radius: 0.5rem;
-            background: var(--input-bg);
-            border: 1px solid var(--card-border);
-            font-size: 0.65rem;
-        }
-
-        .log-item .log-title {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .log-item .log-time {
-            color: var(--text-muted);
-            font-size: 0.55rem;
-        }
-
-        .log-empty {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            font-style: italic;
-            text-align: center;
-            padding: 0.5rem 0;
-        }
-
-        .file-upload-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .file-upload-wrapper input[type="file"] {
-            padding: 0.3rem;
-            font-size: 0.65rem;
-            border: 1px dashed var(--card-border);
-            border-radius: 0.5rem;
-            background: var(--input-bg);
-            cursor: pointer;
-        }
-
-        .file-upload-wrapper input[type="file"]::file-selector-button {
-            padding: 0.2rem 0.8rem;
-            border: none;
-            border-radius: 0.4rem;
-            background: rgba(245, 158, 11, 0.1);
+        .btn-google:hover {
+            background: rgba(245, 158, 11, 0.12);
             color: #d97706;
-            font-weight: 600;
-            cursor: pointer;
-            margin-right: 0.5rem;
         }
 
-        @media (max-width: 768px) {
-            .file-upload-wrapper {
-                flex-direction: column;
-                align-items: stretch;
-            }
+        .alert-box {
+            padding: 0.6rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+        }
+
+        .alert-box.hidden {
+            display: none !important;
+        }
+
+        .alert-error {
+            background: rgba(220, 38, 38, 0.08);
+            color: #dc2626;
+            border-color: rgba(220, 38, 38, 0.20);
+        }
+
+        .alert-success {
+            background: rgba(5, 150, 105, 0.08);
+            color: #059669;
+            border-color: rgba(5, 150, 105, 0.20);
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.08);
+            color: #2563eb;
+            border-color: rgba(59, 130, 246, 0.20);
+        }
+
+        /* ===== Sutta List Table Styles ===== */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem;
+        }
+
+        .data-table th {
+            background: var(--table-header-bg);
+            padding: 0.7rem 0.9rem;
+            text-align: left;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .data-table td {
+            padding: 0.7rem 0.9rem;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-secondary);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--hover-row);
+        }
+
+        .action-btn-view {
+            padding: 0.2rem 0.6rem;
+            border: none;
+            border-radius: 0.5rem;
+            background: rgba(59, 130, 246, 0.10);
+            color: #2563eb;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.65rem;
+            transition: all 0.15s;
+        }
+
+        .action-btn-view:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -211,9 +298,6 @@
                         <span id="currentAdminEmail">පූරණය වෙමින්…</span>
                     </div>
                     <div class="action-buttons">
-                        <button onclick="logoutAdmin()" class="btn-logout">
-                            <i class="fa-solid fa-right-from-bracket"></i> පිටවීම
-                        </button>
                         <button onclick="toggleTheme()" class="icon-btn theme-toggle" title="තේමාව මාරු කරන්න">
                             <i id="themeIcon" class="fa-solid fa-sun"></i>
                         </button>
@@ -238,80 +322,83 @@
             </div>
         </section>
 
-        <!-- ===== කොටස 1: Gemini AI මගින් ආනයනය ===== -->
-        <div class="card api-card">
-            <div class="card-header">
-                <h3><i class="fa-solid fa-robot"></i> Gemini AI මගින් පාලි සූත්‍රය පරිවර්තනය කර ආනයනය කිරීම</h3>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
-                <div class="field">
-                    <label for="aiPaliInput" style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">පාලි
-                        සූත්‍ර පාඨය මෙහි අලවන්න</label>
-                    <textarea id="aiPaliInput" rows="4" placeholder="උදා: Karaṇīyam atthakusalena ..."></textarea>
-                </div>
-                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-                    <button onclick="importViaGemini()" class="btn-primary">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Gemini මගින් පරිවර්තනය කර එක් කරන්න
+        <!-- ===== LOGIN SECTION (පරිශීලකයා ලොග් වී නොමැති විට පෙන්වයි) ===== -->
+        <div id="loginSection" class="hidden">
+            <div class="login-card">
+                <h2 class="login-title">පරිපාලක ප්‍රවේශය</h2>
+                <div id="authAlert" class="alert-box hidden"></div>
+                
+                <div class="social-login">
+                    <button onclick="loginWithGoogle()" class="btn-google">
+                        <i class="fa-brands fa-google"></i> Google මඟින් ලොග් වන්න
                     </button>
                 </div>
-                <div id="aiImportStatus" class="api-status">පොරොත්තුවෙන්...</div>
+                
+                <hr style="border: none; border-top: 1px solid var(--card-border); margin: 1rem 0;" />
+                
+                <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="login-form">
+                    <div class="field">
+                        <label for="loginUsername">ඊමේල් ලිපිනය</label>
+                        <input type="email" id="loginUsername" placeholder="admin@example.com" required />
+                    </div>
+                    <div class="field">
+                        <label for="loginPassword">මුරපදය</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required />
+                    </div>
+                    <button type="submit" class="login-submit">ප්‍රවේශ වන්න</button>
+                </form>
             </div>
         </div>
 
-        <!-- ===== කොටස 2: ගොනුවක් උඩුගත කිරීම ===== -->
-        <div class="card api-card">
-            <div class="card-header">
-                <h3><i class="fa-solid fa-upload"></i> JSON / CSV ගොනුවක් උඩුගත කර ආනයනය කිරීම</h3>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
-                <div class="file-upload-wrapper">
-                    <input type="file" id="fileInput" accept=".json,.csv" onchange="handleFileUpload(event)" />
-                    <button onclick="importFromFile()" class="btn-primary">
-                        <i class="fa-solid fa-cloud-upload-alt"></i> උඩුගත කර ආනයනය කරන්න
-                    </button>
-                </div>
-                <div id="fileImportStatus" class="api-status">ගොනුවක් තෝරන්න...</div>
-            </div>
-        </div>
+        <!-- ===== MAIN CONTENT (පරිශීලකයා ලොග් වී ඇති විට පෙන්වයි) ===== -->
+        <div id="adminContent" class="hidden">
 
-        <!-- ===== කොටස 3: අතින් Copy-Paste කර ආනයනය කිරීම ===== -->
-        <div class="card api-card">
-            <div class="card-header">
-                <h3><i class="fa-solid fa-paste"></i> JSON දත්ත අතින් Copy-Paste කර ආනයනය කිරීම</h3>
-                <span style="font-size:0.55rem;color:var(--text-muted);">Upload කරන ලද ගොනුවේ අන්තර්ගතය මෙහි
-                    ස්වයංක්‍රීයව පිරවේ.</span>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
-                <div class="field">
-                    <label for="manualJsonInput"
-                        style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">JSON දත්ත මෙහි
-                        අලවන්න</label>
-                    <textarea id="manualJsonInput" rows="4"
-                        placeholder='[{"id":"example","title":"...","passages":[...]}]'></textarea>
+            <!-- ===== කොටස 1: Gemini AI මගින් ආනයනය ===== -->
+            <div class="card api-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-robot"></i> Gemini AI මගින් පාලි සූත්‍රය පරිවර්තනය කර ආනයනය කිරීම</h3>
                 </div>
-                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-                    <button onclick="importManualJson()" class="btn-primary">
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i> දත්ත ආනයනය කරන්න
-                    </button>
-                    <button onclick="clearManualInput()" class="btn-secondary">
-                        <i class="fa-solid fa-eraser"></i> හිස් කරන්න
-                    </button>
+                <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                    <div class="field">
+                        <label for="aiPaliInput" style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">පාලි සූත්‍ර පාඨය මෙහි අලවන්න</label>
+                        <textarea id="aiPaliInput" rows="4" placeholder="උදා: Karaṇīyam atthakusalena ..."></textarea>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                        <button onclick="importViaGemini()" class="btn-primary">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Gemini මගින් පරිවර්තනය කර එක් කරන්න
+                        </button>
+                    </div>
+                    <div id="aiImportStatus" class="api-status">පොරොත්තුවෙන්...</div>
                 </div>
-                <div id="manualImportStatus" class="api-status">පොරොත්තුවෙන්...</div>
             </div>
-        </div>
 
-        <!-- ===== කොටස 4: මෑත ආනයන ඉතිහාසය ===== -->
-        <div class="card api-card">
-            <div class="card-header">
-                <h3><i class="fa-solid fa-clock-rotate-left"></i> මෑත ආනයන ඉතිහාසය</h3>
-                <button onclick="clearLogs()" class="btn-secondary" style="padding:0.2rem 0.8rem;font-size:0.6rem;">
-                    <i class="fa-solid fa-trash-can"></i> හිස් කරන්න
-                </button>
+            <!-- ===== කොටස 2: ආනයනය කරන ලද සූත්‍ර ලැයිස්තුව ===== -->
+            <div class="card api-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-table-list"></i> පද්ධතියේ පවතින සූත්‍ර</h3>
+                    <button onclick="loadSuttasTable()" class="btn-primary" style="font-size:0.6rem; padding:0.2rem 0.8rem;">
+                        <i class="fa-solid fa-rotate-right"></i> නැවත පූරණය
+                    </button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>සූත්‍ර ID</th>
+                                <th>නම (Title)</th>
+                                <th>තත්ත්වය</th>
+                                <th>ක්‍රියාකාරකම්</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suttas_table_body">
+                            <tr>
+                                <td colspan="4" class="loading-msg">දත්ත පූරණය වෙමින්…</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div id="importLogContainer" class="log-list">
-                <div class="log-empty">තවමත් ආනයන වාර්තා නොමැත.</div>
-            </div>
+
         </div>
 
     </main>
@@ -344,7 +431,7 @@
     <script src="js/supabase-config.js" defer></script>
 
     <!-- ============================================================
-         API Admin JS – සම්පූර්ණයෙන් නිවැරදි කරන ලදී
+         API Admin JS – නිවැරදි කරන ලද සහ සරල කරන ලදී
          ============================================================ -->
     <script>
         // ============================================================
@@ -362,40 +449,106 @@
         }
 
         // ============================================================
-        // 2. උපකාරක ශ්‍රිත
+        // 2. පණිවිඩ දැනුම්දීම් (Alert Messages) – Login සඳහා
         // ============================================================
-        function escapeHtml(str) {
-            if (str === null || str === undefined) return '';
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        function showAlert(message, type = 'info') {
+            const alertBox = document.getElementById('authAlert');
+            if (!alertBox) {
+                console.log(`[Alert - ${type}]: ${message}`);
+                return;
+            }
+            alertBox.className = 'alert-box';
+            alertBox.classList.remove('hidden', 'alert-error', 'alert-success', 'alert-info');
+            const typeMap = { error: 'alert-error', success: 'alert-success', info: 'alert-info' };
+            alertBox.classList.add(typeMap[type] || 'alert-info');
+            alertBox.textContent = message;
         }
 
-        function addLog(entry) {
-            const container = document.getElementById('importLogContainer');
-            if (!container) return;
-            const emptyMsg = container.querySelector('.log-empty');
-            if (emptyMsg) emptyMsg.remove();
+        // ============================================================
+        // 3. Admin Access පරීක්ෂාව සහ Login/Logout පාලනය
+        // ============================================================
+        async function checkAdminAccess() {
+            const client = getClient();
+            if (!client) {
+                console.error('Supabase Client සක්‍රීය වී නැත.');
+                return false;
+            }
 
-            const item = document.createElement('div');
-            item.className = 'log-item';
-            const time = new Date().toLocaleTimeString('si-LK');
-            item.innerHTML = `
-                <span class="log-title">${escapeHtml(entry.title || 'නම් රහිත සූත්‍රය')}</span>
-                <span class="log-time">${time} - ${entry.status || 'සාර්ථක'}</span>
-            `;
-            container.prepend(item);
-            while (container.children.length > 10) {
-                container.removeChild(container.lastChild);
+            try {
+                const { data: { user }, error } = await client.auth.getUser();
+                if (error || !user) {
+                    // ලොග් වී නොමැත -> Login පෙන්වන්න
+                    document.getElementById('loginSection').classList.remove('hidden');
+                    document.getElementById('adminContent').classList.add('hidden');
+                    document.getElementById('userInfoDisplay').classList.add('hidden');
+                    return false;
+                }
+
+                // පරිශීලක තොරතුරු පෙන්වන්න
+                const adminEmailDisplay = document.getElementById('currentAdminEmail');
+                if (adminEmailDisplay) {
+                    const { data: profile } = await client.from('profiles').select('role').eq('id', user.id).maybeSingle();
+                    const role = profile?.role || 'viewer';
+                    adminEmailDisplay.innerText = `${user.email} (${role.toUpperCase()})`;
+                    document.getElementById('userInfoDisplay').classList.remove('hidden');
+                }
+
+                // Login සැඟවී Admin අන්තර්ගතය පෙන්වන්න
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('adminContent').classList.remove('hidden');
+                return true;
+
+            } catch (err) {
+                console.error('Admin Check Exception:', err);
+                return false;
             }
         }
 
-        function clearLogs() {
-            const container = document.getElementById('importLogContainer');
-            if (!container) return;
-            container.innerHTML = '<div class="log-empty">තවමත් ආනයන වාර්තා නොමැත.</div>';
+        // ============================================================
+        // 4. Login Functions
+        // ============================================================
+        async function handleLoginSubmit(e) {
+            e.preventDefault();
+            const client = getClient();
+            if (!client) return showAlert('පද්ධතිය හා සම්බන්ධ වීමට නොහැකි විය.', 'error');
+
+            const email = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) return showAlert('කරුණාකර ඊමේල් සහ මුරපදය ඇතුළත් කරන්න.', 'error');
+
+            showAlert('ප්‍රවේශ වෙමින් පවතී...', 'info');
+            try {
+                const { data, error } = await client.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                showAlert('ප්‍රවේශය සාර්ථකයි!', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } catch (err) {
+                showAlert('ප්‍රවේශ වීම අසාර්ථකයි: ' + err.message, 'error');
+            }
+        }
+
+        async function loginWithGoogle() {
+            const client = getClient();
+            if (!client) return showAlert('Supabase සම්බන්ධතාවය අසාර්ථකයි.', 'error');
+            const { error } = await client.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: window.location.origin + '/api_admin.html' }
+            });
+            if (error) showAlert('Google ලොග් වීම අසාර්ථකයි: ' + error.message, 'error');
         }
 
         // ============================================================
-        // 3. Gemini AI Import – Supabase Edge Function එක ඇමතීම
+        // 5. Logout
+        // ============================================================
+        async function logoutAdmin() {
+            const client = getClient();
+            if (client) await client.auth.signOut();
+            window.location.reload();
+        }
+
+        // ============================================================
+        // 6. Gemini AI Import – Supabase Edge Function එක ඇමතීම
         // ============================================================
         async function importViaGemini() {
             const input = document.getElementById('aiPaliInput');
@@ -413,7 +566,6 @@
             statusDiv.className = 'api-status';
 
             try {
-                // Supabase Edge Function එකට ඉල්ලීම යැවීම
                 const response = await fetch('/functions/v1/ai-import-sutta', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -426,16 +578,10 @@
                     throw new Error(result.error || 'දත්ත ආනයනය අසාර්ථක විය.');
                 }
 
-                // සාර්ථක පණිවිඩය
-                statusDiv.innerHTML = `✅ ${result.message} දත්ත ගබඩාවට ඇතුළත් කරන ලදී. පාලක පුවරුවට ගොස් ලැයිස්තුව පරීක්ෂා කරන්න.`;
+                statusDiv.innerHTML = `✅ ${result.message} දත්ත ගබඩාවට ඇතුළත් කරන ලදී.`;
                 statusDiv.className = 'api-status success';
-
-                // ලොග් එකට එකතු කිරීම
-                const title = result.data?.title || 'AI සූත්‍රය';
-                addLog({ title: title, status: 'සාර්ථක' });
-
-                // පාඨය හිස් කිරීම
                 input.value = '';
+                await loadSuttasTable(); // ලැයිස්තුව යාවත්කාලීන කරන්න
 
             } catch (err) {
                 console.error('Gemini API Error:', err);
@@ -445,123 +591,62 @@
         }
 
         // ============================================================
-        // 4. File Upload Support (අතුරුදහන් වූ ශ්‍රිත)
+        // 7. Load Suttas Table
         // ============================================================
-        let uploadedFileData = null;
-
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            const statusDiv = document.getElementById('fileImportStatus');
-            if (!file || !statusDiv) return;
-
-            statusDiv.innerHTML = `⏳ ගොනුව ${file.name} කියවමින්...`;
-            statusDiv.className = 'api-status';
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                try {
-                    uploadedFileData = e.target.result;
-                    // ගොනුවේ අන්තර්ගතය Manual JSON පෙට්ටියට පිරවීම
-                    const manualInput = document.getElementById('manualJsonInput');
-                    if (manualInput) {
-                        manualInput.value = uploadedFileData;
-                    }
-                    statusDiv.innerHTML = `✅ ගොනුව සාර්ථකව කියවන ලදී. "දත්ත ආනයනය කරන්න" බොත්තම ඔබන්න.`;
-                    statusDiv.className = 'api-status success';
-                } catch (err) {
-                    statusDiv.innerHTML = `❌ ගොනුව කියවීමේ දෝෂයක්: ${err.message}`;
-                    statusDiv.className = 'api-status error';
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        async function importFromFile() {
-            const statusDiv = document.getElementById('fileImportStatus');
-            if (!uploadedFileData) {
-                statusDiv.innerHTML = '⚠️ කරුණාකර පළමුව ගොනුවක් තෝරන්න.';
-                statusDiv.className = 'api-status error';
-                return;
-            }
-            // ගොනු දත්ත Manual Import ක්‍රියාවලියට යොමු කිරීම
-            document.getElementById('manualJsonInput').value = uploadedFileData;
-            await importManualJson();
-        }
-
-        // ============================================================
-        // 5. Manual JSON Import (සෘජුව `suththra` වගුවට)
-        // ============================================================
-        async function importManualJson() {
-            const input = document.getElementById('manualJsonInput');
-            const statusDiv = document.getElementById('manualImportStatus');
-            if (!input || !statusDiv) return;
-
-            const jsonText = input.value.trim();
-            if (!jsonText) {
-                statusDiv.innerHTML = '⚠️ කරුණාකර JSON දත්ත ඇතුළත් කරන්න.';
-                statusDiv.className = 'api-status error';
-                return;
-            }
-
-            statusDiv.innerHTML = '⏳ දත්ත ආනයනය කරමින්...';
-            statusDiv.className = 'api-status';
+        async function loadSuttasTable() {
+            const tbody = document.getElementById('suttas_table_body');
+            if (!tbody) return;
 
             const client = getClient();
             if (!client) {
-                statusDiv.innerHTML = '❌ Supabase සම්බන්ධතාවය අසාර්ථකයි.';
-                statusDiv.className = 'api-status error';
+                tbody.innerHTML = '<tr><td colspan="4" class="loading-msg">Supabase සම්බන්ධතාවය අසාර්ථකයි.</td></tr>';
                 return;
             }
 
-            try {
-                let suttas = JSON.parse(jsonText);
-                // Array එකක් නොවේ නම් Array එකක් බවට පත් කිරීම
-                if (!Array.isArray(suttas)) {
-                    suttas = [suttas];
-                }
+            tbody.innerHTML = '<tr><td colspan="4" class="loading-msg">පූරණය වෙමින්...</td></tr>';
 
-                // `suththra` වගුවට ඇතුළත් කිරීම (අතිරේක ක්ෂේත්‍ර ස්වයංක්‍රීයව ඉවතලයි)
-                const { error } = await client.from('suththra').upsert(suttas, { onConflict: 'id' });
+            try {
+                const { data, error } = await client.from('suththra').select('id, title, status').order('order_no', { ascending: true });
                 if (error) throw error;
 
-                statusDiv.innerHTML = `✅ සූත්‍ර ${suttas.length} ක් සාර්ථකව ආනයනය කරන ලදී! පාලක පුවරුවට ගොස් ලැයිස්තුව පරීක්ෂා කරන්න.`;
-                statusDiv.className = 'api-status success';
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="loading-msg">කිසිදු සූත්‍රයක් ඇතුළත් කර නැත.</td></tr>';
+                    return;
+                }
 
-                // ලොග් එකට එකතු කිරීම
-                addLog({ title: `JSON ආනයනය (${suttas.length} ක්)`, status: 'සාර්ථක' });
+                const rowsHtml = data.map(sutta => {
+                    const statusDisplay = sutta.status === 'draft' ? 'කටු සටහන' : 'ප්‍රකාශිත';
+                    const statusClass = sutta.status === 'draft' ? 'status-badge status-badge-blocked' : 'status-badge status-badge-active';
+                    return `
+                        <tr>
+                            <td><strong>${escapeHtml(sutta.id)}</strong></td>
+                            <td>${escapeHtml(sutta.title)}</td>
+                            <td><span class="${statusClass}">${statusDisplay}</span></td>
+                            <td>
+                                <a href="suththra.html?id=${encodeURIComponent(sutta.id)}" target="_blank" class="action-btn-view">
+                                    <i class="fa-solid fa-eye"></i> බලන්න
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
 
-                // පිටිය හිස් කිරීම
-                input.value = '';
-                uploadedFileData = null;
+                tbody.innerHTML = rowsHtml;
 
             } catch (err) {
-                console.error('Manual Import Error:', err);
-                statusDiv.innerHTML = `❌ දෝෂයක්: ${err.message || err}`;
-                statusDiv.className = 'api-status error';
+                console.error('Table load error:', err);
+                tbody.innerHTML = `<tr><td colspan="4" class="loading-msg" style="color:#dc2626;">දත්ත ලබා ගැනීමේ දෝෂයකි: ${escapeHtml(err.message)}</td></tr>`;
             }
         }
 
-        function clearManualInput() {
-            document.getElementById('manualJsonInput').value = '';
-            const statusDiv = document.getElementById('manualImportStatus');
-            if (statusDiv) {
-                statusDiv.innerHTML = 'පොරොත්තුවෙන්...';
-                statusDiv.className = 'api-status';
-            }
-            uploadedFileData = null;
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         }
 
         // ============================================================
-        // 6. Logout & Theme
+        // 8. Theme Toggle
         // ============================================================
-        async function logoutAdmin() {
-            const client = getClient();
-            if (client) {
-                await client.auth.signOut();
-            }
-            window.location.href = 'login.html';
-        }
-
         function toggleTheme() {
             const htmlEl = document.documentElement;
             const themeIcon = document.getElementById('themeIcon');
@@ -569,14 +654,16 @@
             if (htmlEl.classList.contains('dark')) {
                 htmlEl.classList.remove('dark');
                 themeIcon.className = 'fa-solid fa-sun';
+                localStorage.setItem('theme', 'light');
             } else {
                 htmlEl.classList.add('dark');
                 themeIcon.className = 'fa-solid fa-moon';
+                localStorage.setItem('theme', 'dark');
             }
         }
 
         // ============================================================
-        // 7. Initialization
+        // 9. Initialization
         // ============================================================
         document.addEventListener('DOMContentLoaded', async () => {
             const savedTheme = localStorage.getItem('theme');
@@ -586,26 +673,14 @@
                 if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
             }
 
-            // Admin අවසරය පරීක්ෂා කිරීමට
-            if (typeof checkAdminAccess === 'function') {
-                const hasAccess = await checkAdminAccess();
-                if (!hasAccess) return;
-            }
-
-            // පරිශීලක තොරතුරු පෙන්වන්න
-            const client = getClient();
-            if (client) {
-                const { data: { user } } = await client.auth.getUser();
-                const adminEmailDisplay = document.getElementById('currentAdminEmail');
-                if (adminEmailDisplay && user) {
-                    const { data: profile } = await client.from('profiles').select('role').eq('id', user.id).maybeSingle();
-                    const role = profile?.role || 'viewer';
-                    adminEmailDisplay.innerText = `${user.email} (${role.toUpperCase()})`;
-                }
+            // Admin access පරීක්ෂා කරන්න
+            const hasAccess = await checkAdminAccess();
+            if (hasAccess) {
+                // ලොග් වී ඇත්නම් සූත්‍ර ලැයිස්තුව පූරණය කරන්න
+                await loadSuttasTable();
             }
         });
     </script>
 
 </body>
-
 </html>
