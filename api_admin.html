@@ -327,15 +327,15 @@
             <div class="login-card">
                 <h2 class="login-title">පරිපාලක ප්‍රවේශය</h2>
                 <div id="authAlert" class="alert-box hidden"></div>
-                
+
                 <div class="social-login">
                     <button onclick="loginWithGoogle()" class="btn-google">
                         <i class="fa-brands fa-google"></i> Google මඟින් ලොග් වන්න
                     </button>
                 </div>
-                
+
                 <hr style="border: none; border-top: 1px solid var(--card-border); margin: 1rem 0;" />
-                
+
                 <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="login-form">
                     <div class="field">
                         <label for="loginUsername">ඊමේල් ලිපිනය</label>
@@ -360,7 +360,9 @@
                 </div>
                 <div style="display:flex;flex-direction:column;gap:0.75rem;">
                     <div class="field">
-                        <label for="aiPaliInput" style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">පාලි සූත්‍ර පාඨය මෙහි අලවන්න</label>
+                        <label for="aiPaliInput"
+                            style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">පාලි සූත්‍ර පාඨය මෙහි
+                            අලවන්න</label>
                         <textarea id="aiPaliInput" rows="4" placeholder="උදා: Karaṇīyam atthakusalena ..."></textarea>
                     </div>
                     <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
@@ -376,7 +378,8 @@
             <div class="card api-card">
                 <div class="card-header">
                     <h3><i class="fa-solid fa-table-list"></i> පද්ධතියේ පවතින සූත්‍ර</h3>
-                    <button onclick="loadSuttasTable()" class="btn-primary" style="font-size:0.6rem; padding:0.2rem 0.8rem;">
+                    <button onclick="loadSuttasTable()" class="btn-primary"
+                        style="font-size:0.6rem; padding:0.2rem 0.8rem;">
                         <i class="fa-solid fa-rotate-right"></i> නැවත පූරණය
                     </button>
                 </div>
@@ -548,7 +551,7 @@
         }
 
         // ============================================================
-        // 6. Gemini AI Import – Supabase Edge Function එක ඇමතීම
+        // නිවැරදි කළ Gemini AI Import ශ්‍රිතය
         // ============================================================
         async function importViaGemini() {
             const input = document.getElementById('aiPaliInput');
@@ -566,7 +569,9 @@
             statusDiv.className = 'api-status';
 
             try {
-                const response = await fetch('/functions/v1/ai-import-sutta', {
+                // ⚠️ වෙනස් කිරීම: සාපේක්ෂ URL වෙනුවට සම්පූර්ණ Supabase URL භාවිතා කරන්න
+                const SUPABASE_URL = 'https://jtzttfdxoidnypxqlfms.supabase.co'; // ඔබේ Supabase URL එක
+                const response = await fetch(SUPABASE_URL + '/functions/v1/ai-import-sutta', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ paliText: paliText })
@@ -578,7 +583,7 @@
                     throw new Error(result.error || 'දත්ත ආනයනය අසාර්ථක විය.');
                 }
 
-                statusDiv.innerHTML = `✅ ${result.message} දත්ත ගබඩාවට ඇතුළත් කරන ලදී.`;
+                statusDiv.innerHTML = `✅ ${result.message}`;
                 statusDiv.className = 'api-status success';
                 input.value = '';
                 await loadSuttasTable(); // ලැයිස්තුව යාවත්කාලීන කරන්න
@@ -683,4 +688,5 @@
     </script>
 
 </body>
+
 </html>
