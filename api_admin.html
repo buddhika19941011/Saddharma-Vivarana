@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="si">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API ඇඩ්මින් – සද්ධර්ම විවරණ</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/admin_style.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@500;700;800&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <!-- API Admin පිටුව සඳහා අමතර ශෛලීන් -->
+    <style>
+        .api-card {
+            margin-bottom: 1.5rem;
+        }
+
+        .api-card .card-header {
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .api-card .card-header h3 {
+            font-family: 'Abhaya Libre', serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .api-card .card-header h3 i {
+            color: #d97706;
+        }
+
+        .api-card textarea {
+            width: 100%;
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            font-family: inherit;
+            font-size: 0.75rem;
+            color: var(--text-primary);
+            outline: none;
+            resize: vertical;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .api-card textarea:focus {
+            border-color: #d97706;
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.12);
+        }
+
+        .api-card .btn-primary {
+            padding: 0.4rem 1.2rem;
+            border-radius: 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            background: #d97706;
+            color: #fff;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .api-card .btn-primary:hover {
+            background: #b45309;
+            transform: scale(1.02);
+        }
+
+        .api-card .btn-secondary {
+            padding: 0.4rem 1.2rem;
+            border-radius: 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--card-border);
+            background: transparent;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .api-card .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        .api-status {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 0.3rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.5rem;
+            background: rgba(245, 158, 11, 0.04);
+            border: 1px solid rgba(245, 158, 11, 0.1);
+        }
+
+        .api-status.success {
+            color: #059669;
+            background: rgba(5, 150, 105, 0.06);
+            border-color: rgba(5, 150, 105, 0.15);
+        }
+
+        .api-status.error {
+            color: #dc2626;
+            background: rgba(220, 38, 38, 0.06);
+            border-color: rgba(220, 38, 38, 0.15);
+        }
+
+        .log-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .log-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.5rem;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            font-size: 0.65rem;
+        }
+
+        .log-item .log-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .log-item .log-time {
+            color: var(--text-muted);
+            font-size: 0.55rem;
+        }
+
+        .log-empty {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+            padding: 0.5rem 0;
+        }
+
+        .file-upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            padding: 0.3rem;
+            font-size: 0.65rem;
+            border: 1px dashed var(--card-border);
+            border-radius: 0.5rem;
+            background: var(--input-bg);
+            cursor: pointer;
+        }
+
+        .file-upload-wrapper input[type="file"]::file-selector-button {
+            padding: 0.2rem 0.8rem;
+            border: none;
+            border-radius: 0.4rem;
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .file-upload-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+
+<body class="lotus-bg">
+
+    <!-- ===== HEADER ===== -->
+    <header class="admin-header no-print">
+        <div class="header-inner">
+            <div class="header-container">
+                <div class="brand-group">
+                    <div class="logo-wrapper">
+                        <img src="images/sv_logo.png" alt="Dharmachakra Logo" class="logo-img"
+                            onerror="this.onerror=null; this.src='https://placehold.co/100x100/f59e0b/ffffff?text=☸️'" />
+                    </div>
+                    <div class="brand-text">
+                        <h1 class="brand-title">සද්ධර්ම විවරණ – API ඇඩ්මින්</h1>
+                        <p class="brand-sub">ස්වයංක්‍රීය සූත්‍ර ආනයනය සහ පරිවර්තන පාලනය</p>
+                    </div>
+                </div>
+                <div class="header-controls">
+                    <div id="userInfoDisplay" class="user-badge">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span id="currentAdminEmail">පූරණය වෙමින්…</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button onclick="logoutAdmin()" class="btn-logout">
+                            <i class="fa-solid fa-right-from-bracket"></i> පිටවීම
+                        </button>
+                        <button onclick="toggleTheme()" class="icon-btn theme-toggle" title="තේමාව මාරු කරන්න">
+                            <i id="themeIcon" class="fa-solid fa-sun"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main class="main-content">
+
+        <!-- පිටු සංචාලනය (Navigation) -->
+        <section class="tab-nav" style="margin-bottom:1.5rem;">
+            <div class="tab-nav-inner">
+                <a href="admin.html" class="tab-btn" style="text-decoration:none;">
+                    <i class="fa-solid fa-arrow-left"></i> ආපසු පාලක පුවරුවට
+                </a>
+                <span class="tab-btn active" style="cursor:default;">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> API ආනයනය
+                </span>
+            </div>
+        </section>
+
+        <!-- ===== කොටස 1: AI මගින් පාලි පාඨය ආනයනය කිරීම ===== -->
+        <div class="card api-card">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-robot"></i> DeepSeek AI මගින් පාලි සූත්‍රය පරිවර්තනය කර ආනයනය කිරීම</h3>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div class="field">
+                    <label for="aiPaliInput" style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">පාලි
+                        සූත්‍ර පාඨය මෙහි අලවන්න</label>
+                    <textarea id="aiPaliInput" rows="4" placeholder="උදා: Karaṇīyam atthakusalena ..."></textarea>
+                </div>
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                    <button onclick="importViaDeepSeek()" class="btn-primary">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> AI මගින් පරිවර්තනය කර එක් කරන්න
+                    </button>
+                </div>
+                <div id="aiImportStatus" class="api-status">පොරොත්තුවෙන්...</div>
+            </div>
+        </div>
+
+        <!-- ===== කොටස 2: ගොනුවක් උඩුගත කිරීම (Upload) ===== -->
+        <div class="card api-card">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-upload"></i> JSON / CSV ගොනුවක් උඩුගත කර ආනයනය කිරීම</h3>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div class="file-upload-wrapper">
+                    <input type="file" id="fileInput" accept=".json,.csv" onchange="handleFileUpload(event)" />
+                    <button onclick="importFromFile()" class="btn-primary">
+                        <i class="fa-solid fa-cloud-upload-alt"></i> උඩුගත කර ආනයනය කරන්න
+                    </button>
+                </div>
+                <div id="fileImportStatus" class="api-status">ගොනුවක් තෝරන්න...</div>
+            </div>
+        </div>
+
+        <!-- ===== කොටස 3: අතින් Copy-Paste කර ආනයනය කිරීම ===== -->
+        <div class="card api-card">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-paste"></i> JSON දත්ත අතින් Copy-Paste කර ආනයනය කිරීම</h3>
+                <span style="font-size:0.55rem;color:var(--text-muted);">Upload කරන ලද ගොනුවේ අන්තර්ගතය මෙහි
+                    ස්වයංක්‍රීයව පිරවේ.</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div class="field">
+                    <label for="manualJsonInput"
+                        style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">JSON දත්ත මෙහි
+                        අලවන්න</label>
+                    <textarea id="manualJsonInput" rows="4"
+                        placeholder='[{"id":"example","title":"...","passages":[...]}]'></textarea>
+                </div>
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                    <button onclick="importManualJson()" class="btn-primary">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> දත්ත ආනයනය කරන්න
+                    </button>
+                    <button onclick="clearManualInput()" class="btn-secondary">
+                        <i class="fa-solid fa-eraser"></i> හිස් කරන්න
+                    </button>
+                </div>
+                <div id="manualImportStatus" class="api-status">පොරොත්තුවෙන්...</div>
+            </div>
+        </div>
+
+        <!-- ===== කොටස 4: මෑත ආනයන ඉතිහාසය (Logs) ===== -->
+        <div class="card api-card">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> මෑත ආනයන ඉතිහාසය</h3>
+                <button onclick="clearLogs()" class="btn-secondary" style="padding:0.2rem 0.8rem;font-size:0.6rem;">
+                    <i class="fa-solid fa-trash-can"></i> හිස් කරන්න
+                </button>
+            </div>
+            <div id="importLogContainer" class="log-list">
+                <div class="log-empty">තවමත් ආනයන වාර්තා නොමැත.</div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="admin-footer">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <img src="images/sv_logo.png" alt="Dharmachakra" class="footer-icon"
+                    onerror="this.onerror=null; this.src='https://placehold.co/50x50/f59e0b/ffffff?text=☸️'" />
+            </div>
+            <div class="footer-links">
+                <a href="index.html">මුල් පිටුව</a>
+                <span>•</span>
+                <a href="admin.html">පාලක පුවරුව</a>
+                <span>•</span>
+                <a href="about.html">අප ගැන</a>
+                <span>•</span>
+                <a href="terms.html">භාවිත නියමයන්</a>
+                <span>•</span>
+                <a href="privacy.html">රහස්‍යතා ප්‍රකාශනය</a>
+            </div>
+            <p class="footer-copy">ත්‍රිපිටක පාඨ අධ්‍යයන සහ පර්යේෂණ ඒකකය</p>
+            <p class="footer-copy">© 2026 ශ්‍රී සද්ධර්ම ද්විභාෂා පීඨිකාව | උතුම් ධර්ම දානය පිණීස පමණී.</p>
+        </div>
+    </footer>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js" defer></script>
+
+    <!-- API Admin JS -->
+    <script>
+        // ============================================================
+        // 1. Supabase Client ලබා ගැනීම
+        // ============================================================
+        function getClient() {
+            if (typeof window.getAuthSupabaseClient === 'function') {
+                return window.getAuthSupabaseClient();
+            }
+            if (typeof window.supabaseClient !== 'undefined') {
+                return window.supabaseClient;
+            }
+            console.error('Supabase Client ලබා ගැනීමට නොහැකි විය.');
+            return null;
+        }
+
+        // ============================================================
+        // 2. උපකාරක ශ්‍රිත
+        // ============================================================
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        function addLog(entry) {
+            const container = document.getElementById('importLogContainer');
+            if (!container) return;
+            const emptyMsg = container.querySelector('.log-empty');
+            if (emptyMsg) emptyMsg.remove();
+
+            const item = document.createElement('div');
+            item.className = 'log-item';
+            const time = new Date().toLocaleTimeString('si-LK');
+            item.innerHTML = `
+                <span class="log-title">${escapeHtml(entry.title || 'නම් රහිත සූත්‍රය')}</span>
+                <span class="log-time">${time} - ${entry.status || 'සාර්ථක'}</span>
+            `;
+            container.prepend(item);
+
+            // අවසන් අයිතම 10 ක් පමණක් තබා ගන්න
+            while (container.children.length > 10) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        function clearLogs() {
+            const container = document.getElementById('importLogContainer');
+            if (!container) return;
+            container.innerHTML = '<div class="log-empty">තවමත් ආනයන වාර්තා නොමැත.</div>';
+        }
+
+        // ============================================================
+        // 3. DeepSeek AI Import
+        // ============================================================
+        // Google Gemini API Key එක අර්ථ දැක්වීම
+        const GEMINI_API_KEY = "AIzaSyCP9EoSb78udGK1lViB8Dbogw2KZXlzhyQ";
+
+        // AI මගින් පරිවර්තනය කර ආනයනය කිරීමේ ශ්‍රිතය
+        async function importViaDeepSeek() {
+            const input = document.getElementById('aiPaliInput');
+            const statusDiv = document.getElementById('aiImportStatus');
+            if (!input || !statusDiv) return;
+
+            const paliText = input.value.trim();
+            if (!paliText) {
+                statusDiv.innerHTML = '⚠️ කරුණාකර පාලි පාඨය ඇතුළත් කරන්න.';
+                statusDiv.className = 'api-status error';
+                return;
+            }
+
+            statusDiv.innerHTML = '⏳ Gemini AI මගින් පාලි පාඨය පරිවර්තනය කරමින් පවතී...';
+            statusDiv.className = 'api-status';
+
+            try {
+                // Gemini REST API Endpoint URL
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+                // AI එකට ලබාදෙන Prompt එක
+                const promptText = `ඔබ ත්‍රිපිටක පාලි භාෂාව සහ සිංහල පරිවර්තන පිළිබඳ විශාරදයෙකි. පහත පාලි පාඨය සිංහලට පරිවර්තනය කර JSON ආකෘතියෙන් ලබා දෙන්න. 
+JSON Output Format පමණක් ලබා දෙන්න (අමතර පැහැදිලි කිරීම් නැතුව):
+{
+  "title": "සූත්‍රයේ නම",
+  "passages": [
+    {
+      "pali": "පාලි කොටස",
+      "sinhala": "සිංහල පරිවර්තනය"
+    }
+  ]
+}
+
+පාලි පාඨය:
+${paliText}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: promptText }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.candidates && data.candidates[0]) {
+                    let aiResponseText = data.candidates[0].content.parts[0].text;
+
+                    // Markdown code block formatting ඉවත් කිරීම (JSON පමණක් ලබාගැනීමට)
+                    aiResponseText = aiResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+                    const parsedData = JSON.parse(aiResponseText);
+
+                    // ලබාගත් JSON දත්ත Manual JSON Input එකට පිරවීම
+                    const manualInput = document.getElementById('manualJsonInput');
+                    if (manualInput) {
+                        manualInput.value = JSON.stringify(parsedData, null, 2);
+                    }
+
+                    statusDiv.innerHTML = `✅ පරිවර්තනය සාර්ථකයි! පහත JSON අංශයෙන් "දත්ත ආනයනය කරන්න" බොත්තම ඔබන්න.`;
+                    statusDiv.className = 'api-status success';
+                    addLog({ title: parsedData.title || 'Gemini AI ආනයනය', status: 'සාර්ථක' });
+                } else {
+                    throw new Error(data.error?.message || 'Gemini API එකෙන් නිසි ප්‍රතිචාරයක් නොලැබුණි.');
+                }
+
+            } catch (err) {
+                console.error('Gemini API Error:', err);
+                statusDiv.innerHTML = `❌ දෝෂයක්: ${err.message || err}`;
+                statusDiv.className = 'api-status error';
+            }
+        }
+
+        // ============================================================
+        // 4. File Upload & Auto-fill
+        // ============================================================
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            const statusDiv = document.getElementById('fileImportStatus');
+            if (!file) {
+                statusDiv.innerHTML = '⚠️ කරුණාකර ගොනුවක් තෝරන්න.';
+                statusDiv.className = 'api-status error';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const content = e.target.result;
+                const manualInput = document.getElementById('manualJsonInput');
+                if (manualInput) {
+                    manualInput.value = content;
+                }
+                statusDiv.innerHTML = `✅ ගොනුව "${file.name}" සාර්ථකව කියවා Copy-Paste පෙට්ටියට පිරවා ඇත. දැන් පහත "දත්ත ආනයනය කරන්න" බොත්තම ඔබන්න.`;
+                statusDiv.className = 'api-status success';
+            };
+            reader.onerror = function () {
+                statusDiv.innerHTML = '❌ ගොනුව කියවීමේදී දෝෂයක් සිදු විය.';
+                statusDiv.className = 'api-status error';
+            };
+            reader.readAsText(file);
+        }
+
+        async function importFromFile() {
+            const manualInput = document.getElementById('manualJsonInput');
+            if (!manualInput || !manualInput.value.trim()) {
+                const statusDiv = document.getElementById('fileImportStatus');
+                statusDiv.innerHTML = '⚠️ පළමුව ගොනුවක් උඩුගත කරන්න හෝ දත්ත අතින් අලවන්න.';
+                statusDiv.className = 'api-status error';
+                return;
+            }
+            // අතින් ආනයනය කිරීමේ ශ්‍රිතයම භාවිතා කරන්න
+            await importManualJson();
+        }
+
+        // ============================================================
+        // 5. Manual JSON Import
+        // ============================================================
+        async function importManualJson() {
+            const input = document.getElementById('manualJsonInput');
+            const statusDiv = document.getElementById('manualImportStatus');
+            if (!input || !statusDiv) return;
+
+            const jsonText = input.value.trim();
+            if (!jsonText) {
+                statusDiv.innerHTML = '⚠️ කරුණාකර JSON දත්ත ඇතුළත් කරන්න.';
+                statusDiv.className = 'api-status error';
+                return;
+            }
+
+            statusDiv.innerHTML = '⏳ දත්ත ආනයනය කරමින්...';
+            statusDiv.className = 'api-status';
+
+            const client = getClient();
+            if (!client) {
+                statusDiv.innerHTML = '❌ Supabase සම්බන්ධතාවය අසාර්ථකයි.';
+                statusDiv.className = 'api-status error';
+                return;
+            }
+
+            try {
+                let suttas = JSON.parse(jsonText);
+                // Array එකක් නොවේ නම් Array එකක් බවට පත් කරන්න
+                if (!Array.isArray(suttas)) {
+                    suttas = [suttas];
+                }
+
+                const { error } = await client.from('suththra').upsert(suttas, { onConflict: 'id' });
+                if (error) throw error;
+
+                statusDiv.innerHTML = `✅ සූත්‍ර ${suttas.length} ක් සාර්ථකව ආනයනය කරන ලදී!`;
+                statusDiv.className = 'api-status success';
+                input.value = '';
+                addLog({ title: `JSON ආනයනය (${suttas.length} ක්)`, status: 'සාර්ථක' });
+
+            } catch (err) {
+                console.error('Manual Import Error:', err);
+                statusDiv.innerHTML = `❌ දෝෂයක්: ${err.message || err}`;
+                statusDiv.className = 'api-status error';
+            }
+        }
+
+        function clearManualInput() {
+            document.getElementById('manualJsonInput').value = '';
+            const statusDiv = document.getElementById('manualImportStatus');
+            statusDiv.innerHTML = 'පොරොත්තුවෙන්...';
+            statusDiv.className = 'api-status';
+        }
+
+        // ============================================================
+        // 6. Logout & Theme
+        // ============================================================
+        async function logoutAdmin() {
+            const client = getClient();
+            if (client) {
+                await client.auth.signOut();
+            }
+            window.location.href = 'login.html';
+        }
+
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            if (!themeIcon) return;
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-sun';
+            } else {
+                htmlEl.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-moon';
+            }
+        }
+
+        // ============================================================
+        // 7. Initialization
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                const themeIcon = document.getElementById('themeIcon');
+                if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
+            }
+
+            // Admin අවසරය පරීක්ෂා කිරීමට (admin-panel.js වෙතින්)
+            if (typeof checkAdminAccess === 'function') {
+                const hasAccess = await checkAdminAccess();
+                if (!hasAccess) return;
+            }
+
+            // පරිශීලක තොරතුරු පෙන්වන්න (ආදර්ශයක් ලෙස)
+            const client = getClient();
+            if (client) {
+                const { data: { user } } = await client.auth.getUser();
+                const adminEmailDisplay = document.getElementById('currentAdminEmail');
+                if (adminEmailDisplay && user) {
+                    // profiles වගුවෙන් role එක ලබා ගන්න
+                    const { data: profile } = await client.from('profiles').select('role').eq('id', user.id).maybeSingle();
+                    const role = profile?.role || 'viewer';
+                    adminEmailDisplay.innerText = `${user.email} (${role.toUpperCase()})`;
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>
