@@ -395,12 +395,10 @@
         }
 
         // ============================================================
-        // 3. DeepSeek AI Import
+        // 3. DeepSeek/Gemini AI Import (යාවත්කාලීන කරන ලදි)
         // ============================================================
-        // Google Gemini API Key එක අර්ථ දැක්වීම
-        const GEMINI_API_KEY = "AIzaSyCP9EoSb78udGK1lViB8Dbogw2KZXlzhyQ";
+        const GEMINI_API_KEY = "AIzaSyCP9EoSb78udGK1lViB8Dbogw2KZXlzhyQ"; // ඔබගේ API Key
 
-        // AI මගින් පරිවර්තනය කර ආනයනය කිරීමේ ශ්‍රිතය
         async function importViaDeepSeek() {
             const input = document.getElementById('aiPaliInput');
             const statusDiv = document.getElementById('aiImportStatus');
@@ -413,38 +411,83 @@
                 return;
             }
 
-            statusDiv.innerHTML = '⏳ Gemini AI මගින් පාලි පාඨය පරිවර්තනය කරමින් පවතී...';
+            statusDiv.innerHTML = '⏳ Gemini AI මගින් පාලි පාඨය විග්‍රහ කරමින් පවතී...';
             statusDiv.className = 'api-status';
 
             try {
                 // Gemini REST API Endpoint URL
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-                // AI එකට ලබාදෙන Prompt එක
-                const promptText = `ඔබ ත්‍රිපිටක පාලි භාෂාව සහ සිංහල පරිවර්තන පිළිබඳ විශාරදයෙකි. පහත පාලි පාඨය සිංහලට පරිවර්තනය කර JSON ආකෘතියෙන් ලබා දෙන්න. 
-JSON Output Format පමණක් ලබා දෙන්න (අමතර පැහැදිලි කිරීම් නැතුව):
-{
-  "title": "සූත්‍රයේ නම",
-  "passages": [
-    {
-      "pali": "පාලි කොටස",
-      "sinhala": "සිංහල පරිවර්තනය"
-    }
-  ]
-}
+                // ========== නව ප්‍රොම්ප්ට් එක ==========
+                const promptText = `පහත දක්වා ඇති පාලි පෙළ වචනයෙන් වචනය (Word-by-Word) ඉතාම සවිස්තරාත්මකව, භාෂාමය වශයෙන් විග්‍රහ කර දෙන්න. ඔබ පාලි භාෂාව පිළිබඳ ශුද්ධ ව්‍යාකරණ හා නිරුක්ති (Etymology) විශේෂඥයෙකු ලෙස කටයුතු කරන්න.
+
+මෙම විග්‍රහය සිදු කිරීමේදී පහත සඳහන් කරුණු දැඩි ලෙස අනුගමනය කරන්න:
+- ආගමික හෝ දාර්ශනික අර්ථකථනයක් කිසිසේත් ඇතුළත් නොකරන්න.
+- ශුද්ධ ව්‍යාකරණ (ධාතු, උපසර්ග, ප්‍රත්‍ය, විභක්ති) සහ නිරුක්ති මූලාර්ථය මත පමණක් පදනම් වූ විද්‍යාත්මක/භාෂාමය විශ්ලේෂණයක් කරන්න.
+
+පහත සඳහන් කොටස් හරියටම ඇතුළත් කරමින් පිළිතුර ව්‍යුහගත කරන්න:
+
+1. වචනයෙන්-වචනය (Word-by-Word) සවිස්තර විග්‍රහ වගුව:
+පහත තීරු සහිත වගුවක් සාදන්න: අංකය | පාලි පදය | සාමාන්‍ය අර්ථය | ධාතුව / මූලය | ධාතු අර්ථය | උපසර්ගය / නිපාතය | ප්‍රත්‍යය (Suffix) | විභක්ති අවසානය (Case Ending) | රූප සිද්ධිය (සැදුම් ක්‍රමය) | ලිංගය, වචනය, විභක්තිය (කාරකය) | නිරවද්‍ය ව්‍යාකරණමය අර්ථය
+
+2. සන්ධි හා ව්‍යුත්පත්ති සටහන්:
+එක් එක් ප්‍රධාන පදය සැදුණු ආකාරය ධාතු-ප්‍රත්‍ය අතින් පැහැදිලි කරන්න. (උදා: √භූ + අ + එ = භාවයෙ ලෙස)
+
+3. පියවරෙන් පියවර ව්‍යුත්පත්ති අනුපිළිවෙළ (Literal Breakdown):
+එක් එක් පදයේ අර්ථය අනුපිළිවෙලට තනි තනිව ලියා දෙන්න.
+
+4. ඉතාම නිවරදි, වචනාර්ථානුකූල (Literal) භාෂාමය සිංහල පරිවර්තනය:
+මෙය කොටස් තුනක්ට බෙදන්න:
+- පියවර 1 – ව්‍යුත්පත්ති අනුපිළිවෙළ : පද පෙළ ගැසීම පමණක් කරන්න.
+- පියවර 2 – ස්වභාවික සිංහල වාක්‍ය ගොඩනැගීම (ව්‍යාකරණමය වශයෙන් ගැලපීම)
+- පියවර 3 – අවසාන පිරිපහදු කළ, නිරවද්‍ය භාෂාමය පරිවර්තනය (වරහන් රහිත)
 
 පාලි පාඨය:
-${paliText}`;
+${paliText}
+
+ඔබගේ පිළිතුර JSON ආකෘතියෙන් පමණක් ලබා දෙන්න (අමතර පැහැදිලි කිරීම් හෝ Markdown කේතයක් නොමැතිව). JSON ආකෘතිය පහත පරිදි විය යුතුය:
+{
+  "pali_text": "මුල් පාලි පාඨය",
+  "word_analysis": [
+    {
+      "index": 1,
+      "pali_word": "පදය",
+      "common_meaning": "සාමාන්‍ය අර්ථය",
+      "root": "ධාතුව",
+      "root_meaning": "ධාතු අර්ථය",
+      "prefix": "උපසර්ගය / නිපාතය",
+      "suffix": "ප්‍රත්‍යය",
+      "case_ending": "විභක්ති අවසානය",
+      "formation": "රූප සිද්ධිය",
+      "gender_number_case": "ලිංගය, වචනය, විභක්තිය",
+      "grammatical_meaning": "නිරවද්‍ය ව්‍යාකරණමය අර්ථය"
+    }
+  ],
+  "sandhi_etymology": [
+    {
+      "word": "ප්‍රධාන පදය",
+      "explanation": "ධාතු-ප්‍රත්‍ය සහ සන්ධි පැහැදිලි කිරීම"
+    }
+  ],
+  "literal_breakdown": [
+    "පදය1 අර්ථය",
+    "පදය2 අර්ථය"
+  ],
+  "translation": {
+    "step_1_sequence": "පද පෙළ ගැසීම",
+    "step_2_natural": "ස්වභාවික වාක්‍ය ගොඩනැගීම",
+    "step_3_refined": "අවසාන පිරිපහදු කළ පරිවර්තනය"
+  },
+  "disclaimer": "මෙම විග්‍රහය ආගමික හෝ අධ්‍යාත්මික අර්ථකථනයක් නොවන අතර, පාලි භාෂාවේ ශුද්ධ ව්‍යාකරණ සහ නිරුක්ති මත පදනම් වූ භාෂාමය විශ්ලේෂණයක් පමණි."
+}`;
+
+                // ==================================================
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: promptText }]
-                        }]
+                        contents: [{ parts: [{ text: promptText }] }]
                     })
                 });
 
@@ -456,17 +499,38 @@ ${paliText}`;
                     // Markdown code block formatting ඉවත් කිරීම (JSON පමණක් ලබාගැනීමට)
                     aiResponseText = aiResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
 
+                    // පිළිතුර JSON ලෙස විග්‍රහ කරන්න
                     const parsedData = JSON.parse(aiResponseText);
 
-                    // ලබාගත් JSON දත්ත Manual JSON Input එකට පිරවීම
+                    // ====== JSON පිළිතුර පෙන්වීමට (දත්ත ගබඩා කිරීමට පෙර) ======
+                    // මෙය Manual JSON Input පෙට්ටියට පිරවීම
                     const manualInput = document.getElementById('manualJsonInput');
                     if (manualInput) {
                         manualInput.value = JSON.stringify(parsedData, null, 2);
                     }
 
-                    statusDiv.innerHTML = `✅ පරිවර්තනය සාර්ථකයි! පහත JSON අංශයෙන් "දත්ත ආනයනය කරන්න" බොත්තම ඔබන්න.`;
+                    statusDiv.innerHTML = `✅ විග්‍රහය සාර්ථකයි! පහත JSON අංශයෙන් "දත්ත ආනයනය කරන්න" බොත්තම ඔබා දත්ත ගබඩා කරන්න.`;
                     statusDiv.className = 'api-status success';
-                    addLog({ title: parsedData.title || 'Gemini AI ආනයනය', status: 'සාර්ථක' });
+
+                    // ලොග් එකට එකතු කරන්න
+                    const title = parsedData.pali_text ? parsedData.pali_text.substring(0, 30) + "..." : "AI විග්‍රහය";
+                    addLog({ title: title, status: 'සාර්ථක' });
+
+                    // (විකල්ප) මෙම JSON දත්ත ඔබගේ Supabase වගුවට සෘජුවම ඇතුළත් කිරීමට පහත කේතය භාවිතා කරන්න:
+                    // const client = getClient();
+                    // if (client) {
+                    //     const { error } = await client.from('sutta_analysis').insert({
+                    //         pali_text: parsedData.pali_text,
+                    //         word_analysis: parsedData.word_analysis,
+                    //         sandhi_etymology: parsedData.sandhi_etymology,
+                    //         literal_breakdown: parsedData.literal_breakdown,
+                    //         translation: parsedData.translation,
+                    //         disclaimer: parsedData.disclaimer
+                    //     });
+                    //     if (error) throw error;
+                    //     statusDiv.innerHTML = `✅ දත්ත දත්ත ගබඩාවට සාර්ථකව ඇතුළත් කරන ලදී!`;
+                    // }
+
                 } else {
                     throw new Error(data.error?.message || 'Gemini API එකෙන් නිසි ප්‍රතිචාරයක් නොලැබුණි.');
                 }
@@ -476,47 +540,6 @@ ${paliText}`;
                 statusDiv.innerHTML = `❌ දෝෂයක්: ${err.message || err}`;
                 statusDiv.className = 'api-status error';
             }
-        }
-
-        // ============================================================
-        // 4. File Upload & Auto-fill
-        // ============================================================
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            const statusDiv = document.getElementById('fileImportStatus');
-            if (!file) {
-                statusDiv.innerHTML = '⚠️ කරුණාකර ගොනුවක් තෝරන්න.';
-                statusDiv.className = 'api-status error';
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const content = e.target.result;
-                const manualInput = document.getElementById('manualJsonInput');
-                if (manualInput) {
-                    manualInput.value = content;
-                }
-                statusDiv.innerHTML = `✅ ගොනුව "${file.name}" සාර්ථකව කියවා Copy-Paste පෙට්ටියට පිරවා ඇත. දැන් පහත "දත්ත ආනයනය කරන්න" බොත්තම ඔබන්න.`;
-                statusDiv.className = 'api-status success';
-            };
-            reader.onerror = function () {
-                statusDiv.innerHTML = '❌ ගොනුව කියවීමේදී දෝෂයක් සිදු විය.';
-                statusDiv.className = 'api-status error';
-            };
-            reader.readAsText(file);
-        }
-
-        async function importFromFile() {
-            const manualInput = document.getElementById('manualJsonInput');
-            if (!manualInput || !manualInput.value.trim()) {
-                const statusDiv = document.getElementById('fileImportStatus');
-                statusDiv.innerHTML = '⚠️ පළමුව ගොනුවක් උඩුගත කරන්න හෝ දත්ත අතින් අලවන්න.';
-                statusDiv.className = 'api-status error';
-                return;
-            }
-            // අතින් ආනයනය කිරීමේ ශ්‍රිතයම භාවිතා කරන්න
-            await importManualJson();
         }
 
         // ============================================================
