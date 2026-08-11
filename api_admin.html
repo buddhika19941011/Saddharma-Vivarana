@@ -177,9 +177,7 @@
                                 <i class="fa-solid fa-rotate-left"></i> මුල් අච්චුව
                             </button>
                         </div>
-                        <span class="prompt-note">
-                            <strong>අනිවාර්ය:</strong> පාලි පෙළ ස්වයංක්‍රීයව ඇතුළත් කිරීමට, ඔබේ ප්‍රොම්ප්ට් එකේ <code>${paliText}</code> යන විචල්‍යය අනිවාර්යයෙන්ම තබා ගන්න. එය මකා දැමුවහොත් පාලි පෙළ යැවෙන්නේ නැත.
-                        </span>
+                        <span class="prompt-note"><strong>අනිවාර්ය:</strong> පාලි පෙළ ඇතුළත් කිරීමට, ප්‍රොම්ප්ට් එකේ <code>${paliText}</code> යන විචල්‍යය තබා ගන්න. එය මකා දැමුවහොත් පාලි පෙළ යැවෙන්නේ නැත.</span>
                     </div>
 
                     <!-- ක්‍රියාත්මක කිරීමේ බොත්තම -->
@@ -251,7 +249,7 @@
     <script src="js/supabase-config.js" defer></script>
 
     <!-- ============================================================
-         API Admin JS – සම්පූර්ණයෙන්ම නිවැරදි කරන ලද, සරල කරන ලද සහ අභිරුචි ප්‍රොම්ප්ට් සහිත
+         API Admin JS – සම්පූර්ණයෙන්ම නිවැරදි කරන ලද
          ============================================================ -->
     <script>
         // ============================================================
@@ -290,7 +288,7 @@
         }
 
         // ============================================================
-        // 3. Admin Access & Login/Logout පාලනය (අඩුපාඩු 2 නිවැරදි කරන ලදී)
+        // 3. Admin Access & Login/Logout පාලනය
         // ============================================================
         async function checkAdminAccess() {
             const client = getClient();
@@ -308,7 +306,6 @@
                     return false;
                 }
 
-                // පරිශීලක පැතිකඩෙන් role සහ is_blocked ලබා ගැනීම
                 const { data: profile, error: profileError } = await client.from('profiles')
                     .select('role, is_blocked')
                     .eq('id', user.id)
@@ -316,7 +313,6 @@
 
                 if (profileError) console.warn('Profile load error:', profileError);
 
-                // ✅ නිවැරදි කිරීම: අවහිර කළ පරිශීලකයාට ඉඩ නොදීම
                 if (profile?.is_blocked === true) {
                     alert('ඔබගේ ගිණුම තාවකාලිකව අත්හිටුවා ඇත (Blocked).');
                     await client.auth.signOut();
@@ -377,7 +373,7 @@
         }
 
         // ============================================================
-        // 4. ප්‍රොම්ප්ට් අච්චු කළමනාකරණය
+        // 4. ප්‍රොම්ප්ට් අච්චු කළමනාකරණය (HTML දෝෂය මෙතැනින් නිවැරදි කරන ලදී)
         // ============================================================
         const DEFAULT_PROMPT_TEMPLATE = `පහත දක්වා ඇති පාලි පෙළ වචනයෙන් වචනය (Word-by-Word) ඉතාම සවිස්තරාත්මකව, භාෂාමය වශයෙන් විග්‍රහ කර දෙන්න. ඔබ පාලි භාෂාව පිළිබඳ ශුද්ධ ව්‍යාකරණ හා නිරුක්ති (Etymology) විශේෂඥයෙකු ලෙස කටයුතු කරන්න.
 
@@ -444,12 +440,13 @@ ${paliText}
         function resetPromptTemplate() {
             const promptInput = document.getElementById('customPrompt');
             if (promptInput) {
-                promptInput.value = DEFAULT_PROMPT_TEMPLATE.replace('${paliText}', '... [පාලි පාඨය මෙහි ඇතුළත් වේ] ...');
+                // ✅ නිවැරදි කිරීම: `${paliText}` වෙනුවට ස්ථාවර ප්ලේස්හෝල්ඩර් පෙළක් භාවිතා කිරීම
+                promptInput.value = DEFAULT_PROMPT_TEMPLATE.replace('${paliText}', '... [ඔබේ පාලි පාඨය මෙහි ඇතුළත් වේ] ...');
             }
         }
 
         // ============================================================
-        // 5. Gemini AI Import – Supabase Edge Function එක ඇමතීම (අඩුපාඩු 1, 3 නිවැරදි කරන ලදී)
+        // 5. Gemini AI Import – Supabase Edge Function එක ඇමතීම
         // ============================================================
         async function importViaGemini() {
             const input = document.getElementById('aiPaliInput');
@@ -466,7 +463,7 @@ ${paliText}
                 return;
             }
 
-            // ප්‍රොම්ප්ට් එක සකස් කිරීම (සියලු ${paliText} ප්‍රතිස්ථාපනය කිරීමට regex භාවිතා කරන්න)
+            // ප්‍රොම්ප්ට් එක සකස් කිරීම
             let finalPrompt = promptInput ? promptInput.value : DEFAULT_PROMPT_TEMPLATE;
             finalPrompt = finalPrompt.replace(/\${paliText}/g, paliText);
 
@@ -476,7 +473,6 @@ ${paliText}
             try {
                 const selectedModel = modelSelect ? modelSelect.value : 'gemini-2.0-flash-lite';
                 
-                // ✅ අඩුපාඩු 1 නිවැරදි කිරීම: client.supabaseUrl භාවිතා කිරීම
                 const client = getClient();
                 if (!client) throw new Error('Supabase Client ලබා ගැනීමට නොහැක.');
                 
@@ -498,12 +494,10 @@ ${paliText}
                     throw new Error(result.error || 'දත්ත ආනයනය අසාර්ථක විය.');
                 }
 
-                // ✅ අඩුපාඩු 3 නිවැරදි කිරීම: result.data පවතින බව තහවුරු කිරීම
                 if (!result.data || typeof result.data !== 'object') {
                     throw new Error('Edge Function එකෙන් නිවැරදි දත්ත ලැබී නැත.');
                 }
 
-                // ===== දත්ත sutta_analysis වගුවට ඇතුළත් කිරීම =====
                 const analysisData = {
                     pali_text: result.data.pali_text || '',
                     word_analysis: result.data.word_analysis || [],
