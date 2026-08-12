@@ -962,6 +962,8 @@ html.dark .tab-btn:not(.active):hover {
 /* ----- 9. META BANNER (Vagga, Title, Subtitle) ----- */
 .sutta-meta-banner {
     padding: 1.25rem 1.5rem;
+
+
 }
 
 .sutta-meta-inner {
@@ -969,7 +971,8 @@ html.dark .tab-btn:not(.active):hover {
     flex-wrap: wrap;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0rem;
+
 }
 
 /* වග්ගය අලංකාර badge */
@@ -984,7 +987,7 @@ html.dark .tab-btn:not(.active):hover {
     color: #d97706;
     border: 1px solid rgba(245, 158, 11, 0.20);
     letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.1rem;
 }
 
 html.dark .meta-vagga-badge {
@@ -999,7 +1002,7 @@ html.dark .meta-vagga-badge {
     font-weight: 800;
     font-size: 1.4rem;
     color: var(--text-primary);
-    margin-top: 0.25rem;
+    margin-top: 0.1rem;
 }
 
 html.dark .meta-title {
@@ -1012,7 +1015,7 @@ html.dark .meta-title {
     font-weight: 600;
     color: var(--text-muted);
     font-style: italic;
-    margin-top: 0.15rem;
+    margin-top: 0.05rem;
 }
 
 .meta-speaker-box {
@@ -1200,12 +1203,13 @@ html.dark .search-highlight {
 .pali-text {
     font-family: 'Abhaya Libre', serif;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.4rem;
     color: var(--text-primary);
     line-height: 1.8;
     font-style: italic;
     text-align: justify;
-    white-space: pre-wrap; /* නව රේඛා ආරක්ෂා කිරීමට */
+    white-space: pre-wrap;
+    /* නව රේඛා ආරක්ෂා කිරීමට */
 }
 
 .sinhala-text {
@@ -1213,7 +1217,8 @@ html.dark .search-highlight {
     color: var(--text-secondary);
     line-height: 1.8;
     text-align: justify;
-    white-space: pre-wrap; /* නව රේඛා ආරක්ෂා කිරීමට */
+    white-space: pre-wrap;
+    /* නව රේඛා ආරක්ෂා කිරීමට */
 }
 
 /* Pali Only */
@@ -1264,11 +1269,12 @@ html.dark .pali-block-number {
 .pali-only-text {
     font-family: 'Abhaya Libre', serif;
     font-weight: 700;
-    font-size: 1.2rem;
+    font-size: 1.6rem;
     color: var(--text-primary);
     font-style: italic;
     line-height: 2;
-    white-space: pre-wrap; /* නව රේඛා ආරක්ෂා කිරීමට */
+    white-space: pre-wrap;
+    /* නව රේඛා ආරක්ෂා කිරීමට */
 }
 
 /* Sinhala Only */
@@ -1333,7 +1339,8 @@ html.dark .sinhala-block-number {
     color: var(--text-secondary);
     line-height: 1.8;
     text-align: justify;
-    white-space: pre-wrap; /* නව රේඛා ආරක්ෂා කිරීමට */
+    white-space: pre-wrap;
+    /* නව රේඛා ආරක්ෂා කිරීමට */
 }
 
 /* ----- 11. GLOSSARY ----- */
@@ -1373,7 +1380,7 @@ html.dark .sinhala-block-number {
 .glossary-word {
     font-family: 'Abhaya Libre', serif;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 1.2rem;
     color: var(--text-primary);
     font-style: italic;
     min-width: 6rem;

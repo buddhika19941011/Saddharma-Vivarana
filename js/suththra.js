@@ -143,12 +143,12 @@ function buildSidebarTree() {
 
   let html = '<ul class="tree-root">';
   for (const pitaka in tree) {
-    html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-book"></i></span><span class="node-name">${escapeHtml(pitaka)}</span></div><ul>`;
+    html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-book"></i></span><span class="node-name">${escapeHtml(pitaka)}</span></div><ul class="node-children">`;
     for (const nikaya in tree[pitaka]) {
-      html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-folder"></i></span><span class="node-name">${escapeHtml(nikaya)}</span></div><ul>`;
+      html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-folder"></i></span><span class="node-name">${escapeHtml(nikaya)}</span></div><ul class="node-children">`;
       for (const vagga in tree[pitaka][nikaya]) {
         const suttas = tree[pitaka][nikaya][vagga];
-        html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-folder-open"></i></span><span class="node-name">${escapeHtml(vagga)}</span></div><ul>`;
+        html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-folder-open"></i></span><span class="node-name">${escapeHtml(vagga)}</span></div><ul class="node-children">`;
         suttas.sort((a, b) => (a.order_no || 0) - (b.order_no || 0));
         suttas.forEach(s => {
           const active = (s.id === currentSuttaId) ? 'active' : '';
@@ -174,17 +174,18 @@ function buildSidebarTree() {
     });
   });
 
-  // Toggle expand/collapse
-  nav.querySelectorAll('.tree-node > .node-label .toggle-icon').forEach(icon => {
-    icon.addEventListener('click', function (e) {
-      e.stopPropagation();
+  // Toggle expand/collapse on whole node label (except sutta nodes)
+  nav.querySelectorAll('.tree-node > .node-label').forEach(label => {
+    label.addEventListener('click', function (e) {
       const parentLi = this.closest('.tree-node');
-      if (parentLi) {
-        parentLi.classList.toggle('expanded');
-        const iconEl = parentLi.querySelector('.toggle-icon i');
-        if (iconEl) {
-          iconEl.className = parentLi.classList.contains('expanded') ? 'fa-solid fa-chevron-down' : 'fa-solid fa-chevron-right';
-        }
+      if (!parentLi || parentLi.classList.contains('sutta-node')) return;
+
+      parentLi.classList.toggle('expanded');
+      const iconEl = parentLi.querySelector('.toggle-icon i');
+      if (iconEl) {
+        iconEl.className = parentLi.classList.contains('expanded')
+          ? 'fa-solid fa-chevron-down'
+          : 'fa-solid fa-chevron-right';
       }
     });
   });
