@@ -439,47 +439,87 @@ html.dark .icon-btn:hover {
     }
 }
 
-.font-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.1rem;
-    background: rgba(245, 158, 11, 0.06);
-    border-radius: 9999px;
-    border: 1px solid rgba(245, 158, 11, 0.12);
-    padding: 0.05rem 0.15rem;
+/* ============================================================
+   FONT SIZE CONTROLS (only for sutta text)
+   ============================================================ */
+
+/* Base sizes (default = medium) */
+:root {
+    --fs-pali: 1.3rem;
+    --fs-sinhala: 1.0rem;
+    --fs-glossary-word: 1.3rem;
+    --fs-glossary-meaning: 1.0rem;
 }
 
-.font-btn {
-    width: 1.6rem;
-    height: 1.6rem;
-    border-radius: 9999px;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    font-size: 0.6rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
-    font-family: inherit;
+/* Small */
+body.font-size-small {
+    --fs-pali: 0.9rem;
+    --fs-sinhala: 0.75rem;
+    --fs-glossary-word: 0.9rem;
+    --fs-glossary-meaning: 0.75rem;
 }
 
-.font-btn:hover {
-    background: rgba(245, 158, 11, 0.12);
+/* Large */
+body.font-size-large {
+    --fs-pali: 1.7rem;
+    --fs-sinhala: 1.25rem;
+    --fs-glossary-word: 1.7rem;
+    --fs-glossary-meaning: 1.25rem;
 }
 
-html.dark .font-btn {
-    color: #fbbf24;
+/* X-Large */
+body.font-size-xlarge {
+    --fs-pali: 2.1rem;
+    --fs-sinhala: 1.5rem;
+    --fs-glossary-word: 2.1rem;
+    --fs-glossary-meaning: 1.5rem;
+}
+
+/* Apply variables to sutta text elements */
+.pali-text,
+.pali-only-text,
+.glossary-word {
+    font-size: var(--fs-pali) !important;
+}
+
+.sinhala-text,
+.sinhala-only-text,
+.glossary-meaning {
+    font-size: var(--fs-sinhala) !important;
+}
+
+/* Font size indicator button */
+.font-size-btn {
+    position: relative;
 }
 
 .font-indicator {
     font-size: 0.55rem;
     font-weight: 700;
-    font-family: monospace;
-    padding: 0 0.2rem;
-    min-width: 2.4rem;
-    text-align: center;
-    color: var(--text-secondary);
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 9999px;
+    padding: 0.05rem 0.35rem;
+    margin-left: 0.1rem;
+    line-height: 1;
+    transition: background 0.2s, color 0.2s;
 }
+
+html.dark .font-indicator {
+    background: rgba(255, 255, 255, 0.08);
+    color: #d4c8b8;
+}
+
+.font-size-btn:hover .font-indicator {
+    background: rgba(217, 119, 6, 0.15);
+    color: #d97706;
+}
+
+html.dark .font-size-btn:hover .font-indicator {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+}
+
 
 /* ----- responsive header tweaks ----- */
 @media (max-width: 1024px) {
@@ -1692,4 +1732,53 @@ html.dark .footer-copy:first-of-type {
         display: none !important;
         content: none !important;
     }
+}
+
+/* ============================================================
+   පාලි සහ සිංහල සඳහා වෙන වෙනම අකුරු ප්‍රමාණ
+   ============================================================ */
+
+/* 1. සන්සන්දනාත්මක දසුන (Comparative View) */
+.comparative-row .pali-text {
+    font-size: 1.3rem;
+    /* පාලි විශාල කරන්න */
+}
+
+.comparative-row .sinhala-text {
+    font-size: 1.0rem;
+    /* සිංහල සාමාන්‍ය ප්‍රමාණය */
+}
+
+/* 2. පාලි පමණි දසුන (Pali Only) */
+.pali-only-block .pali-only-text {
+    font-size: 1.3rem;
+}
+
+/* 3. සිංහල පමණි දසුන (Sinhala Only) */
+.sinhala-only-block .sinhala-only-text {
+    font-size: 1.0rem;
+}
+
+/* 4. නිරුක්ති දසුන (Glossary) */
+.glossary-card .glossary-word {
+    font-size: 1.3rem;
+    /* පාලි වචනය විශාල කරන්න */
+}
+
+.glossary-card .glossary-meaning {
+    font-size: 1.0rem;
+    /* සිංහල තේරුම සාමාන්‍ය */
+}
+
+/* අකුරු ප්‍රමාණ බටන් එකේ සිංහල 'අ' අයිකනය */
+.sinhala-font-icon {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #b45309;
+    line-height: 1;
+    font-family: 'Noto Sans Sinhala', sans-serif;
+}
+
+html.dark .sinhala-font-icon {
+    color: #fbbf24;
 }

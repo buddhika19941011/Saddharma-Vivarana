@@ -76,11 +76,12 @@
 
                     <!-- Action Buttons (Font, Print, Theme) -->
                     <div class="action-buttons">
-                        <div class="font-controls">
-                            <button onclick="changeFontSize(-1)" class="font-btn" title="අකුරු කුඩා කරන්න">A-</button>
-                            <span id="fontSizeIndicator" class="font-indicator">100%</span>
-                            <button onclick="changeFontSize(1)" class="font-btn" title="අකුරු විශාල කරන්න">A+</button>
-                        </div>
+
+                        <button onclick="cycleFontSize()" class="icon-btn font-size-btn"
+                            title="අකුරු ප්‍රමාණය වෙනස් කරන්න">
+                            <span class="sinhala-font-icon">අ</span>
+                            <span id="fontSizeIndicator" class="font-indicator">මධ්‍යම</span>
+                        </button>
                         <button onclick="window.print()" class="icon-btn print-btn" title="මෙම පත්‍රය මුද්‍රණය කරන්න">
                             <i class="fa-solid fa-print"></i>
                         </button>

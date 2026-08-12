@@ -510,26 +510,7 @@ function escapeRegex(str) {
 // 11. Font size & Theme (Resize only text data inside the 4 tabs)
 // ============================================================
 
-function changeFontSize(delta) {
-  const textElements = document.querySelectorAll(
-    '.comparative-row .pali-text, .comparative-row .sinhala-text, ' +
-    '.pali-only-block .pali-only-text, .sinhala-only-block .sinhala-only-text, ' +
-    '.glossary-card .glossary-word, .glossary-card .glossary-meaning'
-  );
 
-  if (!textElements.length) return;
-
-  let current = parseFloat(getComputedStyle(textElements[0]).fontSize);
-  let newSize = current + delta * 2;
-  if (newSize < 12) newSize = 12;
-  if (newSize > 26) newSize = 26;
-
-  textElements.forEach(el => {
-    el.style.fontSize = newSize + 'px';
-  });
-
-  document.getElementById('fontSizeIndicator').textContent = Math.round((newSize / 18) * 100) + '%';
-}
 
 function toggleTheme() {
   const html = document.documentElement;
@@ -539,6 +520,56 @@ function toggleTheme() {
   icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
+
+// ============================================================
+// 11. Font size cycle (only for sutta text)
+// ============================================================
+
+const FONT_SIZES = ['small', 'medium', 'large', 'xlarge'];
+const SIZE_LABELS = { small: 'කුඩා', medium: 'මධ්‍යම', large: 'විශාල', xlarge: 'අති විශාල' };
+let currentFontSize = 'medium';
+
+function cycleFontSize() {
+  const body = document.body;
+  // Remove all font-size classes
+  FONT_SIZES.forEach(size => body.classList.remove('font-size-' + size));
+
+  // Find current index and move to next
+  let idx = FONT_SIZES.indexOf(currentFontSize);
+  idx = (idx + 1) % FONT_SIZES.length;
+  currentFontSize = FONT_SIZES[idx];
+
+  // Apply new class
+  body.classList.add('font-size-' + currentFontSize);
+
+  // Update indicator
+  const indicator = document.getElementById('fontSizeIndicator');
+  if (indicator) {
+    indicator.textContent = SIZE_LABELS[currentFontSize];
+  }
+
+  // Save preference
+  try {
+    localStorage.setItem('suttaFontSize', currentFontSize);
+  } catch (_) { /* ignore */ }
+}
+
+function loadFontSizePreference() {
+  try {
+    const saved = localStorage.getItem('suttaFontSize');
+    if (saved && FONT_SIZES.includes(saved)) {
+      currentFontSize = saved;
+      const body = document.body;
+      FONT_SIZES.forEach(size => body.classList.remove('font-size-' + size));
+      body.classList.add('font-size-' + currentFontSize);
+      const indicator = document.getElementById('fontSizeIndicator');
+      if (indicator) {
+        indicator.textContent = SIZE_LABELS[currentFontSize];
+      }
+    }
+  } catch (_) { /* ignore */ }
+}
+
 
 // ============================================================
 // 12. User dropdown & logout (show full name instead of email)
@@ -660,10 +691,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     showToast('Supabase සම්බන්ධතාවය අසාර්ථකයි.', 'error');
   }
 
-  const defaultText = document.querySelector('.pali-text, .sinhala-text, .pali-only-text, .sinhala-only-text, .glossary-word');
-  const baseFontSize = defaultText ? parseFloat(getComputedStyle(defaultText).fontSize) : 18;
-  const percent = Math.round((baseFontSize / 18) * 100);
-  document.getElementById('fontSizeIndicator').textContent = percent + '%';
+
 });
 
 // ============================================================
