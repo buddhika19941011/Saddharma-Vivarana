@@ -1,0 +1,122 @@
+:root {
+    --bg: #f8f5f0;
+    --card-bg: #ffffff;
+    --text-primary: #1e1e1e;
+    --text-secondary: #4a4a4a;
+    --border: #e5e0d8;
+    --accent: #b8860b;
+    --accent-light: #f5e6c8;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --radius: 12px;
+    --transition: 0.3s ease;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Noto Sans Sinhala', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* Header */
+.public-header {
+    background: var(--card-bg);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    border-bottom: 2px solid var(--border);
+}
+.page-title { font-family: 'Abhaya Libre', serif; font-size: 2rem; color: var(--accent); }
+.page-sub { color: var(--text-secondary); font-size: 0.9rem; }
+
+/* Toolbar */
+.toolbar { padding: 1rem 2rem; background: var(--card-bg); border-bottom: 1px solid var(--border); }
+.toolbar-inner { max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+.search-box { flex: 1; min-width: 200px; position: relative; }
+.search-box input {
+    width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem;
+    border: 1px solid var(--border); border-radius: 50px;
+    background: var(--bg); font-size: 0.9rem;
+}
+.search-box i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+.filters { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.filters select {
+    padding: 0.5rem 1rem; border: 1px solid var(--border);
+    border-radius: 50px; background: var(--bg); font-size: 0.8rem;
+}
+
+/* Card Grid */
+.main-content { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+.card {
+    background: var(--card-bg); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 1.5rem;
+    transition: transform var(--transition), box-shadow var(--transition);
+    cursor: pointer; border: 1px solid var(--border);
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.card h3 { font-size: 1.1rem; color: var(--accent); margin-bottom: 0.25rem; }
+.card .sutta-id { font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.5rem; }
+.card .meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.5rem 0; }
+.card .meta span {
+    background: var(--accent-light); padding: 0.2rem 0.6rem;
+    border-radius: 20px; font-size: 0.7rem; color: var(--accent);
+}
+.card .pali-snippet { font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem; font-style: italic; }
+.card .date { font-size: 0.7rem; color: #999; margin-top: 0.5rem; }
+
+/* Modal */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    backdrop-filter: blur(4px);
+}
+.modal-content {
+    background: var(--card-bg); max-width: 900px; width: 95%;
+    max-height: 90vh; overflow-y: auto; border-radius: var(--radius);
+    padding: 2rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+.modal-close {
+    position: absolute; top: 1rem; right: 1rem;
+    background: none; border: none; font-size: 1.5rem; cursor: pointer;
+    color: var(--text-secondary); transition: color var(--transition);
+}
+.modal-close:hover { color: #dc2626; }
+
+/* Modal Content Styles */
+#modalBody .detail-title { font-size: 1.8rem; color: var(--accent); font-family: 'Abhaya Libre', serif; }
+#modalBody .detail-sub { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 1rem; }
+#modalBody .detail-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+#modalBody .detail-meta span { background: var(--bg); padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.8rem; }
+#modalBody .section { margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+#modalBody .section h4 { font-size: 1.1rem; color: var(--accent); margin-bottom: 0.5rem; }
+#modalBody .json-view {
+    background: #f4f4f4; padding: 1rem; border-radius: 6px;
+    font-family: monospace; white-space: pre-wrap; font-size: 0.85rem;
+    max-height: 400px; overflow-y: auto; border: 1px solid var(--border);
+}
+#modalBody .table-view { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+#modalBody .table-view th, #modalBody .table-view td {
+    border: 1px solid var(--border); padding: 0.5rem; text-align: left;
+}
+#modalBody .table-view th { background: var(--bg); }
+
+/* Utilities */
+.hidden { display: none !important; }
+.loading-msg { text-align: center; color: var(--text-secondary); padding: 2rem; grid-column: 1 / -1; }
+.pagination { display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; align-items: center; }
+.pagination button {
+    background: var(--card-bg); border: 1px solid var(--border);
+    padding: 0.5rem 1rem; border-radius: 50px; cursor: pointer;
+    transition: background var(--transition);
+}
+.pagination button:hover { background: var(--accent-light); }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .toolbar-inner { flex-direction: column; align-items: stretch; }
+    .filters select { flex: 1; }
+    .modal-content { padding: 1rem; max-height: 95vh; }
+    .card-grid { grid-template-columns: 1fr; }
+}

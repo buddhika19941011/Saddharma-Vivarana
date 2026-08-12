@@ -231,9 +231,9 @@ async function loadSuttasTable() {
     }
     tbody.innerHTML = '<tr><td colspan="4" class="loading-msg">පූරණය වෙමින්...</td></tr>';
     try {
-        const { data, error } = await client.from('suththra')
-            .select('id, title, status')
-            .order('id', { ascending: true });
+        const { data, error } = await client.from('sutta_analysis')
+            .select('id, title, created_at')
+            .order('created_at', { ascending: false });
         if (error) throw error;
         if (!data || data.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4" class="loading-msg">කිසිදු සූත්‍රයක් ඇතුළත් කර නැත.</td></tr>';

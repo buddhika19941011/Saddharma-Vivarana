@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="si">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>සූත්‍ර විශ්ලේෂණ එකතුව – සද්ධර්ම විවරණ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@500;700;800&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/sutta_analysis.css" />
+    <!-- Supabase config (ඔබේ පවතින js/supabase-config.js එකම භාවිතා කරන්න) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js" defer></script>
+    <script src="js/sutta_analysis.js" defer></script>
+</head>
+
+<body class="lotus-bg">
+
+    <!-- ===== HEADER ===== -->
+    <header class="public-header">
+        <div class="header-inner">
+            <h1 class="page-title"><i class="fa-solid fa-book-open"></i> සූත්‍ර විශ්ලේෂණ එකතුව</h1>
+            <p class="page-sub">පාළි භාෂාමය විග්‍රහය සහ නිරුක්ති විවරණ</p>
+        </div>
+    </header>
+
+    <!-- ===== SEARCH & FILTERS ===== -->
+    <section class="toolbar no-print">
+        <div class="toolbar-inner">
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="searchInput" placeholder="සූත්‍රය, මාතෘකාව හෝ දේශකයා අනුව සොයන්න..." />
+            </div>
+            <div class="filters">
+                <select id="filterPitaka">
+                    <option value="">පිටකය (සියල්ල)</option>
+                </select>
+                <select id="filterNikaya">
+                    <option value="">නිකාය (සියල්ල)</option>
+                </select>
+                <select id="filterVagga">
+                    <option value="">වග්ගය (සියල්ල)</option>
+                </select>
+                <select id="filterCategory">
+                    <option value="">ප්‍රවර්ගය (සියල්ල)</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MAIN CONTENT (SUTTA LIST) ===== -->
+    <main class="main-content">
+        <div id="suttaListContainer" class="card-grid">
+            <div class="loading-msg"><i class="fa-solid fa-spinner fa-spin"></i> දත්ත පූරණය වෙමින්...</div>
+        </div>
+        <!-- Pagination (සරල) -->
+        <div id="paginationControls" class="pagination hidden">
+            <button id="prevPageBtn" onclick="changePage(-1)"><i class="fa-solid fa-chevron-left"></i> පෙර</button>
+            <span id="pageIndicator">1 / 1</span>
+            <button id="nextPageBtn" onclick="changePage(1)">ඊළඟ <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </main>
+
+    <!-- ===== MODAL (DETAIL VIEW) ===== -->
+    <div id="suttaModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div id="modalBody">
+                <!-- Dynamic content will be injected here -->
+                <div class="loading-msg">පූරණය වෙමින්...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="public-footer">
+        <p>ත්‍රිපිටක පාඨ අධ්‍යයන සහ පර්යේෂණ ඒකකය &bull; © 2026 ශ්‍රී සද්ධර්ම ද්විභාෂා පීඨිකාව</p>
+    </footer>
+
+</body>
+
+</html>
