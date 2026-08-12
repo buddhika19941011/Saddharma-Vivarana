@@ -17,9 +17,14 @@ async function callGemini(modelName: string, promptText: string, apiKey: string)
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      system_instruction: { parts: [{ text: "ඔබ පාලි භාෂා විග්‍රහ විශාරදයෙකි. ලබා දෙන ප්‍රොම්ප්ට් එකට අනුකූලව JSON පමණක් පිට කරන්න." }] },
+      system_instruction: { 
+        parts: [{ text: "ඔබ පාලි භාෂා විග්‍රහ විශාරදයෙකි. ලබා දෙන ප්‍රොම්ප්ට් එකට අනුකූලව JSON පමණක් පිට කරන්න. කිසිදු අමතර පාඨයක්, Markdown කේතයක් හෝ පැහැදිලි කිරීමක් ඇතුළත් නොකරන්න." }] 
+      },
       contents: [{ parts: [{ text: promptText }] }],
-      generationConfig: { response_mime_type: "application/json" }
+      generationConfig: { 
+        response_mime_type: "application/json",
+        temperature: 0.2 // නිරවද්‍යතාවය සඳහා අඩු උෂ්ණත්වය
+      }
     })
   });
 
@@ -42,6 +47,8 @@ Deno.serve(async (req) => {
     if (!prompt) throw new Error('ප්‍රොම්ප්ට් එක අවශ්‍ය වේ.');
 
     const apiKey = Deno.env.get('GOOGLE_API_KEY') ?? '';
+    if (!apiKey) throw new Error('GOOGLE_API_KEY සකසා නැත. කරුණාකර එය Deno සැකසුම් තුළ එක් කරන්න.');
+
     const modelsToTry = [requestedModel || 'gemini-2.0-flash-lite', ...FALLBACK_MODELS];
 
     let lastError = null;
@@ -58,23 +65,30 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (!aiData) throw new Error('සියලුම ආකෘති අසාර්ථක විය: ' + lastError.message);
+    if (!aiData) throw new Error('සියලුම ආකෘති අසාර්ථක විය: ' + (lastError?.message || 'නොදන්නා දෝෂයක්'));
 
-    // JSON පිරිසිදු කිරීම
+    // JSON පිරිසිදු කිරීම සහ parse කිරීම
     let jsonText = aiData.candidates[0].content.parts[0].text;
+    // Markdown කේතය ඉවත් කරන්න
     jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
-    const suttaJson = JSON.parse(jsonText);
+    
+    let suttaJson;
+    try {
+      suttaJson = JSON.parse(jsonText);
+    } catch (parseError) {
+      console.error('JSON parse අසාර්ථකයි. පිරිසිදු කළ පෙළ:', jsonText);
+      throw new Error('AI ප්‍රතිදානය නිවැරදි JSON ආකෘතියක් නොවේ. කරුණාකර ප්‍රොම්ප්ට් එක පරීක්ෂා කරන්න.');
+    }
 
-    // (විකල්ප) සූත්‍ර දත්ත suththra වගුවට අවශ්‍ය නම්
-    // const supabaseClient = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-    // await supabaseClient.from('suththra').upsert([{...}]);
+    // අවශ්‍ය නම්, මෙහි suththra වගුවට ඇතුළත් කිරීමට කේතයක් එකතු කළ හැක.
+    // නමුත් ඔබේ නිර්මාණයට අනුව, එය api_admin.js එකේ සිදු කෙරේ.
 
     return new Response(JSON.stringify({ success: true, data: suttaJson }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (err) {
-    console.error(err);
+    console.error('Edge Function දෝෂය:', err);
     return new Response(JSON.stringify({ success: false, error: err.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
