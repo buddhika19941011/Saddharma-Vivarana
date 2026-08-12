@@ -102,7 +102,7 @@ async function loginWithGoogle() {
 // ============================================================
 // 5. Prompt Template
 // ============================================================
-const DEFAULT_PROMPT_TEMPLATE = 'පහත දක්වා ඇති පාලි පෙළ වචනයෙන් වචනය (Word-by-Word) ඉතාම සවිස්තරාත්මකව, භාෂාමය වශයෙන් විග්‍රහ කර දෙන්න... (ඔබේ මුල් ප්‍රොම්ප්ට් එක මෙහි තබන්න) \n\nපාලි පාඨය:\n${paliText}\n\nඔබගේ පිළිතුර JSON ආකෘතියෙන් පමණක් ලබා දෙන්න.';
+const DEFAULT_PROMPT_TEMPLATE = 'පහත දක්වා ඇති පාලි පෙළ වචනයෙන් වචනය (Word-by-Word) ඉතාම සවිස්තරාත්මකව, භාෂාමය වශයෙන් විග්‍රහ කර දෙන්න. ඔබ පාලි භාෂාව පිළිබඳ ශුද්ධ ව්‍යාකරණ හා නිරුක්ති (Etymology) විශේෂඥයෙකු ලෙස කටයුතු කරන්න.\n\nමෙම විග්‍රහය සිදු කිරීමේදී පහත සඳහන් කරුණු දැඩි ලෙස අනුගමනය කරන්න:\n- ආගමික හෝ දාර්ශනික අර්ථකථනයක් කිසිසේත් ඇතුළත් නොකරන්න.\n- ශුද්ධ ව්‍යාකරණ (ධාතු, උපසර්ග, ප්‍රත්‍ය, විභක්ති) සහ නිරුක්ති මූලාර්ථය මත පමණක් පදනම් වූ විද්‍යාත්මක/භාෂාමය විශ්ලේෂණයක් කරන්න.\n\nමෙම පාලි පාඨයට අදාළ සූත්‍රය පිළිබඳ පහත තොරතුරු ද අනුමාන කර ඇතුළත් කරන්න (නිශ්චිත තොරතුරු නොමැති නම් null ලෙස තබන්න):\n- sutta_id (උදා: Snp 1.8) \n- title (ප්‍රධාන මාතෘකාව) \n- subtitle (උපසිරැස) \n- meta_title (SEO සඳහා මෙටා මාතෘකාව) \n- meta_subtitle (SEO සඳහා මෙටා උපසිරැස) \n- speaker (දේශකයා, උදා: භගවා) \n- pitaka (පිටකය, උදා: සුත්ත පිටක) \n- nikaya (නිකාය, උදා: ඛුද්දක නිකාය) \n- vagga (වග්ගය, උදා: සුත්ත නිපාත) \n- category (ප්‍රවර්ගය / මාතෘකාව, උදා: මෙත්ත)\n\nපහත සඳහන් කොටස් හරියටම ඇතුළත් කරමින් පිළිතුර ව්‍යුහගත කරන්න:\n\n1. වචනයෙන්-වචනය (Word-by-Word) සවිස්තර විග්‍රහ වගුව:\nපහත තීරු සහිත වගුවක් සාදන්න: අංකය | පාලි පදය | සාමාන්‍ය අර්ථය | ධාතුව / මූලය | ධාතු අර්ථය | උපසර්ගය / නිපාතය | ප්‍රත්‍යය (Suffix) | විභක්ති අවසානය (Case Ending) | රූප සිද්ධිය (සැදුම් ක්‍රමය) | ලිංගය, වචනය, විභක්තිය (කාරකය) | නිරවද්‍ය ව්‍යාකරණමය අර්ථය\n\n2. සන්ධි හා ව්‍යුත්පත්ති සටහන්:\nඑක් එක් ප්‍රධාන පදය සැදුණු ආකාරය ධාතු-ප්‍රත්‍ය අතින් පැහැදිලි කරන්න. (උදා: √භූ + අ + එ = භාවයෙ ලෙස)\n\n3. පියවරෙන් පියවර ව්‍යුත්පත්ති අනුපිළිවෙළ (Literal Breakdown):\nඑක් එක් පදයේ අර්ථය අනුපිළිවෙලට තනි තනිව ලියා දෙන්න.\n\n4. ඉතාම නිවරදි, වචනාර්ථානුකූල (Literal) භාෂාමය සිංහල පරිවර්තනය:\nමෙය කොටස් තුනක්ට බෙදන්න:\n- පියවර 1 – ව්‍යුත්පත්ති අනුපිළිවෙළ (මූලයන් ලෙස) : පද පෙළ ගැසීම පමණක් කරන්න.\n- පියවර 2 – ස්වභාවික සිංහල වාක්‍ය ගොඩනැගීම (ව්‍යාකරණමය වශයෙන් ගැලපීම)\n- පියවර 3 – අවසාන පිරිපහදු කළ, නිරවද්‍ය භාෂාමය පරිවර්තනය (වරහන් රහිත)\n\nපාලි පාඨය:\n${paliText}\n\nඔබගේ පිළිතුර JSON ආකෘතියෙන් පමණක් ලබා දෙන්න (අමතර පැහැදිලි කිරීම් හෝ Markdown කේතයක් නොමැතිව). JSON ආකෘතිය පහත පරිදි විය යුතුය:\n{\n  "pali_text": "මුල් පාලි පාඨය",\n  "sutta_id": "සූත්‍ර හැඳුනුම්පත (අදාළ නම්)",\n  "title": "මාතෘකාව",\n  "subtitle": "උපසිරැස",\n  "meta_title": "මෙටා මාතෘකාව",\n  "meta_subtitle": "මෙටා උපසිරැස",\n  "speaker": "දේශකයා",\n  "pitaka": "පිටකය",\n  "nikaya": "නිකාය",\n  "vagga": "වග්ගය",\n  "category": "ප්‍රවර්ගය",\n  "word_analysis": [\n    {\n      "index": 1,\n      "pali_word": "පදය",\n      "common_meaning": "සාමාන්‍ය අර්ථය",\n      "root": "ධාතුව",\n      "root_meaning": "ධාතු අර්ථය",\n      "prefix": "උපසර්ගය / නිපාතය",\n      "suffix": "ප්‍රත්‍යය",\n      "case_ending": "විභක්ති අවසානය",\n      "formation": "රූප සිද්ධිය",\n      "gender_number_case": "ලිංගය, වචනය, විභක්තිය",\n      "grammatical_meaning": "නිරවද්‍ය ව්‍යාකරණමය අර්ථය"\n    }\n  ],\n  "sandhi_etymology": [\n    {\n      "word": "ප්‍රධාන පදය",\n      "explanation": "ධාතු-ප්‍රත්‍ය සහ සන්ධි පැහැදිලි කිරීම"\n    }\n  ],\n  "literal_breakdown": [\n    "පදය1 අර්ථය",\n    "පදය2 අර්ථය"\n  ],\n  "translation": {\n    "step_1_sequence": "පද පෙළ ගැසීම",\n    "step_2_natural": "ස්වභාවික වාක්‍ය ගොඩනැගීම",\n    "step_3_refined": "අවසාන පිරිපහදු කළ පරිවර්තනය"\n  },\n  "disclaimer": "මෙම විග්‍රහය ආගමික හෝ අධ්‍යාත්මික අර්ථකථනයක් නොවන අතර, පාලි භාෂාවේ ශුද්ධ ව්‍යාකරණ සහ නිරුක්ති මත පදනම් වූ භාෂාමය විශ්ලේෂණයක් පමණි.\n}';
 
 function resetPromptTemplate() {
     const promptInput = document.getElementById('customPrompt');
@@ -221,7 +221,7 @@ function displayInlinePreview(data) {
     html += renderField('nikaya', 'Nikaya', data.nikaya);
     html += renderField('vagga', 'Vagga', data.vagga);
     html += renderField('category', 'Category', data.category);
-    
+
     // Full width JSON / Text areas
     html += renderField('pali_text', 'Pali Text (Original)', data.pali_text, false, true);
     html += renderField('translation', 'Translation (JSON)', data.translation, true, true);
@@ -238,7 +238,7 @@ function displayInlinePreview(data) {
         el.addEventListener('input', (e) => {
             const id = e.target.id.replace('preview-', '');
             const value = e.target.value;
-            
+
             // Validate JSON if it's a JSON field
             if (id === 'translation' || id === 'word_analysis' || id === 'sandhi_etymology' || id === 'literal_breakdown') {
                 try {
@@ -249,7 +249,7 @@ function displayInlinePreview(data) {
                     return; // Don't update data if invalid JSON
                 }
             }
-            
+
             // Update pending data
             if (pendingSuttaData) {
                 if (id === 'translation' || id === 'word_analysis' || id === 'sandhi_etymology' || id === 'literal_breakdown') {
@@ -310,7 +310,7 @@ async function saveApprovedData() {
         document.getElementById('aiPaliInput').value = '';
         document.getElementById('previewSection').classList.add('hidden');
         pendingSuttaData = null;
-        
+
         // Refresh the imported list below
         await loadSuttasTable();
 
