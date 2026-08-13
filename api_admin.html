@@ -88,8 +88,34 @@
             </div>
         </div>
 
-        <!-- ===== MAIN CONTENT (Logged‑in only) ===== -->
         <div id="adminContent" class="hidden">
+            <!-- කොටස 3: අතින් JSON ආනයනය (Manual Import) -->
+            <div class="card api-card" style="margin-top: 1.5rem;">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-file-import"></i> අතින් JSON දත්ත ආනයනය (ගොනුව හෝ පිටපත් කිරීම)</h3>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                    <div class="field">
+                        <label for="manualJsonFile">JSON ගොනුවක් තෝරන්න (.json)</label>
+                        <input type="file" id="manualJsonFile" accept=".json" onchange="handleJsonFileUpload(event)"
+                            style="padding: 0.4rem; font-size: 0.7rem; width: 100%; border: 1px solid var(--input-border); border-radius: 0.75rem; background: var(--input-bg);" />
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted);font-size:0.6rem;">-
+                        හෝ -
+                    </div>
+                    <div class="field">
+                        <label for="manualJsonPaste">JSON කේතය මෙහි අලවන්න (Copy/Paste)</label>
+                        <textarea id="manualJsonPaste" rows="6"
+                            placeholder='{"pali_text": "...", "title": "...", "word_analysis": [...]}'></textarea>
+                    </div>
+                    <button onclick="importManualJson()" class="btn-primary">
+                        <i class="fa-solid fa-check"></i> JSON පාර්ස් කර පෙරදසුනට පූරණය කරන්න
+                    </button>
+                    <div id="manualImportStatus" class="api-status">පොරොත්තුවෙන්...</div>
+                </div>
+            </div>
+            <!-- ===== MAIN CONTENT (Logged‑in only) ===== -->
+
 
             <!-- කොටස 1: Gemini AI import -->
             <div class="card api-card">

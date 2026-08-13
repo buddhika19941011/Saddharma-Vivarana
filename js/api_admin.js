@@ -395,3 +395,67 @@ document.addEventListener('DOMContentLoaded', async () => {
     const hasAccess = await checkAdminAccess();
     if (hasAccess) await loadSuttasTable();
 });
+
+// ============================================================
+// 13. Manual JSON Import (File Upload & Paste)
+// ============================================================
+function handleJsonFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const text = e.target.result;
+        document.getElementById('manualJsonPaste').value = text;
+        const statusDiv = document.getElementById('manualImportStatus');
+        statusDiv.innerHTML = '✅ ගොනුව කියවන ලදී. "JSON පාර්ස් කරන්න" ඔබන්න.';
+        statusDiv.className = 'api-status success';
+    };
+    reader.readAsText(file);
+}
+
+function importManualJson() {
+    const pasteArea = document.getElementById('manualJsonPaste');
+    const statusDiv = document.getElementById('manualImportStatus');
+    const rawText = pasteArea.value.trim();
+
+    if (!rawText) {
+        statusDiv.innerHTML = '⚠️ කරුණාකර JSON ගොනුවක් උඩුගත කරන්න හෝ JSON කේතය අලවන්න.';
+        statusDiv.className = 'api-status error';
+        return;
+    }
+
+    try {
+        const data = JSON.parse(rawText);
+
+        // අවම දත්ත පරීක්ෂාව (pali_text හෝ title තිබිය යුතුය)
+        if (!data.pali_text && !data.title) {
+            throw new Error('දත්ත වල අවම වශයෙන් "pali_text" හෝ "title" තිබිය යුතුය.');
+        }
+
+        // පෙරදසුන නිවැරදිව ක්‍රියා කිරීමට අවශ්‍ය හිස් අරා/වස්තු සකස් කිරීම
+        if (!data.word_analysis) data.word_analysis = [];
+        if (!data.sandhi_etymology) data.sandhi_etymology = [];
+        if (!data.literal_breakdown) data.literal_breakdown = [];
+        if (!data.translation) data.translation = {
+            step_1_sequence: "",
+            step_2_natural: "",
+            step_3_refined: ""
+        };
+
+        // Gemini මගින් ලබාගත් දත්ත මෙන්ම, මෙම දත්තද pendingSuttaData හි තැන්පත් කිරීම
+        pendingSuttaData = data;
+
+        // පෙරදසුන පූරණය කිරීම
+        displayInlinePreview(data);
+        document.getElementById('previewSection').classList.remove('hidden');
+
+        statusDiv.innerHTML = '✅ JSON පාර්ස් කිරීම සාර්ථකයි! පහත පෙරදසුන සංස්කරණය කර "අනුමත කර සුරකින්න" ඔබන්න.';
+        statusDiv.className = 'api-status success';
+
+    } catch (err) {
+        statusDiv.innerHTML = `❌ JSON දෝෂයක්: ${err.message}`;
+        statusDiv.className = 'api-status error';
+        document.getElementById('previewSection').classList.add('hidden');
+        pendingSuttaData = null;
+    }
+}
