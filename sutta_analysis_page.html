@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="si" data-theme="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>සූත්‍ර විග්‍රහ පිටුව</title>
+
+  <!-- Fonts for Sinhala + Latin -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="sutta_analysis_page.css" />
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="?" class="brand">
+        <span class="brand-icon">📖</span>
+        <span>සූත්‍ර විග්‍රහය</span>
+      </a>
+      <div class="header-actions">
+        <button id="themeToggle" class="icon-btn" aria-label="තේමාව වෙනස් කරන්න">
+          <span class="theme-icon">🌙</span>
+        </button>
+        <button id="backBtn" class="btn btn-outline hidden">← ලැයිස්තුවට</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app" class="container">
+    <!-- Loading -->
+    <div id="loading" class="state">පූරණය වෙමින්...</div>
+
+    <!-- Error -->
+    <div id="error" class="state error hidden"></div>
+
+    <!-- List View -->
+    <section id="listView" class="view hidden">
+      <h1 class="page-title">සූත්‍ර විග්‍රහ ලැයිස්තුව</h1>
+      <div id="listContainer" class="grid-list"></div>
+    </section>
+
+    <!-- Detail View -->
+    <section id="detailView" class="view hidden">
+      <article id="detailContent"></article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>පාලි භාෂා විග්‍රහය — අධ්‍යාපනික අරමුණු සඳහා පමණි</p>
+  </footer>
+
+  <!-- Supabase JS (optional, only needed for real data) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="sutta_analysis_page.js"></script>
+</body>
+
+</html>
