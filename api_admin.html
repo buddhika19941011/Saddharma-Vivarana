@@ -13,6 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js" defer></script>
     <script src="js/api_admin.js" defer></script>
+
+    <link rel="icon" type="image/png" sizes="100x100" href="images/sv_logo.png" />
 </head>
 
 <body class="lotus-bg">
@@ -97,18 +99,24 @@
                 <div style="display:flex;flex-direction:column;gap:0.75rem;">
 
                     <div class="field">
-                        <label for="aiPaliInput" style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">පාලි සූත්‍ර පාඨය මෙහි අලවන්න</label>
+                        <label for="aiPaliInput"
+                            style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">පාලි සූත්‍ර පාඨය මෙහි
+                            අලවන්න</label>
                         <textarea id="aiPaliInput" rows="4" placeholder="උදා: Karaṇīyam atthakusalena ..."></textarea>
                     </div>
 
                     <div class="field">
-                        <label for="geminiModel" style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">Gemini ආකෘතිය තෝරන්න</label>
-                        <select id="geminiModel" style="padding: 0.4rem 0.8rem; border-radius: 0.75rem; border: 1px solid var(--input-border); background: var(--input-bg); font-size: 0.7rem; width: 100%;">
+                        <label for="geminiModel"
+                            style="font-size:0.6rem;font-weight:700;color:var(--text-secondary);">Gemini ආකෘතිය
+                            තෝරන්න</label>
+                        <select id="geminiModel"
+                            style="padding: 0.4rem 0.8rem; border-radius: 0.75rem; border: 1px solid var(--input-border); background: var(--input-bg); font-size: 0.7rem; width: 100%;">
                             <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite (වේගවත්, ආරක්ෂිත)</option>
                             <option value="gemini-2.5-flash">Gemini 2.5 Flash (නවතම වේගවත්)</option>
                             <option value="gemini-2.5-pro">Gemini 2.5 Pro (බලවත්ම)</option>
                         </select>
-                        <span style="font-size: 0.5rem; color: var(--text-muted);">තෝරාගත් ආකෘතිය අක්‍රීය වුවහොත් ස්වයංක්‍රීයව ඊළඟ හොඳම ආකෘතියට මාරු වේ.</span>
+                        <span style="font-size: 0.5rem; color: var(--text-muted);">තෝරාගත් ආකෘතිය අක්‍රීය වුවහොත්
+                            ස්වයංක්‍රීයව ඊළඟ හොඳම ආකෘතියට මාරු වේ.</span>
                     </div>
 
                     <div class="field" style="margin-top: 0.5rem;">
@@ -121,7 +129,8 @@
                                 <i class="fa-solid fa-rotate-left"></i> මුල් අච්චුව
                             </button>
                         </div>
-                        <span class="prompt-note"><strong>අනිවාර්ය:</strong> පාලි පෙළ ඇතුළත් කිරීමට, ප්‍රොම්ප්ට් එකේ <code>&#36;{paliText}</code> යන විචල්‍යය තබා ගන්න.</span>
+                        <span class="prompt-note"><strong>අනිවාර්ය:</strong> පාලි පෙළ ඇතුළත් කිරීමට, ප්‍රොම්ප්ට් එකේ
+                            <code>&#36;{paliText}</code> යන විචල්‍යය තබා ගන්න.</span>
                     </div>
 
                     <div style="display:flex;gap:0.75rem;flex-wrap:wrap; margin-top:0.5rem;">
@@ -133,17 +142,22 @@
                 </div>
 
                 <!-- ===== INLINE PREVIEW SECTION (NEW) ===== -->
-                <div id="previewSection" class="hidden" style="margin-top: 1.5rem; border-top: 2px solid var(--card-border); padding-top: 1.5rem;">
-                    <div class="preview-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h4 style="display: flex; align-items: center; gap: 0.5rem; font-family: 'Abhaya Libre', serif; font-weight: 700;">
-                            <i class="fa-solid fa-check-double" style="color: #d97706;"></i> 
+                <div id="previewSection" class="hidden"
+                    style="margin-top: 1.5rem; border-top: 2px solid var(--card-border); padding-top: 1.5rem;">
+                    <div class="preview-header"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4
+                            style="display: flex; align-items: center; gap: 0.5rem; font-family: 'Abhaya Libre', serif; font-weight: 700;">
+                            <i class="fa-solid fa-check-double" style="color: #d97706;"></i>
                             AI ප්‍රතිඵල පෙරදසුන හා සංස්කරණය
                         </h4>
                         <div style="display: flex; gap: 0.5rem;">
-                            <button onclick="copyAllData()" class="btn-primary" style="background: #6b7280; font-size: 0.6rem;">
+                            <button onclick="copyAllData()" class="btn-primary"
+                                style="background: #6b7280; font-size: 0.6rem;">
                                 <i class="fa-regular fa-copy"></i> Copy All JSON
                             </button>
-                            <button onclick="saveApprovedData()" class="btn-primary" style="background: #059669; font-size: 0.6rem;">
+                            <button onclick="saveApprovedData()" class="btn-primary"
+                                style="background: #059669; font-size: 0.6rem;">
                                 <i class="fa-solid fa-floppy-disk"></i> අනුමත කර සුරකින්න
                             </button>
                         </div>
@@ -158,7 +172,8 @@
             <div class="card api-card">
                 <div class="card-header">
                     <h3><i class="fa-solid fa-table-list"></i> පද්ධතියේ පවතින සූත්‍ර (sutta_analysis)</h3>
-                    <button onclick="loadSuttasTable()" class="btn-primary" style="font-size:0.6rem; padding:0.2rem 0.8rem;">
+                    <button onclick="loadSuttasTable()" class="btn-primary"
+                        style="font-size:0.6rem; padding:0.2rem 0.8rem;">
                         <i class="fa-solid fa-rotate-right"></i> නැවත පූරණය
                     </button>
                 </div>
@@ -173,7 +188,9 @@
                             </tr>
                         </thead>
                         <tbody id="suttas_table_body">
-                            <tr><td colspan="4" class="loading-msg">දත්ත පූරණය වෙමින්…</td></tr>
+                            <tr>
+                                <td colspan="4" class="loading-msg">දත්ත පූරණය වෙමින්…</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -202,4 +219,5 @@
     </footer>
 
 </body>
+
 </html>
