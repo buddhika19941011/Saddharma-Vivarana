@@ -1,0 +1,29 @@
+[
+    {
+        "id": "mn-001",
+        "pitaka": "සුත්ත පිටකය",
+        "nikaya": "මජ්ඣිම නිකාය",
+        "vagga": "මූල පණ්ණාසකය",
+        "title": "මූල පරියාය සූත්‍රය",
+        "subtitle": "භාග්‍යවතුන් වහන්සේ විසින් දේශිත",
+        "speaker": "භාග්‍යවතුන් වහන්සේ",
+        "order_no": 1,
+        "status": "published",
+        "passages": [
+            {
+                "pali": "Evaṃ me sutaṃ...",
+                "sinhala": "මා විසින් මෙසේ අසන ලදී..."
+            }
+        ],
+        "glossary": [
+            {
+                "word": "evaṃ",
+                "meaning": "මෙසේ"
+            },
+            {
+                "word": "me",
+                "meaning": "මා විසින්"
+            }
+        ]
+    }
+]

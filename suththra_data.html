@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="si">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ත්‍රිපිටක පාලි-සිංහල පරිවර්තනය</title>
+
+    <!-- Supabase SDK removed - using local JSON data instead -->
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- ප්‍රධාන ශෛලීන් ගොනුව -->
+    <link rel="stylesheet" href="css/suththra_data.css" />
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@500;700;800&family=Noto+Sans+Sinhala:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <link rel="icon" type="image/png" sizes="100x100" href="images/sv_logo.png" />
+</head>
+
+<body class="lotus-bg">
+
+
+    <!-- ============================================================
+    ශීර්ෂකය (Header)
+    ============================================================ -->
+    <header class="admin-header no-print">
+        <div class="header-inner">
+            <div class="header-container">
+
+                <!-- Sidebar Toggle Button -->
+                <button class="sidebar-toggle-btn" onclick="toggleSidebar()"
+                    aria-label="ත්‍රිපිටක පැති තීරුව විවෘත/වසන්න" title="ත්‍රිපිටක ව්‍යුහය" aria-expanded="false">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                    <span class="toggle-label">ත්‍රිපිටකය</span>
+                </button>
+
+                <!-- Brand -->
+                <div class="brand-group">
+                    <div class="logo-wrapper">
+                        <img src="images/sv_logo.png" alt="Dharmachakra Logo" class="logo-img"
+                            onerror="this.onerror=null; this.src='https://placehold.co/100x100/f59e0b/ffffff?text=☸️'" />
+                    </div>
+                    <div class="brand-text">
+                        <h1 class="brand-title">ත්‍රිපිටක පාලි-සිංහල පරිවර්තනය</h1>
+                        <p class="brand-sub">සන්සන්දනාත්මක පාලි-සිංහල ශාස්ත්‍රීය අධ්‍යයන</p>
+                    </div>
+                </div>
+
+                <!-- Search – now centered -->
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="searchQuery" placeholder="පාලි, සිංහල හෝ නිරුක්ති වදනක් සොයන්න..."
+                        onkeyup="searchSutta()" />
+                </div>
+
+                <!-- Header Controls (User Dropdown + Action Buttons) -->
+                <div class="header-controls">
+                    <!-- User Dropdown -->
+                    <div class="user-dropdown" id="userDropdown">
+                        <button class="dropdown-toggle" onclick="toggleDropdown()" id="dropdownBtn">
+                            <img id="userAvatar" src="https://placehold.co/30x30/f59e0b/ffffff?text=U" alt="Avatar"
+                                class="avatar-thumb" />
+                            <span id="userDisplayName" class="user-name-label">පූරණය වෙමින්...</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <a href="profile.html" class="dropdown-item"><i class="fa-solid fa-user"></i> මගේ පැතිකඩ</a>
+                            <hr class="dropdown-divider" />
+                            <button onclick="handleLogout()" class="dropdown-item logout-btn"><i
+                                    class="fa-solid fa-right-from-bracket"></i> ඉවත් වන්න</button>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons (Font, Print, Theme) -->
+                    <div class="action-buttons">
+
+                        <button onclick="cycleFontSize()" class="icon-btn font-size-btn"
+                            title="අකුරු ප්‍රමාණය වෙනස් කරන්න">
+                            <span class="sinhala-font-icon">අ</span>
+                            <span id="fontSizeIndicator" class="font-indicator">මධ්‍යම</span>
+                        </button>
+                        <button onclick="window.print()" class="icon-btn print-btn" title="මෙම පත්‍රය මුද්‍රණය කරන්න">
+                            <i class="fa-solid fa-print"></i>
+                        </button>
+                        <button onclick="toggleTheme()" class="icon-btn theme-toggle" title="තේමාව මාරු කරන්න">
+                            <i id="themeIcon" class="fa-solid fa-sun"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================
+    ප්‍රධාන අන්තර්ගතය
+    ============================================================ -->
+    <main class="main-content sutta-layout" id="mainContent">
+
+        <!-- Sidebar Overlay (click to close) -->
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sutta-sidebar" id="suttaSidebar">
+            <div class="sidebar-header">
+                <h3><i class="fa-solid fa-dharmachakra"></i> ත්‍රිපිටක ව්‍යුහය</h3>
+                <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="වසන්න">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="sidebar-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="sidebarSearchInput" placeholder="සූත්‍රයක් සොයන්න..."
+                    oninput="filterSidebar(this.value)" />
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <div class="loading-state">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <p>ත්‍රිපිටකය පූරණය වෙමින්...</p>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- ===== CONTENT AREA ===== -->
+        <div class="sutta-content-area">
+
+            <!-- Tabs (no-print) -->
+            <section class="tab-nav no-print">
+                <div class="tab-nav-inner">
+                    <button onclick="navigateToPage('comparative')" id="btnPage-comparative" class="tab-btn active">
+                        <i class="fa-solid fa-columns"></i> <span class="tab-label">සන්සන්දනය</span>
+                    </button>
+                    <button onclick="navigateToPage('pali')" id="btnPage-pali" class="tab-btn">
+                        <i class="fa-solid fa-language"></i> <span class="tab-label">පාලි පමණි</span>
+                    </button>
+                    <button onclick="navigateToPage('sinhala')" id="btnPage-sinhala" class="tab-btn">
+                        <i class="fa-solid fa-feather-pointed"></i> <span class="tab-label">සිංහල පමණි</span>
+                    </button>
+                    <button onclick="navigateToPage('glossary')" id="btnPage-glossary" class="tab-btn">
+                        <i class="fa-solid fa-spell-check"></i> <span class="tab-label">පද නිරුක්ති</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Meta Banner -->
+            <section class="card banner-card sutta-meta-banner">
+                <div class="sutta-meta-inner">
+                    <div>
+                        <span id="metaVagga" class="meta-vagga-badge"></span>
+                        <h2 id="metaTitle" class="meta-title"></h2>
+                        <p id="metaSubtitle" class="meta-subtitle"></p>
+                    </div>
+                    <div class="meta-speaker-box">
+                        <span class="meta-speaker-label">දේශකයාණන් වහන්සේ</span>
+                        <span id="metaSpeaker" class="meta-speaker-name"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reader View -->
+            <section id="readerViewArea" class="card reader-card">
+
+                <!-- 1. Comparative -->
+                <div id="pageContainer-comparative" class="page-view">
+                    <div class="page-header">
+                        <h3 class="page-title"><i class="fa-solid fa-columns"></i> සන්සන්දනාත්මක පාලි-සිංහල ඡේද ව්‍යුහය
+                        </h3>
+                        <span id="searchStatusInfo" class="search-status hidden">සෙවුම් පදය කහ පැහැයෙන් ඉස්මතු කර
+                            ඇත.</span>
+                        <span id="comparativeGeneralInfo" class="page-info">පාලි ඡේදයට සාපේක්ෂව සිංහල පරිවර්තනය
+                            ඉදිරියෙන් දිස්වේ.</span>
+                    </div>
+                    <div id="comparativeContentTable" class="comparative-grid"></div>
+                </div>
+
+                <!-- 2. Pali Only -->
+                <div id="pageContainer-pali" class="page-view hidden">
+                    <div class="page-header">
+                        <h3 class="page-title pali-title"><i class="fa-solid fa-language"></i> පාලි පාඨ ශෝධිත පත්‍රය
+                        </h3>
+                        <span class="page-info">පාලි පාඨය පමණක් මෙහි ඇත.</span>
+                    </div>
+                    <div id="paliOnlyContent" class="pali-only-grid"></div>
+                </div>
+
+                <!-- 3. Sinhala Only -->
+                <div id="pageContainer-sinhala" class="page-view hidden">
+                    <div class="page-header">
+                        <h3 class="page-title sinhala-title"><i class="fa-solid fa-feather-pointed"></i> සිංහල පරිවර්තන
+                            පත්‍රය</h3>
+                        <span class="page-info">නිරවද්‍ය සිංහල පරිවර්තනය පමණි.</span>
+                    </div>
+                    <div id="sinhalaOnlyContent" class="sinhala-only-grid"></div>
+                </div>
+
+                <!-- 4. Full Glossary -->
+                <div id="pageContainer-glossary" class="page-view hidden">
+                    <div class="page-header">
+                        <h3 class="page-title"><i class="fa-solid fa-spell-check"></i> සම්පූර්ණ පද නිරුක්ති සහ වචනාර්ථ
+                            විග්‍රහය</h3>
+                        <span class="page-info">සූත්‍ර දේශනාවේ අඩංගු සියලුම පාලි වචනවල ගැඹුරු පද බෙදීම් සහ සිංහල
+                            තේරුම්.</span>
+                    </div>
+                    <div id="fullGlossaryContainer" class="glossary-full-grid"></div>
+                </div>
+
+            </section>
+
+        </div>
+        <!-- .sutta-content-area -->
+
+    </main>
+
+    <!-- ============================================================
+    පාදකය (Footer) - no-print
+    ============================================================ -->
+    <footer class="admin-footer no-print">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <img src="images/sv_logo.png" alt="Dharmachakra" class="footer-icon"
+                    onerror="this.onerror=null; this.src='https://placehold.co/50x50/f59e0b/ffffff?text=☸️'" />
+            </div>
+            <div class="footer-links">
+                <a href="index.html">මුල් පිටුව</a>
+                <span>•</span>
+                <a href="profile.html">පැතිකඩ</a>
+                <span>•</span>
+                <a href="about.html">අප ගැන</a>
+                <span>•</span>
+                <a href="terms.html">භාවිත නියමයන්</a>
+                <span>•</span>
+                <a href="privacy.html">රහස්‍යතා ප්‍රකාශනය</a>
+            </div>
+            <p class="footer-copy">ත්‍රිපිටක පාඨ අධ්‍යයන සහ පර්යේෂණ ඒකකය</p>
+            <p class="footer-copy">© 2026 ශ්‍රී සද්ධර්ම ද්විභාෂා පීඨිකාව | උතුම් ධර්ම දානය පිණීස පමණී.</p>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+    Scripts
+    ============================================================ -->
+    <script src="js/suththra_data.js" defer></script>
+
+</body>
+
+</html>

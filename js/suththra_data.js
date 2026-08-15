@@ -1,0 +1,668 @@
+/**
+ * සද්ධර්ම විවරණ – සූත්‍ර පාඨක පිටුව (suththra.html)
+ * ගොනුව: js/suththra.js
+ * 
+ * කාර්යයන්: සූත්‍ර පෙන්වීම, පැති තීරුව, ටැබ්, සෙවුම, අකුරු ප්‍රමාණය, තේමාව, පරිශීලක.
+ */
+
+// Supabase removed: using local JSON data (`data/suttas.json`) instead of a remote DB
+
+// ============================================================
+// 2. උපකාරක ශ්‍රිතය
+// ============================================================
+
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function showToast(message, type = 'info', timeout = 4000) {
+  let container = document.getElementById('toastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.setAttribute('aria-live', 'polite');
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  const base = 'toast-message';
+  const colours = {
+    info: 'toast-info',
+    success: 'toast-success',
+    error: 'toast-error',
+    warning: 'toast-warning'
+  };
+  toast.className = `${base} ${colours[type] || colours.info}`;
+  toast.innerText = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('toast-fadeout');
+    setTimeout(() => toast.remove(), 400);
+  }, timeout);
+}
+
+// ============================================================
+// 3. State
+// ============================================================
+
+let currentSuttaId = null;
+let allSuttas = []; // මෙටා දත්ත පමණක් ගබඩා කරන අතුරු ලැයිස්තුව
+let suttaMap = {};   // සම්පූර්ණ දත්ත (passages සහ glossary ඇතුළුව) සඳහා cache
+let currentSearchTerm = '';
+
+// ===== JSON පූරණය =====
+async function loadAllSuttasFromJSON() {
+  try {
+    const response = await fetch('data/suttas.json');
+    if (!response.ok) throw new Error('JSON ගොනුව සොයාගත නොහැක');
+    const data = await response.json();
+    allSuttas = data || [];
+    allSuttas.forEach(s => {
+      suttaMap[s.id] = s;
+    });
+    buildSidebarTree();
+    loadInitialSutta();
+  } catch (err) {
+    console.error('JSON පූරණය අසාර්ථකයි:', err);
+    showToast('දත්ත පූරණය අසාර්ථකයි: ' + err.message, 'error');
+  }
+}
+
+function loadInitialSutta() {
+  const params = new URLSearchParams(window.location.search);
+  const suttaId = params.get('id');
+  if (suttaId && suttaMap[suttaId]) {
+    loadSutta(suttaId);
+  } else if (allSuttas.length > 0) {
+    const first = allSuttas[0];
+    loadSutta(first.id);
+    const url = new URL(window.location);
+    url.searchParams.set('id', first.id);
+    history.replaceState({ suttaId: first.id }, '', url);
+  } else {
+    showToast('කිසිදු සූත්‍රයක් හමු නොවීය.', 'warning');
+  }
+}
+
+function clearSuttaDisplay() {
+  document.getElementById('metaTitle').textContent = 'ප්‍රකාශයට පත් නොකළ සූත්‍රයකි';
+  document.getElementById('metaSubtitle').textContent = '';
+  document.getElementById('metaVagga').textContent = '';
+  document.getElementById('metaSpeaker').textContent = '';
+  document.getElementById('comparativeContentTable').innerHTML = '';
+  document.getElementById('paliOnlyContent').innerHTML = '';
+  document.getElementById('sinhalaOnlyContent').innerHTML = '';
+  document.getElementById('fullGlossaryContainer').innerHTML = '';
+}
+
+// ============================================================
+// 4. Sidebar functions (with overlay & page-click close)
+// ============================================================
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('suttaSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (!sidebar) return;
+  const isOpen = sidebar.classList.toggle('open');
+  if (overlay) {
+    overlay.classList.toggle('active', isOpen);
+  }
+  const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-expanded', isOpen);
+  }
+  // Prevent body scroll when sidebar is open
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById('suttaSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.classList.remove('active');
+  const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-expanded', 'false');
+  }
+  document.body.style.overflow = '';
+}
+
+// Close sidebar when clicking on the main content area (or overlay)
+document.addEventListener('DOMContentLoaded', function () {
+  const overlay = document.getElementById('sidebarOverlay');
+  if (overlay) {
+    overlay.addEventListener('click', closeSidebar);
+  }
+
+  const mainContent = document.getElementById('mainContent');
+  if (mainContent) {
+    mainContent.addEventListener('click', function (e) {
+      const sidebar = document.getElementById('suttaSidebar');
+      if (sidebar && sidebar.classList.contains('open')) {
+        // If the click is not inside the sidebar, close it
+        if (!sidebar.contains(e.target)) {
+          closeSidebar();
+        }
+      }
+    });
+  }
+});
+
+// ============================================================
+// 5. Sidebar Tree (මෙටා දත්ත පමණක් භාවිතා කරයි)
+// ============================================================
+
+function buildSidebarTree() {
+  const nav = document.getElementById('sidebarNav');
+  if (!nav) return;
+
+  const tree = {};
+  allSuttas.forEach(s => {
+    const pitaka = s.pitaka || 'අනෙකුත්';
+    const nikaya = s.nikaya || 'අනෙකුත්';
+    const vagga = s.vagga || 'අනෙකුත්';
+    if (!tree[pitaka]) tree[pitaka] = {};
+    if (!tree[pitaka][nikaya]) tree[pitaka][nikaya] = {};
+    if (!tree[pitaka][nikaya][vagga]) tree[pitaka][nikaya][vagga] = [];
+    tree[pitaka][nikaya][vagga].push(s);
+  });
+
+  let html = '<ul class="tree-root">';
+  for (const pitaka in tree) {
+    html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-book"></i></span><span class="node-name">${escapeHtml(pitaka)}</span></div><ul class="node-children">`;
+    for (const nikaya in tree[pitaka]) {
+      html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-folder"></i></span><span class="node-name">${escapeHtml(nikaya)}</span></div><ul class="node-children">`;
+      for (const vagga in tree[pitaka][nikaya]) {
+        const suttas = tree[pitaka][nikaya][vagga];
+        html += `<li class="tree-node expanded"><div class="node-label"><span class="toggle-icon"><i class="fa-solid fa-chevron-down"></i></span><span class="node-icon"><i class="fa-solid fa-folder-open"></i></span><span class="node-name">${escapeHtml(vagga)}</span></div><ul class="node-children">`;
+        suttas.sort((a, b) => (a.order_no || 0) - (b.order_no || 0));
+        suttas.forEach(s => {
+          const active = (s.id === currentSuttaId) ? 'active' : '';
+          html += `<li class="tree-node sutta-node ${active}"><div class="node-label" data-sutta-id="${escapeHtml(s.id)}"><span class="node-icon"><i class="fa-solid fa-scroll"></i></span><span class="node-name">${escapeHtml(s.title || s.id)}</span></div></li>`;
+        });
+        html += `</ul></li>`;
+      }
+      html += `</ul></li>`;
+    }
+    html += `</ul></li>`;
+  }
+  html += '</ul>';
+
+  nav.innerHTML = html;
+
+  // Sidebar click events for sutta navigation
+  nav.querySelectorAll('.node-label[data-sutta-id]').forEach(el => {
+    el.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const id = this.dataset.suttaId;
+      if (id) loadSutta(id);
+      closeSidebar();
+    });
+  });
+
+  // Toggle expand/collapse on whole node label (except sutta nodes)
+  nav.querySelectorAll('.tree-node > .node-label').forEach(label => {
+    label.addEventListener('click', function (e) {
+      const parentLi = this.closest('.tree-node');
+      if (!parentLi || parentLi.classList.contains('sutta-node')) return;
+
+      parentLi.classList.toggle('expanded');
+      const iconEl = parentLi.querySelector('.toggle-icon i');
+      if (iconEl) {
+        iconEl.className = parentLi.classList.contains('expanded')
+          ? 'fa-solid fa-chevron-down'
+          : 'fa-solid fa-chevron-right';
+      }
+    });
+  });
+}
+
+// ============================================================
+// 6. Sidebar Filtering (parent categories hide if no children)
+// ============================================================
+
+function filterSidebar(query) {
+  const nav = document.getElementById('sidebarNav');
+  if (!nav) return;
+  const items = nav.querySelectorAll('.tree-node.sutta-node');
+  const q = query.trim().toLowerCase();
+
+  items.forEach(item => {
+    const label = item.querySelector('.node-name');
+    if (label) {
+      const text = label.textContent.toLowerCase();
+      const match = text.includes(q);
+      item.style.display = match ? '' : 'none';
+    }
+  });
+
+  // Walk up from sutta-nodes to hide empty parents
+  const allParentNodes = nav.querySelectorAll('.tree-root > li, .tree-root ul > li');
+  allParentNodes.forEach(parentLi => {
+    // Check if this parent contains any visible sutta-node
+    const visibleChildren = parentLi.querySelectorAll('.sutta-node');
+    let hasVisible = false;
+    visibleChildren.forEach(child => {
+      if (child.style.display !== 'none') hasVisible = true;
+    });
+    parentLi.style.display = hasVisible ? '' : 'none';
+  });
+}
+
+// ============================================================
+// 7. Load & Render Sutta (with Lazy Loading)
+// ============================================================
+
+async function loadSutta(suttaId) {
+  if (!suttaId) return;
+  currentSuttaId = suttaId;
+
+  const data = suttaMap[suttaId];
+  if (!data) {
+    showToast('සූත්‍රය සොයා ගැනීමට නොහැකි විය.', 'error');
+    clearSuttaDisplay();
+    return;
+  }
+
+  if (data.status === 'draft') {
+    showToast('මෙම සූත්‍රය කටු සටහනක්.', 'warning');
+    clearSuttaDisplay();
+    return;
+  }
+
+  // Ensure passages/glossary are arrays
+  if (typeof data.passages === 'string') {
+    try { data.passages = JSON.parse(data.passages); } catch (e) { data.passages = []; }
+  }
+  if (typeof data.glossary === 'string') {
+    try { data.glossary = JSON.parse(data.glossary); } catch (e) { data.glossary = []; }
+  }
+
+  renderSutta(data);
+}
+
+function renderSutta(data) {
+  if (!data) return;
+
+  document.getElementById('metaVagga').textContent = data.vagga || 'වග්ගය සඳහන් නැත';
+  document.getElementById('metaTitle').textContent = data.title || 'නම් රහිත සූත්‍රය';
+  document.getElementById('metaSubtitle').textContent = data.subtitle || '';
+  document.getElementById('metaSpeaker').textContent = data.speaker || 'භාග්‍යවතුන් වහන්සේ';
+
+  const passages = data.passages || [];
+  renderComparative(passages);
+  renderPali(passages);
+  renderSinhala(passages);
+
+  const glossary = data.glossary || [];
+  renderGlossary(glossary);
+
+  if (history.pushState) {
+    const url = new URL(window.location);
+    url.searchParams.set('id', data.id);
+    history.pushState({ suttaId: data.id }, '', url);
+  }
+  document.title = data.title + ' – ත්‍රිපිටක පාලි-සිංහල පරිවර්තනය';
+
+  // Re-apply search highlight if there is a current search term
+  if (currentSearchTerm) {
+    highlightSearch(currentSearchTerm);
+  }
+}
+
+// ============================================================
+// 8. Tabs (with search status reset)
+// ============================================================
+
+function navigateToPage(page) {
+  document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
+  const container = document.getElementById('pageContainer-' + page);
+  if (container) container.classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById('btnPage-' + page);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  // Reset search highlighting and status when switching tabs
+  const statusEl = document.getElementById('searchStatusInfo');
+  if (statusEl) statusEl.classList.add('hidden');
+  currentSearchTerm = '';
+  // Clear all highlights
+  document.querySelectorAll('.search-highlight').forEach(el => {
+    const parent = el.parentNode;
+    parent.replaceChild(document.createTextNode(el.textContent), el);
+    parent.normalize();
+  });
+}
+
+// ============================================================
+// 9. Render functions (comparative, pali, sinhala, glossary)
+// ============================================================
+
+function renderComparative(passages) {
+  const container = document.getElementById('comparativeContentTable');
+  if (!container) return;
+  if (!passages || passages.length === 0) {
+    container.innerHTML = '<p class="empty-msg">මෙම සූත්‍රය සඳහා ඡේද නොමැත.</p>';
+    return;
+  }
+  let html = '';
+  passages.forEach((p, idx) => {
+    const paliText = escapeHtml(p.pali || '');
+    const sinhalaText = escapeHtml(p.sinhala || '');
+    html += `
+      <div class="comparative-row">
+        <div class="comparative-pali-col">
+          <span class="comparative-badge pali-badge">පාලි</span>
+          <div class="pali-text">${paliText}</div>
+        </div>
+        <div class="comparative-sinhala-col">
+          <span class="comparative-badge sinhala-badge">සිංහල</span>
+          <div class="sinhala-text">${sinhalaText}</div>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function renderPali(passages) {
+  const container = document.getElementById('paliOnlyContent');
+  if (!container) return;
+  if (!passages || passages.length === 0) {
+    container.innerHTML = '<p class="empty-msg">පාලි ඡේද නොමැත.</p>';
+    return;
+  }
+  let html = '';
+  passages.forEach((p, idx) => {
+    const paliText = escapeHtml(p.pali || '');
+    html += `
+      <div class="pali-only-block">
+        <div class="pali-block-number">${idx + 1}</div>
+        <div class="pali-only-text">${paliText}</div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function renderSinhala(passages) {
+  const container = document.getElementById('sinhalaOnlyContent');
+  if (!container) return;
+  if (!passages || passages.length === 0) {
+    container.innerHTML = '<p class="empty-msg">සිංහල ඡේද නොමැත.</p>';
+    return;
+  }
+  let html = '';
+  passages.forEach((p, idx) => {
+    const sinhalaText = escapeHtml(p.sinhala || '');
+    html += `
+      <div class="sinhala-only-block">
+        <div class="sinhala-block-header">
+          <span class="sinhala-block-number">${idx + 1}</span>
+          <hr class="sinhala-divider" />
+        </div>
+        <div class="sinhala-only-text">${sinhalaText}</div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function renderGlossary(glossary) {
+  const container = document.getElementById('fullGlossaryContainer');
+  if (!container) return;
+  if (!glossary || glossary.length === 0) {
+    container.innerHTML = '<div class="glossary-empty">මෙම සූත්‍රය සඳහා පද නිරුක්ති නොමැත.</div>';
+    return;
+  }
+  let html = '';
+  glossary.forEach(g => {
+    const word = escapeHtml(g.word || '');
+    const meaning = escapeHtml(g.meaning || '');
+    html += `
+      <div class="glossary-card">
+        <span class="glossary-word">${word}</span>
+        <span class="glossary-meaning">${meaning}</span>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+// ============================================================
+// 10. Search (XSS-safe with data-original-text, extended to Glossary)
+// ============================================================
+
+function searchSutta() {
+  const input = document.getElementById('searchQuery');
+  if (!input) return;
+  const term = input.value.trim();
+  currentSearchTerm = term;
+  const statusEl = document.getElementById('searchStatusInfo');
+  if (statusEl) {
+    if (term) {
+      statusEl.classList.remove('hidden');
+      statusEl.textContent = `“${escapeHtml(term)}” සඳහා කහ පැහැයෙන් ඉස්මතු කර ඇත.`;
+    } else {
+      statusEl.classList.add('hidden');
+    }
+  }
+  highlightSearch(term);
+}
+
+function highlightSearch(term) {
+  // Reset to original text using data-original-text attribute
+  document.querySelectorAll('[data-original-text]').forEach(el => {
+    el.textContent = el.dataset.originalText;
+  });
+
+  if (!term) return;
+
+  const containers = [
+    document.getElementById('comparativeContentTable'),
+    document.getElementById('paliOnlyContent'),
+    document.getElementById('sinhalaOnlyContent'),
+    document.getElementById('fullGlossaryContainer')
+  ];
+
+  containers.forEach(container => {
+    if (!container) return;
+    const elements = container.querySelectorAll(
+      '.pali-text, .sinhala-text, .pali-only-text, .sinhala-only-text, ' +
+      '.glossary-word, .glossary-meaning'
+    );
+    elements.forEach(el => {
+      // Save original text if not already saved
+      if (!el.dataset.originalText) {
+        el.dataset.originalText = el.textContent;
+      }
+      const text = el.textContent;
+      if (!text) return;
+      const regex = new RegExp(escapeRegex(term), 'gi');
+      if (!regex.test(text)) return;
+      const parts = text.split(regex);
+      const matches = text.match(regex);
+      if (!matches) return;
+      let newHtml = '';
+      for (let i = 0; i < parts.length; i++) {
+        newHtml += escapeHtml(parts[i]);
+        if (i < matches.length) {
+          newHtml += `<span class="search-highlight">${escapeHtml(matches[i])}</span>`;
+        }
+      }
+      el.innerHTML = newHtml;
+    });
+  });
+}
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// ============================================================
+// 11. Font size & Theme (Resize only text data inside the 4 tabs)
+// ============================================================
+
+
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const icon = document.getElementById('themeIcon');
+  if (!icon) return;
+  const isDark = html.classList.toggle('dark');
+  icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+// ============================================================
+// 11. Font size cycle (only for sutta text)
+// ============================================================
+
+const FONT_SIZES = ['small', 'medium', 'large', 'xlarge'];
+const SIZE_LABELS = { small: 'කුඩා', medium: 'මධ්‍යම', large: 'විශාල', xlarge: 'අති විශාල' };
+let currentFontSize = 'medium';
+
+function cycleFontSize() {
+  const body = document.body;
+  // Remove all font-size classes
+  FONT_SIZES.forEach(size => body.classList.remove('font-size-' + size));
+
+  // Find current index and move to next
+  let idx = FONT_SIZES.indexOf(currentFontSize);
+  idx = (idx + 1) % FONT_SIZES.length;
+  currentFontSize = FONT_SIZES[idx];
+
+  // Apply new class
+  body.classList.add('font-size-' + currentFontSize);
+
+  // Update indicator
+  const indicator = document.getElementById('fontSizeIndicator');
+  if (indicator) {
+    indicator.textContent = SIZE_LABELS[currentFontSize];
+  }
+
+  // Save preference
+  try {
+    localStorage.setItem('suttaFontSize', currentFontSize);
+  } catch (_) { /* ignore */ }
+}
+
+function loadFontSizePreference() {
+  try {
+    const saved = localStorage.getItem('suttaFontSize');
+    if (saved && FONT_SIZES.includes(saved)) {
+      currentFontSize = saved;
+      const body = document.body;
+      FONT_SIZES.forEach(size => body.classList.remove('font-size-' + size));
+      body.classList.add('font-size-' + currentFontSize);
+      const indicator = document.getElementById('fontSizeIndicator');
+      if (indicator) {
+        indicator.textContent = SIZE_LABELS[currentFontSize];
+      }
+    }
+  } catch (_) { /* ignore */ }
+}
+
+
+// ============================================================
+// 12. User dropdown & logout (show full name instead of email)
+// ============================================================
+
+function toggleDropdown() {
+  const menu = document.getElementById('dropdownMenu');
+  if (menu) {
+    menu.classList.toggle('open');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('click', function (e) {
+    const dropdown = document.getElementById('userDropdown');
+    const menu = document.getElementById('dropdownMenu');
+    if (dropdown && menu && !dropdown.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+});
+
+function handleLogout() {
+  // No auth backend in JSON mode; simply redirect to a login page or home
+  window.location.href = 'login.html';
+}
+
+function loadUserInfo() {
+  // Static user display for local mode
+  const nameEl = document.getElementById('userDisplayName');
+  const avatarEl = document.getElementById('userAvatar');
+  if (nameEl) nameEl.textContent = 'ආගන්තුක';
+  if (avatarEl) avatarEl.src = 'https://placehold.co/30x30/9ca3af/ffffff?text=G';
+}
+
+// ============================================================
+// 13. Initialization
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', async function () {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark');
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.className = 'fa-solid fa-moon';
+  }
+
+  // Static user info for local mode
+  loadUserInfo();
+
+  // Load suttas from local JSON and initialize UI
+  await loadAllSuttasFromJSON();
+
+  // Font size preference
+  loadFontSizePreference();
+});
+
+// ============================================================
+// 14. Toast styles (injected)
+// ============================================================
+(function injectToastStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .toast-container {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-width: 320px;
+    }
+    .toast-message {
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      background: var(--card-bg, #fff);
+      color: var(--text-primary, #1e1a17);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      border-left: 4px solid #f59e0b;
+      font-size: 0.75rem;
+      font-weight: 500;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .toast-message.toast-fadeout {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    .toast-success { border-left-color: #22c55e; }
+    .toast-error { border-left-color: #ef4444; }
+    .toast-warning { border-left-color: #f59e0b; }
+    .toast-info { border-left-color: #3b82f6; }
+  `;
+  document.head.appendChild(style);
+})();
