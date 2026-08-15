@@ -414,24 +414,124 @@ function renderSinhala(passages) {
   container.innerHTML = html;
 }
 
+function normalizeGlossarySectionLabel(section) {
+  if (section === undefined || section === null || section === '') {
+    return 'සාමාන්‍ය';
+  }
+
+  const text = String(section).trim();
+  if (!text) {
+    return 'සාමාන්‍ය';
+  }
+
+  const cleaned = text
+    .replace(/^\s*[:\-–]\s*/, '')
+    .replace(/^\s*(පරිච්ඡේද|pariccheda|section)\s*[:\-–]?\s*/i, 'පරිච්ඡේද ')
+    .trim();
+
+  return cleaned || 'සාමාන්‍ය';
+}
+
+function normalizeGlossaryItem(entry) {
+  if (!entry) return null;
+
+  if (typeof entry === 'string') {
+    const cleaned = entry.trim();
+    if (!cleaned) return null;
+
+    const match = cleaned.match(/^(.+?)\s*[–:=]\s*(.+)$/);
+    if (match) {
+      return {
+        section: 'සාමාන්‍ය',
+        word: match[1].trim(),
+        meaning: match[2].trim()
+      };
+    }
+
+    return null;
+  }
+
+  if (typeof entry !== 'object') return null;
+
+  const word = entry.word ?? entry.term ?? entry.pali ?? entry.title ?? '';
+  const meaning = entry.meaning ?? entry.meaning_sinhala ?? entry.definition ?? entry.explanation ?? entry.translation ?? '';
+  const section = entry.section ?? entry.pariccheda ?? entry.chapter ?? entry.heading ?? entry.group ?? 'සාමාන්‍ය';
+
+  if (!word && !meaning) {
+    return null;
+  }
+
+  return {
+    section: normalizeGlossarySectionLabel(section),
+    word: String(word).trim(),
+    meaning: String(meaning).trim()
+  };
+}
+
+function groupGlossaryBySection(glossary) {
+  const groups = new Map();
+
+  if (!Array.isArray(glossary)) {
+    return [];
+  }
+
+  glossary.forEach(entry => {
+    const normalized = normalizeGlossaryItem(entry);
+    if (!normalized || (!normalized.word && !normalized.meaning)) {
+      return;
+    }
+
+    const key = normalized.section || 'සාමාන්‍ය';
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+
+    groups.get(key).push({
+      word: normalized.word,
+      meaning: normalized.meaning
+    });
+  });
+
+  return Array.from(groups.entries()).map(([section, items]) => ({
+    section,
+    items
+  }));
+}
+
 function renderGlossary(glossary) {
   const container = document.getElementById('fullGlossaryContainer');
   if (!container) return;
-  if (!glossary || glossary.length === 0) {
+
+  const grouped = groupGlossaryBySection(glossary);
+  if (!grouped.length) {
     container.innerHTML = '<div class="glossary-empty">මෙම සූත්‍රය සඳහා පද නිරුක්ති නොමැත.</div>';
     return;
   }
+
   let html = '';
-  glossary.forEach(g => {
-    const word = escapeHtml(g.word || '');
-    const meaning = escapeHtml(g.meaning || '');
+  grouped.forEach(sectionGroup => {
+    const sectionTitle = escapeHtml(sectionGroup.section);
+    const cards = sectionGroup.items.map(item => {
+      const word = escapeHtml(item.word || '');
+      const meaning = escapeHtml(item.meaning || '');
+      return `
+        <div class="glossary-card">
+          <span class="glossary-word">${word}</span>
+          <span class="glossary-meaning">${meaning}</span>
+        </div>
+      `;
+    }).join('');
+
     html += `
-      <div class="glossary-card">
-        <span class="glossary-word">${word}</span>
-        <span class="glossary-meaning">${meaning}</span>
-      </div>
+      <section class="glossary-section">
+        <h3 class="glossary-section-header">${sectionTitle}</h3>
+        <div class="glossary-section-grid">
+          ${cards}
+        </div>
+      </section>
     `;
   });
+
   container.innerHTML = html;
 }
 

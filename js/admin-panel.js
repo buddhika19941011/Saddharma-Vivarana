@@ -391,17 +391,25 @@ async function handleSuttaSubmit(e) {
     if (glossaryMethod === 'bulk_paste') {
         const bulkGlossaryText = getInputValue('full_glossary_text');
         if (bulkGlossaryText) {
-            const lines = bulkGlossaryText.split('\n');
+            const lines = bulkGlossaryText.split(/\n+/);
+            let currentSection = 'සාමාන්‍ය';
+
             lines.forEach(line => {
                 const trimmedLine = line.trim();
-                if (trimmedLine) {
-                    const parts = trimmedLine.split(/[-:=–]/);
-                    if (parts.length >= 2) {
-                        const word = parts[0].trim();
-                        const meaning = parts.slice(1).join('-').trim();
-                        if (word || meaning) {
-                            glossary.push({ word, meaning });
-                        }
+                if (!trimmedLine) return;
+
+                const sectionMatch = trimmedLine.match(/^(?:පරිච්ඡේද|pariccheda|section)\s*[:\-–]?\s*(.+)$/i);
+                if (sectionMatch) {
+                    currentSection = sectionMatch[1].trim() || 'සාමාන්‍ය';
+                    return;
+                }
+
+                const parts = trimmedLine.split(/[-:=–]/);
+                if (parts.length >= 2) {
+                    const word = parts[0].trim();
+                    const meaning = parts.slice(1).join('-').trim();
+                    if (word || meaning) {
+                        glossary.push({ section: currentSection, word, meaning });
                     }
                 }
             });
