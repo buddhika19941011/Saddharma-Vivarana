@@ -130,96 +130,89 @@ function escapeHTML(str) {
 }
 
 /**
- * Supabase වෙතින් සූත්‍ර ලබාගෙන පිටක, නිකාය, වග්ග අනුව පෙන්වීම
+ * Supabase වෙතින් සූත්‍ර ලබාගත නොහැකි වුවහොත් local JSON file එකෙන් fallback වෙමින් පෙන්වීම
  */
-async function loadSuttasFromDatabase() {
+async function loadLocalSuttas() {
     const accordion = document.getElementById('pitakaAccordion');
     if (!accordion) return;
 
-    const client = typeof window.getAuthSupabaseClient === 'function' ? window.getAuthSupabaseClient() : null;
-    if (!client) {
-        accordion.innerHTML = `<p class="loading-msg">Supabase සේවාව සම්බන්ධ කර ගැනීමට නොහැකි විය.</p>`;
-        return;
-    }
-
     try {
-        // ✅ වෙනස් කිරීම: ප්‍රකාශිත (published) සූත්‍ර පමණක් ලබා ගැනීමට පෙරීම
-        const { data: suttas, error } = await client
-            .from('suththra')
-            .select('id, title, pitaka, nikaya, vagga, order_no')
-            .eq('status', 'published')
-            .order('order_no', { ascending: true });
+        const response = await fetch('data/suttas.json');
+        if (!response.ok) throw new Error('Local sutta data not found');
 
-        if (error) throw error;
-
-        if (!suttas || suttas.length === 0) {
-            accordion.innerHTML = `<p class="loading-msg">තවමත් දත්ත සමුදායට සූත්‍ර ඇතුළත් කර නොමැත.</p>`;
+        const suttas = await response.json();
+        if (!Array.isArray(suttas) || suttas.length === 0) {
+            accordion.innerHTML = '<p class="loading-msg">තවමත් දත්ත සමුදායට සූත්‍ර ඇතුළත් කර නොමැත.</p>';
             return;
         }
 
-        // දත්ත ව්‍යුහගත කිරීම: pitaka -> nikaya -> vagga -> sutta[]
-        const structuredData = {};
-        suttas.forEach(sutta => {
-            const pitaka = sutta.pitaka || 'සූත්‍ර පිටකය';
-            const nikaya = sutta.nikaya || 'වෙනත් නිකාය';
-            const vagga = sutta.vagga || 'වෙනත් වග්ගය';
+        renderSuttaList(suttas);
+    } catch (err) {
+        console.warn('Local fallback failed:', err);
+        accordion.innerHTML = '<p class="loading-msg" style="color:#dc2626;">සූත්‍ර දත්ත පූරණය කළ නොහැක. කරුණාකර පසුව නැවත උත්සාහ කරන්න.</p>';
+    }
+}
 
-            if (!structuredData[pitaka]) structuredData[pitaka] = {};
-            if (!structuredData[pitaka][nikaya]) structuredData[pitaka][nikaya] = {};
-            if (!structuredData[pitaka][nikaya][vagga]) structuredData[pitaka][nikaya][vagga] = [];
+function renderSuttaList(suttas) {
+    const accordion = document.getElementById('pitakaAccordion');
+    if (!accordion) return;
 
-            structuredData[pitaka][nikaya][vagga].push(sutta);
-        });
+    const structuredData = {};
+    suttas.forEach(sutta => {
+        const pitaka = sutta.pitaka || 'සූත්‍ර පිටකය';
+        const nikaya = sutta.nikaya || 'වෙනත් නිකාය';
+        const vagga = sutta.vagga || 'වෙනත් වග්ගය';
 
-        let htmlContent = '';
+        if (!structuredData[pitaka]) structuredData[pitaka] = {};
+        if (!structuredData[pitaka][nikaya]) structuredData[pitaka][nikaya] = {};
+        if (!structuredData[pitaka][nikaya][vagga]) structuredData[pitaka][nikaya][vagga] = [];
 
-        for (const [pitakaName, nikayas] of Object.entries(structuredData)) {
+        structuredData[pitaka][nikaya][vagga].push(sutta);
+    });
+
+    let htmlContent = '';
+
+    for (const [pitakaName, nikayas] of Object.entries(structuredData)) {
+        htmlContent += `
+            <div class="card" style="margin-bottom:1.5rem;">
+                <div class="card-header" style="border-bottom-color:var(--card-border);">
+                    <h3 class="card-title" style="font-size:1.1rem;">
+                        <i class="fa-solid fa-book-open"></i> ${escapeHTML(pitakaName)}
+                    </h3>
+                    <span style="font-size:0.65rem;color:var(--text-muted);">ධර්ම දේශනා එකතුව</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:1.25rem;">
+        `;
+
+        for (const [nikayaName, vaggas] of Object.entries(nikayas)) {
             htmlContent += `
-                <div class="card" style="margin-bottom:1.5rem;">
-                    <div class="card-header" style="border-bottom-color:var(--card-border);">
-                        <h3 class="card-title" style="font-size:1.1rem;">
-                            <i class="fa-solid fa-book-open"></i> ${escapeHTML(pitakaName)}
-                        </h3>
-                        <span style="font-size:0.65rem;color:var(--text-muted);">ධර්ම දේශනා එකතුව</span>
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                <div style="border:1px dashed var(--card-border);border-radius:1rem;padding:1rem;background:var(--input-bg);">
+                    <h4 style="font-family:'Abhaya Libre',serif;font-weight:700;font-size:0.9rem;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
+                        <i class="fa-solid fa-folder-open" style="color:#d97706;"></i> ${escapeHTML(nikayaName)}
+                    </h4>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
             `;
 
-            for (const [nikayaName, vaggas] of Object.entries(nikayas)) {
+            for (const [vaggaName, suttaList] of Object.entries(vaggas)) {
                 htmlContent += `
-                    <div style="border:1px dashed var(--card-border);border-radius:1rem;padding:1rem;background:var(--input-bg);">
-                        <h4 style="font-family:'Abhaya Libre',serif;font-weight:700;font-size:0.9rem;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
-                            <i class="fa-solid fa-folder-open" style="color:#d97706;"></i> ${escapeHTML(nikayaName)}
-                        </h4>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.75rem;padding:0.75rem;box-shadow:var(--shadow);">
+                        <h5 style="font-size:0.65rem;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;gap:0.25rem;margin-bottom:0.5rem;">
+                            <i class="fa-solid fa-tags" style="font-size:0.6rem;"></i> ${escapeHTML(vaggaName)}
+                        </h5>
+                        <div style="display:flex;flex-direction:column;gap:0.4rem;">
                 `;
 
-                for (const [vaggaName, suttaList] of Object.entries(vaggas)) {
+                suttaList.forEach(sutta => {
                     htmlContent += `
-                        <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:0.75rem;padding:0.75rem;box-shadow:var(--shadow);">
-                            <h5 style="font-size:0.65rem;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;gap:0.25rem;margin-bottom:0.5rem;">
-                                <i class="fa-solid fa-tags" style="font-size:0.6rem;"></i> ${escapeHTML(vaggaName)}
-                            </h5>
-                            <div style="display:flex;flex-direction:column;gap:0.4rem;">
+                        <a href="suththra.html?id=${encodeURIComponent(sutta.id)}" class="sutta-link" style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0.6rem;border-radius:0.5rem;border:1px solid var(--card-border);background:var(--input-bg);transition:all 0.2s;text-decoration:none;color:var(--text-primary);">
+                            <span style="display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;font-weight:600;">
+                                <span style="display:inline-block;width:1.2rem;height:1.2rem;border-radius:50%;background:rgba(16,185,129,0.12);color:#059669;text-align:center;line-height:1.2rem;font-size:0.6rem;">☸</span>
+                                ${escapeHTML(sutta.title)}
+                            </span>
+                            <i class="fa-solid fa-chevron-right" style="font-size:0.6rem;color:var(--text-muted);transition:transform 0.2s;"></i>
+                        </a>
                     `;
-
-                    suttaList.forEach(sutta => {
-                        htmlContent += `
-                            <a href="suththra.html?id=${encodeURIComponent(sutta.id)}" class="sutta-link" style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0.6rem;border-radius:0.5rem;border:1px solid var(--card-border);background:var(--input-bg);transition:all 0.2s;text-decoration:none;color:var(--text-primary);">
-                                <span style="display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;font-weight:600;">
-                                    <span style="display:inline-block;width:1.2rem;height:1.2rem;border-radius:50%;background:rgba(16,185,129,0.12);color:#059669;text-align:center;line-height:1.2rem;font-size:0.6rem;">☸</span>
-                                    ${escapeHTML(sutta.title)}
-                                </span>
-                                <i class="fa-solid fa-chevron-right" style="font-size:0.6rem;color:var(--text-muted);transition:transform 0.2s;"></i>
-                            </a>
-                        `;
-                    });
-
-                    htmlContent += `
-                            </div>
-                        </div>
-                    `;
-                }
+                });
 
                 htmlContent += `
                         </div>
@@ -233,11 +226,46 @@ async function loadSuttasFromDatabase() {
             `;
         }
 
-        accordion.innerHTML = htmlContent;
+        htmlContent += `
+                </div>
+            </div>
+        `;
+    }
 
+    accordion.innerHTML = htmlContent;
+}
+
+/**
+ * Supabase වෙතින් සූත්‍ර ලබාගෙන පිටක, නිකාය, වග්ග අනුව පෙන්වීම
+ */
+async function loadSuttasFromDatabase() {
+    const accordion = document.getElementById('pitakaAccordion');
+    if (!accordion) return;
+
+    const client = typeof window.getAuthSupabaseClient === 'function' ? window.getAuthSupabaseClient() : null;
+    if (!client) {
+        await loadLocalSuttas();
+        return;
+    }
+
+    try {
+        const { data: suttas, error } = await client
+            .from('suththra')
+            .select('id, title, pitaka, nikaya, vagga, order_no')
+            .eq('status', 'published')
+            .order('order_no', { ascending: true });
+
+        if (error) throw error;
+
+        if (!suttas || suttas.length === 0) {
+            accordion.innerHTML = `<p class="loading-msg">තවමත් දත්ත සමුදායට සූත්‍ර ඇතුළත් කර නොමැත.</p>`;
+            return;
+        }
+
+        renderSuttaList(suttas);
     } catch (err) {
-        console.error('දත්ත පූරණය කිරීමේ දෝෂයක්:', err);
-        accordion.innerHTML = `<p class="loading-msg" style="color:#dc2626;">දත්ත සමුදායෙන් සූත්‍ර පූරණය කිරීමේදී දෝෂයක් සිදු විය. කරුණාකර පසුව නැවත උත්සාහ කරන්න.</p>`;
+        console.warn('Supabase data load failed, retrying with local data fallback:', err);
+        await loadLocalSuttas();
     }
 }
 
