@@ -46,9 +46,17 @@ async function checkAuthState() {
         // UI යාවත්කාලීන කිරීම
         updateAuthUI(session);
 
+        // Ensure profile row exists when a session is active
+        if (session && session.user) {
+            try { await syncUserProfile(session.user); } catch (e) { console.warn('Profile sync on init failed', e); }
+        }
+
         // Auth state වෙනස්වීම් සඳහා සවන් දීම
         client.auth.onAuthStateChange((event, session) => {
             updateAuthUI(session);
+            if (session && session.user) {
+                syncUserProfile(session.user).catch(e => console.warn('Profile sync on auth change failed', e));
+            }
         });
     } catch (err) {
         console.error('Auth State Error:', err.message);
@@ -212,6 +220,11 @@ window.handleLoginSubmit = async function (event) {
         });
 
         if (error) throw error;
+
+        // Ensure profile is present/updated on successful sign-in
+        if (data && data.user) {
+            try { await syncUserProfile(data.user); } catch (e) { console.warn('Profile sync after login failed', e); }
+        }
 
         showAlert('සාර්ථකව ප්‍රවේශ විය! ප්‍රධාන පිටුවට යොමු කෙරේ...', 'success');
         setTimeout(() => {

@@ -57,8 +57,20 @@ async function loadProfile() {
 
     try {
         // වත්මන් පරිශීලකයා ලබා ගැනීම
-        const { data: { user }, error: userError } = await client.auth.getUser();
-        if (userError || !user) {
+        let user = null;
+        try {
+            const { data: getUserData, error: userError } = await client.auth.getUser();
+            user = getUserData?.user || null;
+            // Fall back to session-based user if getUser didn't return one
+            if (!user) {
+                const { data: sessionData, error: sessionError } = await client.auth.getSession();
+                user = sessionData?.session?.user || null;
+            }
+        } catch (e) {
+            console.warn('auth.getUser/getSession fallback error', e);
+        }
+
+        if (!user) {
             window.location.href = 'login.html';
             return;
         }
